@@ -4,6 +4,7 @@ import { THAILAND_ENVELOPE } from '@/lib/geo/bbox';
 import { placeName } from '@/lib/i18n';
 import { useMapStore, useT } from '@/lib/state/store';
 import type { AdminLevel, BBox } from '@/lib/types';
+import { Icon } from '@/components/Icon';
 
 const PREFIX_TH: Record<number, string> = { 1: '', 2: 'อ.', 3: 'ต.' };
 
@@ -23,11 +24,11 @@ export function GeoBreadcrumb({ levels, village }: { levels: AdminLevel[]; villa
 
   return (
     <nav aria-label={t('breadcrumb.label')}>
-      <ol className="flex flex-wrap items-center gap-x-1 text-sm text-fg-muted">
+      <ol className="flex flex-wrap items-center gap-x-0.5 text-[13px] text-fg-muted">
         {items.map((it, i) => (
           <li key={i} className="flex items-center gap-1">
-            {i > 0 && <span aria-hidden="true">›</span>}
-            <button type="button" onClick={() => go(it.bbox)} className="min-h-8 rounded px-0.5 text-left hover:text-fg hover:underline" aria-current={i === items.length - 1 ? 'location' : undefined}>
+            {i > 0 && <Icon name="chevron" size={12} className="-rotate-90 text-fg-subtle" />}
+            <button type="button" onClick={() => go(it.bbox)} className={`-my-2 min-h-11 rounded px-1 text-left hover:bg-surface-sunken hover:text-fg ${i === items.length - 1 ? 'font-medium text-fg' : ''}`} aria-current={i === items.length - 1 ? 'location' : undefined}>
               {it.label}
             </button>
           </li>

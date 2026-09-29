@@ -2,6 +2,15 @@ import type { Metadata, Viewport } from 'next';
 import 'maplibre-gl/dist/maplibre-gl.css';
 import './globals.css';
 import { Providers } from '@/components/Providers';
+import { IBM_Plex_Sans_Thai } from 'next/font/google';
+
+// Downloaded at build time and self-hosted (OFL licence); no runtime request to Google.
+const plex = IBM_Plex_Sans_Thai({
+  subsets: ['thai', 'latin'],
+  weight: ['400', '500', '600'],
+  display: 'swap',
+  variable: '--font-plex',
+});
 
 export const metadata: Metadata = {
   title: 'Nakhonsi360 — มองนครศรีฯ รอบด้าน',
@@ -21,13 +30,7 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="th">
-      <head>
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        {/* eslint-disable-next-line @next/next/no-page-custom-font -- single-page app; font loads with display=swap and falls back to system Thai fonts */}
-        <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@400;500;600&display=swap" rel="stylesheet" />
-      </head>
+    <html lang="th" className={plex.variable}>
       <body>
         <Providers>{children}</Providers>
       </body>

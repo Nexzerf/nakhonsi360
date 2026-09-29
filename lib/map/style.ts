@@ -55,7 +55,8 @@ export const FALLBACK_STYLE: StyleSpecification = {
   version: 8,
   glyphs: GLYPHS,
   sources: {},
-  layers: [{ id: 'background', type: 'background', paint: { 'background-color': '#eef0f3' } }],
+  // Transparent: the container's CSS background (light/dark aware) shows through.
+  layers: [{ id: 'background', type: 'background', paint: { 'background-color': 'rgba(0,0,0,0)' } }],
 };
 
 /** Show Thai (or English) names on the OpenMapTiles basemap labels. */

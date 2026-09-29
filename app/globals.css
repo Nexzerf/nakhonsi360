@@ -1,68 +1,87 @@
 @import 'tailwindcss';
 
-/* Design tokens. Calm, cartographic: neutral surfaces, 1px borders, ≤ 8px radius. */
+/*
+ * Design tokens. Calm and cartographic: paper-white surfaces, ink text,
+ * hairline borders, radius ≤ 8px, soft low shadows. The accent is a
+ * survey-map blue; data colours come from the layer registry.
+ */
 :root {
   --surface: #ffffff;
-  --surface-subtle: #f5f6f8;
-  --surface-sunken: #eceef2;
-  --fg: #111827;
-  --fg-muted: #4b5563;
-  --fg-subtle: #6b7280;
-  --border: #d5d9e0;
-  --border-strong: #9aa3af;
-  --accent: #1d4ed8;
-  --focus: #2563eb;
-  --ok: #15803d;
-  --warn: #b45309;
-  --danger: #b91c1c;
-  --neutral-dot: #6b7280;
-  --muted-dot: #c4c9d1;
-  --info: #1d4ed8;
-  --shadow: 0 1px 2px rgb(15 23 42 / 0.12);
+  --surface-subtle: #f6f7f9;
+  --surface-sunken: #eef0f3;
+  --surface-accent: #eef4fd;
+  --fg: #16202e;
+  --fg-muted: #4a5566;
+  --fg-subtle: #6b7584;
+  --border: #e1e4e9;
+  --border-strong: #c3c9d2;
+  --accent: #1557c0;
+  --accent-strong: #0f4396;
+  --on-accent: #ffffff;
+  --focus: #2f6fdb;
+  --ok: #17803d;
+  --warn: #b25b0a;
+  --danger: #b4232a;
+  --neutral-dot: #8a93a1;
+  --muted-dot: #cdd2d9;
+  --info: #1557c0;
+  --map-bg: #e9edf1;
+  --shadow: 0 1px 2px rgb(16 24 40 / 0.06), 0 4px 14px rgb(16 24 40 / 0.08);
+  --shadow-sm: 0 1px 2px rgb(16 24 40 / 0.08);
   color-scheme: light;
 }
 
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme='light']) {
-    --surface: #0f1b2d;
-    --surface-subtle: #15243a;
-    --surface-sunken: #0b1422;
-    --fg: #e6e9ee;
-    --fg-muted: #b3bac5;
-    --fg-subtle: #9aa3b0;
-    --border: #2b3c56;
-    --border-strong: #52637c;
-    --accent: #8ab4ff;
-    --focus: #8ab4ff;
+    --surface: #111c2e;
+    --surface-subtle: #16233a;
+    --surface-sunken: #0c1524;
+    --surface-accent: #172c4d;
+    --fg: #e8ecf2;
+    --fg-muted: #b6bfcc;
+    --fg-subtle: #8f9aab;
+    --border: #243450;
+    --border-strong: #3b4e6d;
+    --accent: #7eb0ff;
+    --accent-strong: #a8c8ff;
+    --on-accent: #0b1422;
+    --focus: #7eb0ff;
     --ok: #4ade80;
-    --warn: #fbbf24;
+    --warn: #f5b041;
     --danger: #f87171;
-    --neutral-dot: #9aa3b0;
-    --muted-dot: #3b4b63;
-    --info: #8ab4ff;
-    --shadow: 0 1px 2px rgb(0 0 0 / 0.4);
+    --neutral-dot: #7d889a;
+    --muted-dot: #34445e;
+    --info: #7eb0ff;
+    --map-bg: #0d1726;
+    --shadow: 0 1px 2px rgb(0 0 0 / 0.35), 0 4px 14px rgb(0 0 0 / 0.3);
+    --shadow-sm: 0 1px 2px rgb(0 0 0 / 0.4);
     color-scheme: dark;
   }
 }
 
 :root[data-theme='dark'] {
-  --surface: #0f1b2d;
-  --surface-subtle: #15243a;
-  --surface-sunken: #0b1422;
-  --fg: #e6e9ee;
-  --fg-muted: #b3bac5;
-  --fg-subtle: #9aa3b0;
-  --border: #2b3c56;
-  --border-strong: #52637c;
-  --accent: #8ab4ff;
-  --focus: #8ab4ff;
+  --surface: #111c2e;
+  --surface-subtle: #16233a;
+  --surface-sunken: #0c1524;
+  --surface-accent: #172c4d;
+  --fg: #e8ecf2;
+  --fg-muted: #b6bfcc;
+  --fg-subtle: #8f9aab;
+  --border: #243450;
+  --border-strong: #3b4e6d;
+  --accent: #7eb0ff;
+  --accent-strong: #a8c8ff;
+  --on-accent: #0b1422;
+  --focus: #7eb0ff;
   --ok: #4ade80;
-  --warn: #fbbf24;
+  --warn: #f5b041;
   --danger: #f87171;
-  --neutral-dot: #9aa3b0;
-  --muted-dot: #3b4b63;
-  --info: #8ab4ff;
-  --shadow: 0 1px 2px rgb(0 0 0 / 0.4);
+  --neutral-dot: #7d889a;
+  --muted-dot: #34445e;
+  --info: #7eb0ff;
+  --map-bg: #0d1726;
+  --shadow: 0 1px 2px rgb(0 0 0 / 0.35), 0 4px 14px rgb(0 0 0 / 0.3);
+  --shadow-sm: 0 1px 2px rgb(0 0 0 / 0.4);
   color-scheme: dark;
 }
 
@@ -70,43 +89,47 @@
   --color-surface: var(--surface);
   --color-surface-subtle: var(--surface-subtle);
   --color-surface-sunken: var(--surface-sunken);
+  --color-surface-accent: var(--surface-accent);
   --color-fg: var(--fg);
   --color-fg-muted: var(--fg-muted);
   --color-fg-subtle: var(--fg-subtle);
   --color-line: var(--border);
   --color-line-strong: var(--border-strong);
   --color-accent: var(--accent);
+  --color-accent-strong: var(--accent-strong);
+  --color-on-accent: var(--on-accent);
   --color-ok: var(--ok);
   --color-warn: var(--warn);
   --color-danger: var(--danger);
-  --font-sans: 'IBM Plex Sans Thai', 'Noto Sans Thai', system-ui, -apple-system, 'Segoe UI', sans-serif;
-  --radius-panel: 8px;
+  --font-sans: var(--font-plex), 'IBM Plex Sans Thai', 'Noto Sans Thai', system-ui, -apple-system, 'Segoe UI', sans-serif;
 }
 
 html,
 body {
   height: 100%;
   margin: 0;
-  background: var(--surface-subtle);
+  background: var(--map-bg);
   color: var(--fg);
   font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
 }
 
 .tabular {
   font-variant-numeric: tabular-nums;
 }
 
-/* Visible focus ring on every interactive element. */
 :focus-visible {
   outline: 2px solid var(--focus);
   outline-offset: 2px;
 }
 
+/* ---------------------------------------------------------------- surfaces */
+
 .panel {
   background: var(--surface);
   border: 1px solid var(--border);
-  border-radius: var(--radius-panel);
+  border-radius: 8px;
   box-shadow: var(--shadow);
 }
 
@@ -116,12 +139,71 @@ body {
   justify-content: center;
   min-width: 44px;
   min-height: 44px;
-  border-radius: 8px;
-  color: var(--fg);
+  border-radius: 6px;
+  color: var(--fg-muted);
+  transition: background-color 120ms, color 120ms;
 }
 .icon-btn:hover {
-  background: var(--surface-subtle);
+  background: var(--surface-sunken);
+  color: var(--fg);
 }
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 0.125rem 0.5rem;
+  font-size: 0.75rem;
+  line-height: 1.25rem;
+  color: var(--fg-muted);
+  background: var(--surface);
+  white-space: nowrap;
+}
+
+.eyebrow {
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: var(--fg-subtle);
+}
+
+/* ---------------------------------------------------------------- switch */
+
+.switch {
+  position: relative;
+  display: inline-flex;
+  width: 36px;
+  height: 20px;
+  flex-shrink: 0;
+  border-radius: 999px;
+  background: var(--border-strong);
+  transition: background-color 150ms;
+}
+.switch::after {
+  content: '';
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 16px;
+  height: 16px;
+  border-radius: 999px;
+  background: #fff;
+  box-shadow: 0 1px 2px rgb(0 0 0 / 0.25);
+  transition: transform 150ms;
+}
+.switch[aria-checked='true'] {
+  background: var(--accent);
+}
+.switch[aria-checked='true']::after {
+  transform: translateX(16px);
+}
+.switch:disabled {
+  opacity: 0.45;
+}
+
+/* ---------------------------------------------------------------- skeleton */
 
 .skeleton {
   background: linear-gradient(90deg, var(--surface-sunken), var(--surface-subtle), var(--surface-sunken));
@@ -136,6 +218,20 @@ body {
   100% {
     background-position: -100% 0;
   }
+}
+
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+.rise {
+  animation: rise 180ms ease-out;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -161,20 +257,37 @@ body {
   border: 0;
 }
 
-/* MapLibre attribution: keep it legible but compact above the status bar. */
+.scroll-thin {
+  scrollbar-width: thin;
+  scrollbar-color: var(--border-strong) transparent;
+}
+
+/* ---------------------------------------------------------------- MapLibre */
+
+.maplibregl-map {
+  font-family: var(--font-sans);
+}
 .maplibregl-ctrl-attrib {
   font-size: 11px;
-  font-family: var(--font-sans);
+}
+.maplibregl-ctrl-scale {
+  border-color: var(--fg-muted);
+  color: var(--fg-muted);
+  background: color-mix(in srgb, var(--surface) 80%, transparent);
+  font-size: 11px;
 }
 .maplibregl-canvas:focus-visible {
   outline: 3px solid var(--focus);
   outline-offset: -3px;
 }
 
-/* Keep the scale bar and attribution clear of the legend panel on wider screens. */
+/* Keep the scale bar and attribution clear of the status bar (mobile) and legend panel (wider screens). */
+.maplibregl-ctrl-bottom-left {
+  bottom: 60px;
+}
 @media (min-width: 640px) {
   .maplibregl-ctrl-bottom-left {
-    left: 264px;
-    bottom: 4px;
+    left: 268px;
+    bottom: 6px;
   }
 }

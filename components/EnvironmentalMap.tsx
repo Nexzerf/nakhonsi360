@@ -259,7 +259,7 @@ export function EnvironmentalMap({ initialBounds }: { initialBounds: BBox | null
   return (
     <>
       {/* Inline style: maplibre-gl.css sets `.maplibregl-map { position: relative }`, which outranks layered utilities. */}
-      <div ref={containerRef} style={{ position: 'absolute', inset: 0 }} />
+      <div ref={containerRef} style={{ position: 'absolute', inset: 0, background: 'var(--map-bg)' }} />
       {/* Controls sit left of the desktop inspector when it is open; above the mobile sheet otherwise. */}
       <div className={`pointer-events-none absolute bottom-24 z-10 flex flex-col items-end gap-2 md:bottom-16 ${selection && !isMobile ? 'right-[424px]' : 'right-3'}`}>
         {locateError && (
@@ -267,21 +267,23 @@ export function EnvironmentalMap({ initialBounds }: { initialBounds: BBox | null
             {t('controls.locateFailed')}
           </p>
         )}
-        <div className="panel pointer-events-auto flex flex-col overflow-hidden">
-          <button type="button" className="icon-btn" onClick={() => zoomBy(1)} aria-label={t('controls.zoomIn')} title={t('controls.zoomIn')}>
+        <div className="panel pointer-events-auto flex flex-col overflow-hidden" role="group" aria-label={t('app.mapLabel')}>
+          <button type="button" className="icon-btn rounded-none" onClick={() => zoomBy(1)} aria-label={t('controls.zoomIn')} title={t('controls.zoomIn')}>
             <Icon name="plus" />
           </button>
-          <div className="h-px bg-line" />
-          <button type="button" className="icon-btn" onClick={() => zoomBy(-1)} aria-label={t('controls.zoomOut')} title={t('controls.zoomOut')}>
+          <span aria-hidden="true" className="mx-2 h-px bg-line" />
+          <button type="button" className="icon-btn rounded-none" onClick={() => zoomBy(-1)} aria-label={t('controls.zoomOut')} title={t('controls.zoomOut')}>
             <Icon name="minus" />
           </button>
+          <span aria-hidden="true" className="mx-2 h-px bg-line" />
+          <button type="button" className="icon-btn rounded-none" onClick={resetNorth} aria-label={t('controls.compass')} title={t('controls.compass')}>
+            <Icon name="compass" />
+          </button>
+          <span aria-hidden="true" className="mx-2 h-px bg-line" />
+          <button type="button" className="icon-btn rounded-none" onClick={locate} aria-label={t('controls.locate')} title={t('controls.locate')}>
+            <Icon name="locate" />
+          </button>
         </div>
-        <button type="button" className="panel icon-btn pointer-events-auto" onClick={locate} aria-label={t('controls.locate')} title={t('controls.locate')}>
-          <Icon name="locate" />
-        </button>
-        <button type="button" className="panel icon-btn pointer-events-auto" onClick={resetNorth} aria-label={t('controls.compass')} title={t('controls.compass')}>
-          <Icon name="compass" />
-        </button>
       </div>
     </>
   );

@@ -1,6 +1,7 @@
 'use client';
 
 import { useQuery } from '@tanstack/react-query';
+import Link from 'next/link';
 import { useEffect, useId, useMemo, useRef, useState } from 'react';
 import { parseCoordinates } from '@/lib/geo/coords';
 import { formatCoord } from '@/lib/freshness/format';
@@ -8,6 +9,8 @@ import { placeName } from '@/lib/i18n';
 import { useMapStore, useT } from '@/lib/state/store';
 import type { GazetteerType, SearchHit, SearchResponse } from '@/lib/types';
 import { Icon } from '@/components/Icon';
+import { LogoMark } from '@/components/Logo';
+import type { IconId } from '@/lib/registry/layers';
 
 const TYPE_ORDER: GazetteerType[] = ['district', 'subdistrict', 'village', 'water', 'road', 'place', 'station', 'province'];
 
@@ -104,9 +107,15 @@ export function LocationSearch() {
       <label htmlFor="location-search" className="sr-only">
         {t('search.label')}
       </label>
-      <div className="panel flex items-center">
+      <div className="panel flex h-12 items-center overflow-hidden focus-within:border-accent focus-within:ring-2 focus-within:ring-[color-mix(in_srgb,var(--accent)_25%,transparent)]">
+        <Link href="/about-data" className="flex h-full shrink-0 items-center gap-2 pr-3 pl-2.5 hover:bg-surface-subtle" title={t('app.tagline')}>
+          <LogoMark size={26} />
+          <span className="hidden text-[15px] font-semibold tracking-tight text-fg sm:inline">{t('app.name')}</span>
+          <span className="sr-only sm:hidden">{t('app.name')}</span>
+        </Link>
+        <span aria-hidden="true" className="h-6 w-px shrink-0 bg-line" />
         <span className="pl-3 text-fg-subtle">
-          <Icon name="search" />
+          <Icon name="search" size={18} />
         </span>
         <input
           ref={inputRef}
@@ -128,12 +137,12 @@ export function LocationSearch() {
           onFocus={() => setOpen(true)}
           onBlur={() => setTimeout(() => setOpen(false), 150)}
           onKeyDown={onKeyDown}
-          className="min-h-11 w-full min-w-0 bg-transparent px-2 text-base outline-none placeholder:text-fg-subtle [&::-webkit-search-cancel-button]:hidden"
+          className="h-full w-full min-w-0 bg-transparent px-2 text-[15px] outline-none focus-visible:outline-none placeholder:text-fg-subtle [&::-webkit-search-cancel-button]:hidden"
         />
         {text && (
           <button
             type="button"
-            className="icon-btn text-fg-subtle"
+            className="icon-btn mr-0.5 shrink-0"
             aria-label={t('search.clear')}
             onClick={() => {
               setText('');
@@ -146,7 +155,7 @@ export function LocationSearch() {
       </div>
 
       {showList && (
-        <div id={listId} role="listbox" aria-label={t('search.label')} className="panel absolute inset-x-0 top-full z-40 mt-1 max-h-[60vh] overflow-y-auto py-1">
+        <div id={listId} role="listbox" aria-label={t('search.label')} className="panel rise scroll-thin absolute inset-x-0 top-full z-40 mt-1.5 max-h-[60vh] overflow-y-auto py-1.5">
           {coord && (
             <div
               id={`${listId}-0`}
@@ -154,20 +163,28 @@ export function LocationSearch() {
               aria-selected={active === 0}
               onMouseDown={(e) => e.preventDefault()}
               onClick={() => choose(options[0]!)}
-              className={`flex min-h-11 cursor-pointer items-center gap-2 px-3 ${active === 0 ? 'bg-surface-subtle' : ''}`}
+              className={`mx-1.5 flex min-h-11 cursor-pointer items-center gap-3 rounded-md px-2.5 ${active === 0 ? 'bg-surface-accent' : ''}`}
             >
-              <Icon name="pin" size={18} className="text-accent" />
-              <span className="tabular text-sm">{t('search.goToCoordinate', { coord: formatCoord(coord.lat, coord.lng) })}</span>
+              <ResultIcon name="pin" />
+              <span className="flex flex-col">
+                <span className="tabular text-sm font-medium">{formatCoord(coord.lat, coord.lng)}</span>
+                <span className="text-xs text-fg-subtle">{t('search.coordinate')}</span>
+              </span>
             </div>
           )}
-          {!coord && isFetching && !data && <div className="skeleton mx-3 my-2 h-5" />}
-          {!coord && data?.status === 'unavailable' && <p className="px-3 py-2 text-sm text-fg-muted">{t('search.unavailable')}</p>}
-          {!coord && (isError || data?.status === 'error') && <p className="px-3 py-2 text-sm text-danger">{t('error.loadFailed')}</p>}
-          {!coord && data?.status === 'ok' && data.hits.length === 0 && !isFetching && <p className="px-3 py-2 text-sm text-fg-muted">{t('search.noResults')}</p>}
+          {!coord && isFetching && !data && (
+            <div className="space-y-2 px-4 py-2">
+              <div className="skeleton h-4 w-2/3" />
+              <div className="skeleton h-3 w-1/3" />
+            </div>
+          )}
+          {!coord && data?.status === 'unavailable' && <EmptyLine icon="info" text={t('search.unavailable')} />}
+          {!coord && (isError || data?.status === 'error') && <EmptyLine icon="alert" text={t('error.loadFailed')} danger />}
+          {!coord && data?.status === 'ok' && data.hits.length === 0 && !isFetching && <EmptyLine icon="search" text={t('search.noResults')} />}
           {!coord &&
             groups.map((g) => (
-              <div key={g.type} role="group" aria-label={t(`search.types.${g.type}`)}>
-                <div className="px-3 pt-2 pb-1 text-xs font-semibold text-fg-subtle">{t(`search.types.${g.type}`)}</div>
+              <div key={g.type} role="group" aria-label={t(`search.types.${g.type}`)} className="pb-1">
+                <div className="eyebrow px-4 pt-2 pb-1">{t(`search.types.${g.type}`)}</div>
                 {g.hits.map((h) => {
                   index++;
                   const i = index;
@@ -180,10 +197,13 @@ export function LocationSearch() {
                       onMouseDown={(e) => e.preventDefault()}
                       onMouseEnter={() => setActive(i)}
                       onClick={() => choose({ kind: 'hit', hit: h })}
-                      className={`flex min-h-11 cursor-pointer flex-col justify-center px-3 py-1 ${active === i ? 'bg-surface-subtle' : ''}`}
+                      className={`mx-1.5 flex min-h-11 cursor-pointer items-center gap-3 rounded-md px-2.5 py-1 ${active === i ? 'bg-surface-accent' : ''}`}
                     >
-                      <span className="text-sm">{placeName(locale, h.nameTh, h.nameEn)}</span>
-                      {h.adminPath && <span className="text-xs text-fg-subtle">{h.adminPath}</span>}
+                      <ResultIcon name={TYPE_ICON[h.type]} />
+                      <span className="flex min-w-0 flex-col">
+                        <span className="truncate text-sm font-medium">{placeName(locale, h.nameTh, h.nameEn)}</span>
+                        {h.adminPath && <span className="truncate text-xs text-fg-subtle">{h.adminPath}</span>}
+                      </span>
                     </div>
                   );
                 })}
@@ -192,5 +212,33 @@ export function LocationSearch() {
         </div>
       )}
     </div>
+  );
+}
+
+const TYPE_ICON: Record<GazetteerType, IconId> = {
+  province: 'province',
+  district: 'district',
+  subdistrict: 'subdistrict',
+  village: 'village',
+  water: 'water',
+  road: 'road',
+  place: 'village',
+  station: 'station',
+};
+
+function ResultIcon({ name }: { name: IconId | 'pin' }) {
+  return (
+    <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md bg-surface-sunken text-fg-muted">
+      <Icon name={name} size={16} />
+    </span>
+  );
+}
+
+function EmptyLine({ icon, text, danger }: { icon: 'info' | 'alert' | 'search'; text: string; danger?: boolean }) {
+  return (
+    <p className={`flex items-start gap-2 px-4 py-2.5 text-sm ${danger ? 'text-danger' : 'text-fg-muted'}`}>
+      <Icon name={icon} size={16} className="mt-0.5 shrink-0" />
+      {text}
+    </p>
   );
 }

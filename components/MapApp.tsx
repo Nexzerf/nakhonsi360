@@ -1,11 +1,10 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import dynamic from 'next/dynamic';
 import { useMapStore, useT } from '@/lib/state/store';
 import { useIsMobile } from '@/lib/hooks';
 import type { BBox } from '@/lib/types';
-import { LogoMark } from '@/components/Logo';
 import { LocationSearch } from '@/components/LocationSearch';
 import { LayerButton, LayerControl } from '@/components/LayerControl';
 import { LocationInspector } from '@/components/LocationInspector';
@@ -13,6 +12,7 @@ import { MapLegend } from '@/components/MapLegend';
 import { StatusBar } from '@/components/StatusBar';
 import { DataProvenanceDialog } from '@/components/DataProvenance';
 import { MapErrorBoundary } from '@/components/MapErrorBoundary';
+import { Icon } from '@/components/Icon';
 
 // MapLibre needs the browser (WebGL); never render it on the server.
 const EnvironmentalMap = dynamic(() => import('@/components/EnvironmentalMap').then((m) => m.EnvironmentalMap), {
@@ -46,18 +46,15 @@ export function MapApp({ initialBounds }: { initialBounds: BBox | null }) {
 
       {/* Top-left: logo + search. Top-right: layers + language. */}
       <div className="pointer-events-none absolute inset-x-0 top-0 z-30 flex items-start gap-2 p-3">
-        <div className="pointer-events-auto flex w-full max-w-md items-start gap-2">
-          <div className="panel hidden h-11 shrink-0 items-center gap-2 px-2 sm:flex" title={t('app.tagline')}>
-            <LogoMark size={28} />
-            <span className="text-sm font-semibold">{t('app.name')}</span>
-          </div>
+        <div className="pointer-events-auto w-full max-w-[26rem]">
           <LocationSearch />
         </div>
-        <div className="pointer-events-auto ml-auto flex shrink-0 items-start gap-2">
+        <div className="panel pointer-events-auto ml-auto flex h-12 shrink-0 items-center overflow-hidden">
           <LayerButton />
+          <span aria-hidden="true" className="h-6 w-px bg-line" />
           <button
             type="button"
-            className="panel icon-btn px-3 text-sm font-medium"
+            className="flex h-full min-w-12 items-center justify-center px-3 text-sm font-semibold text-fg-muted hover:bg-surface-subtle hover:text-fg"
             onClick={() => useMapStore.getState().setLocale(locale === 'th' ? 'en' : 'th')}
             aria-label={`${t('app.language')}: ${t('app.switchLanguage')}`}
             lang={locale === 'th' ? 'en' : 'th'}
@@ -91,10 +88,17 @@ export function MapApp({ initialBounds }: { initialBounds: BBox | null }) {
 
 function NoExtentNotice({ show }: { show: boolean }) {
   const t = useT();
-  if (!show) return null;
+  const [dismissed, setDismissed] = useState(false);
+  if (!show || dismissed) return null;
   return (
-    <p role="status" className="panel absolute top-16 left-1/2 z-20 w-[min(28rem,calc(100vw-2rem))] -translate-x-1/2 px-3 py-2 text-center text-sm text-fg-muted">
-      {t('empty.noExtent')}
-    </p>
+    <div role="status" className="panel rise absolute top-[72px] left-3 z-20 flex w-[min(26rem,calc(100vw-1.5rem))] items-start gap-2.5 py-2.5 pr-1 pl-3">
+      <span className="mt-0.5 text-warn">
+        <Icon name="info" size={18} />
+      </span>
+      <p className="flex-1 py-0.5 text-sm text-fg-muted">{t('empty.noExtent')}</p>
+      <button type="button" className="icon-btn -my-2 shrink-0" onClick={() => setDismissed(true)} aria-label={t('layers.close')}>
+        <Icon name="close" size={16} />
+      </button>
+    </div>
   );
 }

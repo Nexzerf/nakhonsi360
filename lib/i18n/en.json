@@ -27,7 +27,7 @@
     "reload": "Reload page"
   },
   "search": {
-    "placeholder": "Search villages, subdistricts, districts, rivers or coordinates",
+    "placeholder": "Search villages, rivers or coordinates",
     "label": "Search places",
     "noResults": "No results in Nakhon Si Thammarat",
     "unavailable": "Search unavailable: the place-name data has not been imported yet",
@@ -105,7 +105,15 @@
       "conditions": "rain, water level, temperature and PM2.5",
       "hazards": "flood, hotspots, landslide and coast",
       "satellite": "latest satellite image and historical comparison"
-    }
+    },
+    "plannedLabel": "Will show",
+    "type": {
+      "village": "Village",
+      "subdistrict": "Subdistrict",
+      "point": "Selected point",
+      "place": "Place"
+    },
+    "sourceLabel": "Source"
   },
   "provenance": {
     "title": "Data source",
