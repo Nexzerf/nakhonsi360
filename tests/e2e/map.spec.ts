@@ -1,0 +1,64 @@
+import { expect, test } from '@playwright/test';
+
+/**
+ * Smoke tests of the map shell. They run against whatever database the
+ * server is configured with (none in CI): the assertions only check that the
+ * UI stays up, reports data availability honestly, and never renders
+ * placeholder values.
+ */
+
+const FORBIDDEN = /\b(NaN|undefined|null)\b/;
+
+test('map loads full-screen with search, layers and status', async ({ page }) => {
+  await page.goto('/');
+  await expect(page.locator('.maplibregl-canvas')).toBeVisible();
+  await expect(page.getByRole('combobox')).toBeVisible();
+  await expect(page.getByRole('button', { name: /ชั้นข้อมูล|เปิดรายการชั้นข้อมูล/ })).toBeVisible();
+  const box = await page.locator('.maplibregl-canvas').boundingBox();
+  const vp = page.viewportSize()!;
+  expect(box!.width).toBeGreaterThanOrEqual(vp.width - 1);
+  expect(await page.locator('body').innerText()).not.toMatch(FORBIDDEN);
+});
+
+test('clicking the map opens the inspector with honest empty states', async ({ page }) => {
+  await page.goto('/');
+  const canvas = page.locator('.maplibregl-canvas');
+  await expect(canvas).toBeVisible();
+  const box = (await canvas.boundingBox())!;
+  await page.mouse.click(box.x + box.width / 2, box.y + box.height / 2);
+  const inspector = page.locator('#inspector');
+  await expect(inspector).toBeVisible();
+  await expect(inspector.getByRole('heading', { name: 'สภาพปัจจุบัน' })).toBeVisible();
+  await expect(inspector.getByText('ไม่มีข้อมูลสาธารณะสำหรับพื้นที่นี้').first()).toBeVisible();
+  await expect(inspector.locator('[aria-busy="true"]')).toHaveCount(0, { timeout: 15_000 });
+  expect(await inspector.innerText()).not.toMatch(FORBIDDEN);
+});
+
+test('keyboard: Enter on the focused map inspects the centre', async ({ page }) => {
+  await page.goto('/');
+  await page.locator('.maplibregl-canvas').focus();
+  await page.keyboard.press('Enter');
+  await expect(page.locator('#inspector')).toBeVisible();
+});
+
+test('layer panel lists every layer with an info button', async ({ page }) => {
+  await page.goto('/');
+  await page.getByRole('button', { name: /ชั้นข้อมูล|เปิดรายการชั้นข้อมูล/ }).click();
+  const panel = page.locator('#layer-panel');
+  await expect(panel).toBeVisible();
+  await panel.getByRole('button', { name: /ข้อมูลแหล่งที่มา: หมู่บ้าน/ }).click();
+  const dialog = page.getByRole('dialog', { name: /แหล่งที่มาของข้อมูล/ });
+  await expect(dialog).toBeVisible();
+  await expect(dialog.getByText('กรมการปกครอง กระทรวงมหาดไทย')).toBeVisible();
+});
+
+test('touch targets are at least 44px', async ({ page }) => {
+  await page.goto('/');
+  const buttons = page.locator('main button:visible');
+  const n = await buttons.count();
+  for (let i = 0; i < n; i++) {
+    const b = await buttons.nth(i).boundingBox();
+    if (!b) continue;
+    expect(Math.max(b.width, b.height), await buttons.nth(i).getAttribute('aria-label') ?? `button ${i}`).toBeGreaterThanOrEqual(44);
+  }
+});

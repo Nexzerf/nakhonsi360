@@ -1,0 +1,172 @@
+{
+  "app": {
+    "name": "Nakhonsi360",
+    "tagline": "Every corner of Nakhon Si Thammarat, every environmental signal.",
+    "mapLabel": "Environmental map of Nakhon Si Thammarat Province",
+    "skipToInspector": "Skip to location details",
+    "language": "Language",
+    "switchLanguage": "ภาษาไทย",
+    "aboutData": "About the data"
+  },
+  "empty": {
+    "noPublicData": "No public data for this location",
+    "notImported": "Data from this source has not been imported yet",
+    "notConnected": "Source not connected yet (phase {phase})",
+    "dbNotConfigured": "The database is not configured, so no data can be shown yet",
+    "outsideStudyArea": "This point is outside Nakhon Si Thammarat Province (including the 5 km buffer)",
+    "noFeatureInRadius": "None found within {radius}",
+    "unnamed": "No name in the source data",
+    "noExtent": "Province boundary not imported yet, so the map shows all of Thailand"
+  },
+  "error": {
+    "loadFailed": "Data temporarily unavailable",
+    "timeout": "Took too long",
+    "retry": "Retry",
+    "lastSuccess": "Last successful update {time}",
+    "mapCrashed": "The map ran into an error",
+    "reload": "Reload page"
+  },
+  "search": {
+    "placeholder": "Search villages, subdistricts, districts, rivers or coordinates",
+    "label": "Search places",
+    "noResults": "No results in Nakhon Si Thammarat",
+    "unavailable": "Search unavailable: the place-name data has not been imported yet",
+    "coordinate": "Coordinates",
+    "goToCoordinate": "Go to {coord}",
+    "clear": "Clear search",
+    "types": {
+      "province": "Province",
+      "district": "District",
+      "subdistrict": "Subdistrict",
+      "village": "Village",
+      "water": "Water",
+      "road": "Road",
+      "place": "Place (OSM)",
+      "station": "Station"
+    }
+  },
+  "layers": {
+    "title": "Layers",
+    "open": "Open layer list",
+    "close": "Close",
+    "basemap": "Basemap",
+    "info": "Source information",
+    "tooMany": "{count} visible layers are on. We suggest at most {max} so the map stays readable",
+    "notImported": "No data yet",
+    "plannedPhase": "Phase {phase}",
+    "minzoom": "Zoom ≥ {zoom}",
+    "hiddenAtZoom": "Zoom in to see"
+  },
+  "legend": {
+    "title": "Legend",
+    "none": "No layers with data are on the map yet"
+  },
+  "inspector": {
+    "title": "Location details",
+    "close": "Close location details",
+    "copyCoords": "Copy coordinates",
+    "copied": "Copied",
+    "selectedPoint": "Selected point",
+    "expand": "Expand",
+    "collapse": "Collapse",
+    "sections": {
+      "admin": "Administrative area",
+      "village": "Nearest villages",
+      "conditions": "Current conditions",
+      "hazards": "Hazards",
+      "context": "Geographic context",
+      "satellite": "Satellite",
+      "sources": "Sources"
+    },
+    "admin": {
+      "province": "Province",
+      "district": "District",
+      "subdistrict": "Subdistrict"
+    },
+    "village": {
+      "moo": "Moo {moo}",
+      "distance": "{distance} away",
+      "nearestNote": "Villages are DOPA location points with no boundary; distance is to the point"
+    },
+    "features": {
+      "river": "Nearest river",
+      "stream": "Nearest stream",
+      "canal": "Nearest canal",
+      "drain": "Nearest drain",
+      "water": "Nearest water body",
+      "reservoir": "Nearest reservoir",
+      "road_major": "Nearest main road",
+      "road_minor": "Nearest road",
+      "coastline": "Distance to coastline",
+      "inside": "On/inside this feature",
+      "osmNote": "Completeness of small canals and streams in OpenStreetMap varies by area"
+    },
+    "planned": {
+      "conditions": "rain, water level, temperature and PM2.5",
+      "hazards": "flood, hotspots, landslide and coast",
+      "satellite": "latest satellite image and historical comparison"
+    }
+  },
+  "provenance": {
+    "title": "Data source",
+    "organization": "Organisation",
+    "dataset": "Dataset",
+    "observed": "Data as of",
+    "observedUnknown": "The source does not state a date",
+    "fetched": "Imported/fetched",
+    "license": "Licence",
+    "attribution": "Attribution",
+    "coverage": "Coverage",
+    "updates": "Update frequency",
+    "static": "Reference data (not updated automatically)",
+    "everyMinutes": "Every {minutes} min (expected)",
+    "link": "Open original source",
+    "verified": "Verified",
+    "unverified": "Not verified",
+    "requiresKey": "Requires an API key (server-side)",
+    "importCounts": "Records in source file {source} · imported {imported} · rejected {rejected}",
+    "sourceFile": "Source file",
+    "noImport": "Not imported yet",
+    "zoomNote": "Display"
+  },
+  "freshness": {
+    "LIVE": "Live",
+    "RECENT": "Recent",
+    "HISTORICAL": "Historical",
+    "ARCHIVED": "Archived",
+    "updated": "Updated {time}",
+    "observed": "Data as of {time}",
+    "quality": {
+      "CURRENT": "Current",
+      "OFFICIAL_HISTORICAL": "Official historical",
+      "DELAYED": "Delayed",
+      "NO_OBSERVATION": "No current observation"
+    }
+  },
+  "status": {
+    "label": "Data source status",
+    "ok": "OK",
+    "degraded": "Delayed",
+    "down": "Down",
+    "not_imported": "Not imported",
+    "not_connected": "Not connected",
+    "external": "Loaded directly from provider",
+    "unknown": "Unknown",
+    "summary": "{ok}/{total} sources ready",
+    "lastUpdate": "Last update {time}",
+    "noUpdate": "No updates yet",
+    "dbDown": "Database not ready"
+  },
+  "controls": {
+    "zoomIn": "Zoom in",
+    "zoomOut": "Zoom out",
+    "locate": "Go to my location",
+    "locateFailed": "Could not get your location",
+    "compass": "Reset map to north",
+    "keyboardHint": "Use arrow keys to pan the map. Press Enter to inspect the map centre"
+  },
+  "breadcrumb": {
+    "label": "Administrative hierarchy",
+    "thailand": "Thailand"
+  }
+}

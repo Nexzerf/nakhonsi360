@@ -1,0 +1,184 @@
+/**
+ * MapLibre style pieces: basemaps and overlay layers built from the layer
+ * registry. Overlay ids are prefixed so they can be carried across basemap
+ * switches.
+ */
+import type { LayerSpecification, SourceSpecification, StyleSpecification } from 'maplibre-gl';
+import type { BasemapId, LayerDef } from '@/lib/registry/layers';
+import { COLORS } from '@/lib/registry/layers';
+import type { Locale } from '@/lib/freshness/format';
+
+export const OVERLAY_PREFIX = 'n360-';
+export const SELECTION_SOURCE = `${OVERLAY_PREFIX}selection`;
+const GLYPHS = 'https://tiles.openfreemap.org/fonts/{fontstack}/{range}.pbf';
+const LABEL_FONT = ['Noto Sans Regular'];
+
+export const BASEMAP_STYLE_URL: Partial<Record<BasemapId, string>> = {
+  light: 'https://tiles.openfreemap.org/styles/positron',
+  dark: 'https://tiles.openfreemap.org/styles/dark',
+};
+
+function rasterStyle(id: string, tiles: string[], attribution: string, maxzoom: number): StyleSpecification {
+  return {
+    version: 8,
+    glyphs: GLYPHS,
+    sources: { [id]: { type: 'raster', tiles, tileSize: 256, maxzoom, attribution } },
+    layers: [
+      { id: 'background', type: 'background', paint: { 'background-color': '#dfe3e8' } },
+      { id, type: 'raster', source: id },
+    ],
+  };
+}
+
+export function basemapStyle(id: BasemapId): StyleSpecification | string {
+  if (id === 'satellite') {
+    return rasterStyle(
+      'eox-s2cloudless',
+      ['https://tiles.maps.eox.at/wmts/1.0.0/s2cloudless_3857/default/g/{z}/{y}/{x}.jpg'],
+      '<a href="https://s2maps.eu" target="_blank" rel="noopener">Sentinel-2 cloudless – s2maps.eu</a> by EOX IT Services GmbH (Contains modified Copernicus Sentinel data 2016 &amp; 2017)',
+      15,
+    );
+  }
+  if (id === 'terrain') {
+    return rasterStyle(
+      'opentopomap',
+      ['a', 'b', 'c'].map((s) => `https://${s}.tile.opentopomap.org/{z}/{x}/{y}.png`),
+      'ข้อมูล © <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a>, SRTM · รูปแบบ © <a href="https://opentopomap.org" target="_blank" rel="noopener">OpenTopoMap</a> (CC-BY-SA)',
+      17,
+    );
+  }
+  return BASEMAP_STYLE_URL[id]!;
+}
+
+/** Used when the basemap cannot be loaded: overlays still work on a plain background. */
+export const FALLBACK_STYLE: StyleSpecification = {
+  version: 8,
+  glyphs: GLYPHS,
+  sources: {},
+  layers: [{ id: 'background', type: 'background', paint: { 'background-color': '#eef0f3' } }],
+};
+
+/** Show Thai (or English) names on the OpenMapTiles basemap labels. */
+export function localizeBasemap(style: StyleSpecification, locale: Locale): StyleSpecification {
+  const field = locale === 'th' ? ['coalesce', ['get', 'name:th'], ['get', 'name']] : ['coalesce', ['get', 'name:en'], ['get', 'name_en'], ['get', 'name']];
+  return {
+    ...style,
+    layers: style.layers.map((l) => {
+      if (l.id.startsWith(OVERLAY_PREFIX) || l.type !== 'symbol' || !l.layout || !('text-field' in l.layout)) return l;
+      return { ...l, layout: { ...l.layout, 'text-field': field as never } };
+    }),
+  };
+}
+
+export function overlaySourceId(layerId: string) {
+  return `${OVERLAY_PREFIX}src-${layerId}`;
+}
+
+export function vectorSource(layer: LayerDef, origin: string, pmtilesBase: string | undefined): SourceSpecification {
+  if (pmtilesBase) return { type: 'vector', url: `pmtiles://${pmtilesBase.replace(/\/$/, '')}/${layer.id}.pmtiles` };
+  return { type: 'vector', tiles: [`${origin}/api/tiles/${layer.id}/{z}/{x}/{y}`], minzoom: 0, maxzoom: 14 };
+}
+
+/** MapLibre layers for one registry layer. The first id is the "main" layer used for hit-testing. */
+export function overlayLayers(layer: LayerDef, locale: Locale): LayerSpecification[] {
+  const source = overlaySourceId(layer.id);
+  const sl = layer.sourceLayer!;
+  const id = (s: string) => `${OVERLAY_PREFIX}${layer.id}${s}`;
+  const nameField = (locale === 'en' ? ['coalesce', ['get', 'name_en'], ['get', 'name_th']] : ['coalesce', ['get', 'name_th'], ['get', 'name_en']]) as never;
+  const base = { source, 'source-layer': sl, minzoom: layer.minzoom };
+
+  switch (layer.id) {
+    case 'admin-province':
+      return [
+        { ...base, id: id(''), type: 'line', paint: { 'line-color': '#ffffff', 'line-width': 5, 'line-opacity': 0.7 } },
+        { ...base, id: id('-line'), type: 'line', paint: { 'line-color': COLORS.province, 'line-width': 2.5 } },
+      ];
+    case 'admin-district':
+      return [{ ...base, id: id(''), type: 'line', paint: { 'line-color': COLORS.district, 'line-width': 1.5, 'line-dasharray': [4, 2] } }];
+    case 'admin-subdistrict':
+      return [{ ...base, id: id(''), type: 'line', paint: { 'line-color': COLORS.subdistrict, 'line-width': 1, 'line-dasharray': [2, 2] } }];
+    case 'villages':
+      return [
+        { ...base, id: id(''), type: 'circle', paint: { 'circle-radius': ['interpolate', ['linear'], ['zoom'], 12, 3.5, 16, 6], 'circle-color': COLORS.village, 'circle-stroke-color': '#ffffff', 'circle-stroke-width': 1.5 } },
+        {
+          ...base,
+          id: id('-label'),
+          type: 'symbol',
+          layout: { 'text-field': nameField, 'text-font': LABEL_FONT, 'text-size': 12, 'text-offset': [0, 0.9], 'text-anchor': 'top', 'text-optional': true },
+          paint: { 'text-color': '#3b1d0e', 'text-halo-color': '#ffffff', 'text-halo-width': 1.5 },
+        },
+      ];
+    case 'water-rivers':
+      return [
+        { ...base, id: id(''), type: 'line', paint: { 'line-color': COLORS.river, 'line-width': ['interpolate', ['linear'], ['zoom'], 7, 1.2, 12, 2.5, 16, 5] } },
+        {
+          ...base,
+          id: id('-label'),
+          type: 'symbol',
+          minzoom: 11,
+          layout: { 'symbol-placement': 'line', 'text-field': nameField, 'text-font': LABEL_FONT, 'text-size': 12 },
+          paint: { 'text-color': COLORS.river, 'text-halo-color': '#ffffff', 'text-halo-width': 1.5 },
+        },
+      ];
+    case 'water-streams':
+      return [{ ...base, id: id(''), type: 'line', paint: { 'line-color': COLORS.stream, 'line-width': 1 } }];
+    case 'water-canals':
+      return [
+        { ...base, id: id(''), type: 'line', paint: { 'line-color': COLORS.canal, 'line-width': ['interpolate', ['linear'], ['zoom'], 12, 1.2, 16, 3] } },
+        {
+          ...base,
+          id: id('-label'),
+          type: 'symbol',
+          minzoom: 13,
+          layout: { 'symbol-placement': 'line', 'text-field': nameField, 'text-font': LABEL_FONT, 'text-size': 11 },
+          paint: { 'text-color': COLORS.canal, 'text-halo-color': '#ffffff', 'text-halo-width': 1.5 },
+        },
+      ];
+    case 'water-reservoirs':
+      return [
+        { ...base, id: id(''), type: 'fill', paint: { 'fill-color': '#7fb3e0', 'fill-opacity': 0.6 } },
+        { ...base, id: id('-outline'), type: 'line', paint: { 'line-color': COLORS.waterOutline, 'line-width': 1 } },
+      ];
+    case 'water-bodies':
+      return [
+        { ...base, id: id(''), type: 'fill', paint: { 'fill-color': COLORS.water, 'fill-opacity': 0.6 } },
+        { ...base, id: id('-outline'), type: 'line', paint: { 'line-color': COLORS.waterOutline, 'line-width': 0.75 } },
+      ];
+    case 'roads':
+      return [
+        {
+          ...base,
+          id: id(''),
+          type: 'line',
+          paint: {
+            'line-color': COLORS.road,
+            'line-width': ['match', ['get', 'kind'], 'road_major', ['interpolate', ['linear'], ['zoom'], 10, 1.2, 16, 4], ['interpolate', ['linear'], ['zoom'], 14, 0.8, 16, 2]],
+          },
+        },
+      ];
+    case 'coastline':
+      return [{ ...base, id: id(''), type: 'line', paint: { 'line-color': COLORS.coastline, 'line-width': 1.5 } }];
+    default:
+      return [];
+  }
+}
+
+/** Highlight layer for a selected admin area or village. */
+export function highlightLayers(layer: LayerDef, key: string, value: string | number): LayerSpecification[] {
+  const base = { source: overlaySourceId(layer.id), 'source-layer': layer.sourceLayer!, filter: ['==', ['get', key], value] as never };
+  const id = `${OVERLAY_PREFIX}highlight-${layer.id}`;
+  if (layer.legend.type === 'circle') {
+    return [{ ...base, id, type: 'circle', paint: { 'circle-radius': 9, 'circle-color': 'rgba(0,0,0,0)', 'circle-stroke-color': '#1d4ed8', 'circle-stroke-width': 3 } }];
+  }
+  return [
+    { ...base, id: `${id}-fill`, type: 'fill', paint: { 'fill-color': '#1d4ed8', 'fill-opacity': 0.08 } },
+    { ...base, id, type: 'line', paint: { 'line-color': '#1d4ed8', 'line-width': 3 } },
+  ];
+}
+
+export function selectionLayers(): LayerSpecification[] {
+  return [
+    { id: `${OVERLAY_PREFIX}selection-halo`, type: 'circle', source: SELECTION_SOURCE, paint: { 'circle-radius': 12, 'circle-color': '#1d4ed8', 'circle-opacity': 0.18 } },
+    { id: `${OVERLAY_PREFIX}selection`, type: 'circle', source: SELECTION_SOURCE, paint: { 'circle-radius': 6, 'circle-color': '#1d4ed8', 'circle-stroke-color': '#ffffff', 'circle-stroke-width': 2 } },
+  ];
+}
