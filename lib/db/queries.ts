@@ -12,7 +12,9 @@ import type {
   NearbyFeature,
   SearchHit,
   GazetteerType,
+  UnlocatedVillage,
   VillageHit,
+  VillageLocationMethod,
 } from '@/lib/types';
 
 type Sql = postgres.Sql;
@@ -40,11 +42,14 @@ export async function latestImports(sql: Sql): Promise<Map<string, ImportRecord>
       source_record_count: number;
       imported_count: number;
       rejected_count: number;
+      corrected_location_count: number | null;
+      unlocated_count: number | null;
     }[]
   >`
     select distinct on (source_id)
            source_id, imported_at, source_file, source_url, source_sha256, source_version,
-           source_date, source_record_count, imported_count, rejected_count
+           source_date, source_record_count, imported_count, rejected_count,
+           corrected_location_count, unlocated_count
       from dataset_imports
      order by source_id, imported_at desc`;
   return new Map(
@@ -60,6 +65,8 @@ export async function latestImports(sql: Sql): Promise<Map<string, ImportRecord>
         sourceRecordCount: r.source_record_count,
         importedCount: r.imported_count,
         rejectedCount: r.rejected_count,
+        correctedLocationCount: r.corrected_location_count ?? 0,
+        unlocatedCount: r.unlocated_count ?? 0,
       },
     ]),
   );
@@ -110,6 +117,8 @@ export async function nearestVillages(sql: Sql, lng: number, lat: number, limit 
       lat: number;
       distance_m: number;
       shared_location_count: number;
+      location_method: VillageLocationMethod;
+      location_uncertainty_m: number | null;
     }[]
   >`select * from nearest_villages(${lng}, ${lat}, ${limit})`;
   return rows.map((r) => ({
@@ -124,7 +133,17 @@ export async function nearestVillages(sql: Sql, lng: number, lat: number, limit 
     lat: r.lat,
     distanceM: r.distance_m,
     sharedLocationCount: r.shared_location_count ?? 1,
+    locationMethod: r.location_method ?? 'source',
+    locationUncertaintyM: r.location_uncertainty_m,
   }));
+}
+
+/** DOPA villages of the subdistrict at this point whose published location is not usable (never drawn on the map). */
+export async function unlocatedVillagesAt(sql: Sql, lng: number, lat: number): Promise<UnlocatedVillage[]> {
+  const rows = await sql<
+    { id: string; name_th: string; name_en: string | null; moo: number | null; subdistrict_th: string | null; district_th: string | null; reason: string }[]
+  >`select * from unlocated_villages_at(${lng}, ${lat})`;
+  return rows.map((r) => ({ id: r.id, nameTh: r.name_th, nameEn: r.name_en, moo: r.moo, subdistrictTh: r.subdistrict_th, districtTh: r.district_th, reason: r.reason }));
 }
 
 export async function nearestFeatures(sql: Sql, lng: number, lat: number, radiusM: number): Promise<NearbyFeature[]> {
@@ -200,7 +219,7 @@ const TILE_LAYERS: Record<string, TileLayerSql> = {
   'admin-province': { sourceLayer: 'admin_province', from: 'admin_areas', where: 'level = 1', props: 'pcode, name_th, name_en', polygon: true },
   'admin-district': { sourceLayer: 'admin_district', from: 'admin_areas', where: 'level = 2', props: 'pcode, name_th, name_en', polygon: true },
   'admin-subdistrict': { sourceLayer: 'admin_subdistrict', from: 'admin_areas', where: 'level = 3', props: 'pcode, name_th, name_en', polygon: true },
-  villages: { sourceLayer: 'villages', from: 'villages', where: 'true', props: 'id, name_th, name_en, moo', polygon: false },
+  villages: { sourceLayer: 'villages', from: 'villages', where: 'true', props: 'id, name_th, name_en, moo, location_method', polygon: false },
   'water-rivers': { sourceLayer: 'rivers', from: 'osm_features', where: "kind = 'river'", props: 'osm_id, kind, subkind, name_th, name_en', polygon: false },
   'water-streams': { sourceLayer: 'streams', from: 'osm_features', where: "kind = 'stream'", props: 'osm_id, kind, subkind, name_th, name_en', polygon: false },
   'water-canals': { sourceLayer: 'canals', from: 'osm_features', where: "kind in ('canal', 'drain')", props: 'osm_id, kind, subkind, name_th, name_en', polygon: false },

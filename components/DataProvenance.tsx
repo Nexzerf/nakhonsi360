@@ -37,6 +37,14 @@ export function SourceDetails({ source, health }: { source: DataSource; health?:
         {t('provenance.importCounts', { source: imp.sourceRecordCount.toLocaleString(), imported: imp.importedCount.toLocaleString(), rejected: imp.rejectedCount.toLocaleString() })}
       </span>,
     ]);
+    if (imp.correctedLocationCount > 0 || imp.unlocatedCount > 0) {
+      rows.push([
+        '',
+        <span key="q" className="tabular">
+          {t('provenance.locationQuality', { corrected: imp.correctedLocationCount.toLocaleString(), unlocated: imp.unlocatedCount.toLocaleString() })}
+        </span>,
+      ]);
+    }
   }
 
   return (

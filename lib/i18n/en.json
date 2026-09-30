@@ -90,7 +90,19 @@
       "distance": "{distance} away",
       "nearestNote": "Villages are DOPA location points with no boundary; distance is to the point",
       "code": "code {code}",
-      "sharedLocation": "In the source this location is shared with {n} other village(s), so it may not be the village's actual position"
+      "sharedLocation": "In the source this location is shared with {n} other village(s), so it may not be the village's actual position",
+      "converted_utm47n_wgs84": "DOPA gives this location in metres (UTM). It was converted as zone 47N, assuming WGS 84, and lands in the subdistrict DOPA names; it may be off by about {m}",
+      "converted_axes_swapped": "DOPA swapped latitude and longitude; they were swapped back, and the point lands in the subdistrict DOPA names",
+      "unlocatedTitle": "Villages in this subdistrict without a usable location",
+      "unlocatedNote": "DOPA lists these villages in this subdistrict, but their published coordinates cannot be used, so they are not drawn on the map and no distance is given",
+      "reason": {
+        "outside_province": "coordinate outside the province",
+        "projected_coordinates": "coordinate in metres that could not be verified",
+        "swapped_lat_lng": "swapped latitude/longitude that could not be verified",
+        "outside_thailand": "coordinate outside Thailand",
+        "sentinel_value": "placeholder coordinate (e.g. 0)",
+        "not_a_number": "no coordinate"
+      }
     },
     "features": {
       "river": "Nearest river",
@@ -144,7 +156,8 @@
     "importCounts": "Records in source file {source} · imported {imported} · rejected {rejected}",
     "sourceFile": "Source file",
     "noImport": "Not imported yet",
-    "zoomNote": "Display"
+    "zoomNote": "Display",
+    "locationQuality": "Of those imported: location corrected {corrected} (verified to lie in the subdistrict the source names) · without a usable location {unlocated} (searchable, not drawn on the map)"
   },
   "freshness": {
     "LIVE": "Live",

@@ -86,6 +86,10 @@ export interface ImportRecord {
   sourceRecordCount: number;
   importedCount: number;
   rejectedCount: number;
+  /** Of importedCount: records whose published location was corrected (and verified) on import. */
+  correctedLocationCount: number;
+  /** Of importedCount: records kept without a usable location (not drawn on the map). */
+  unlocatedCount: number;
 }
 
 export interface SourceHealth {
@@ -140,6 +144,24 @@ export interface VillageHit {
   distanceM: number;
   /** Number of source records at this exact coordinate (1 = unique). */
   sharedLocationCount: number;
+  /** 'source' = as published; otherwise how the published value was corrected on import. */
+  locationMethod: VillageLocationMethod;
+  /** Approximate extra uncertainty from the correction, in metres (null when as published). */
+  locationUncertaintyM: number | null;
+}
+
+export type VillageLocationMethod = 'source' | 'utm47n_wgs84' | 'axes_swapped';
+
+/** A DOPA village whose published coordinate is not usable; located only by its DOPA subdistrict. */
+export interface UnlocatedVillage {
+  id: string;
+  nameTh: string;
+  nameEn: string | null;
+  moo: number | null;
+  subdistrictTh: string | null;
+  districtTh: string | null;
+  /** Why the published coordinate is not used, e.g. 'outside_province', 'projected_coordinates'. */
+  reason: string;
 }
 
 export type FeatureKind =
@@ -165,6 +187,8 @@ export interface AdminCard {
 
 export interface VillageCard {
   nearest: VillageHit[];
+  /** Villages of the subdistrict at this point that DOPA lists without a usable location. */
+  unlocated: UnlocatedVillage[];
 }
 
 export interface ContextCard {

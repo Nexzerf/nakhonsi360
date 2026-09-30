@@ -5,12 +5,14 @@
  * (8-digit village code), `mname`, `tname`/`tcode`, `aname`/`acode`,
  * `oct_side15_lat`/`oct_side15_lon` and ~65 survey fields. There is no
  * village-number (หมู่ที่) field. Other candidates are kept for other releases.
- * Records that cannot be parsed are rejected with a reason — never guessed.
+ * Records without an id or name are rejected. A record whose coordinate is
+ * unusable is kept as an UnusableLocation with the reason; its position is
+ * never guessed here (the importer may verify a correction, see import-villages).
  */
 import { parseCoordValue, validateThaiPoint, type CoordRejection } from '@/lib/validation/geometry';
 import { cleanName, fieldKey, thaiDigitsToAscii } from '@/lib/import/text';
 
-export type VillageField = 'id' | 'nameTh' | 'nameEn' | 'moo' | 'lat' | 'lng' | 'subdistrict' | 'district';
+export type VillageField = 'id' | 'nameTh' | 'nameEn' | 'moo' | 'lat' | 'lng' | 'subdistrict' | 'subdistrictCode' | 'district';
 
 export const VILLAGE_FIELD_CANDIDATES: Record<VillageField, string[]> = {
   id: ['mcode', 'village_code', 'vill_code', 'villagecode', 'vil_code', 'vcode', 'mb_code', 'รหัสหมู่บ้าน', 'รหัส', 'code', 'id'],
@@ -19,6 +21,7 @@ export const VILLAGE_FIELD_CANDIDATES: Record<VillageField, string[]> = {
   moo: ['moo', 'village_no', 'vill_no', 'moo_no', 'mu', 'หมู่ที่', 'หมู่'],
   lat: ['oct_side15_lat', 'latitude', 'lat', 'ละติจูด', 'lat_dd', 'gps_lat', 'y_coord', 'y'],
   lng: ['oct_side15_lon', 'longitude', 'lon', 'long', 'lng', 'ลองจิจูด', 'lon_dd', 'gps_long', 'gps_lon', 'x_coord', 'x'],
+  subdistrictCode: ['tcode', 'tambon_code', 'tam_code', 'subdistrict_code', 'รหัสตำบล'],
   subdistrict: ['tname', 'tambon_name', 'tambon', 'subdistrict', 'tam_name', 'ตำบล', 'ชื่อตำบล'],
   district: ['aname', 'amphoe_name', 'amphoe', 'district', 'amp_name', 'อำเภอ', 'ชื่ออำเภอ'],
 };
@@ -127,7 +130,8 @@ export function parseCsv(text: string): RawVillage[] {
   }));
 }
 
-export type VillageRejection = CoordRejection | 'missing_id' | 'missing_name' | 'duplicate_id';
+/** Records that cannot be kept at all. Coordinate problems do not reject a village (see UnusableLocation). */
+export type VillageRejection = 'missing_id' | 'missing_name' | 'duplicate_id';
 
 export interface ParsedVillage {
   id: string;
@@ -139,8 +143,21 @@ export interface ParsedVillage {
   adminText: string | null;
   /** Subdistrict / district names as stated by the source for this village. */
   subdistrictText: string | null;
+  /** The source's own subdistrict code (DOPA `tcode`, e.g. 80040900), as published. */
+  subdistrictCode: string | null;
   districtText: string | null;
   properties: Record<string, unknown>;
+}
+
+/**
+ * A village whose published coordinate is not a usable point in Thailand.
+ * The village itself is real and is kept; `latValue`/`lonValue` are the
+ * numbers found in the source's lat/lon fields, unmodified (null if not a number).
+ */
+export interface UnusableLocation extends Omit<ParsedVillage, 'lng' | 'lat'> {
+  reason: CoordRejection;
+  latValue: number | null;
+  lonValue: number | null;
 }
 
 export function parseMoo(v: unknown): number | null {
@@ -155,8 +172,9 @@ export function parseMoo(v: unknown): number | null {
 export function parseVillages(
   records: RawVillage[],
   map: VillageFieldMap,
-): { villages: ParsedVillage[]; rejections: Array<{ index: number; reason: VillageRejection; id?: string }> } {
+): { villages: ParsedVillage[]; unusable: UnusableLocation[]; rejections: Array<{ index: number; reason: VillageRejection; id?: string }> } {
   const villages: ParsedVillage[] = [];
+  const unusable: UnusableLocation[] = [];
   const rejections: Array<{ index: number; reason: VillageRejection; id?: string }> = [];
   const seen = new Set<string>();
 
@@ -173,13 +191,6 @@ export function parseVillages(
       rejections.push({ index: r.index, reason: 'missing_name', id });
       continue;
     }
-    const lng = r.point ? r.point[0] : parseCoordValue(map.lng ? p[map.lng] : undefined);
-    const lat = r.point ? r.point[1] : parseCoordValue(map.lat ? p[map.lat] : undefined);
-    const check = validateThaiPoint(lng, lat);
-    if (!check.ok) {
-      rejections.push({ index: r.index, reason: check.reason, id });
-      continue;
-    }
     if (seen.has(id)) {
       rejections.push({ index: r.index, reason: 'duplicate_id', id });
       continue;
@@ -187,19 +198,28 @@ export function parseVillages(
     seen.add(id);
     const subdistrictText = map.subdistrict ? cleanName(p[map.subdistrict]) : null;
     const districtText = map.district ? cleanName(p[map.district]) : null;
+    const codeRaw = map.subdistrictCode ? p[map.subdistrictCode] : undefined;
+    const subdistrictCode = codeRaw === undefined || codeRaw === null ? null : thaiDigitsToAscii(String(codeRaw)).trim() || null;
     const adminText = [subdistrictText, districtText].filter(Boolean).join(' / ');
-    villages.push({
+    const base = {
       id,
       nameTh,
       nameEn: map.nameEn ? cleanName(p[map.nameEn]) : null,
       moo: map.moo ? parseMoo(p[map.moo]) : null,
-      lng: lng!,
-      lat: lat!,
       adminText: adminText || null,
       subdistrictText,
+      subdistrictCode,
       districtText,
       properties: p,
-    });
+    };
+    const lng = r.point ? r.point[0] : parseCoordValue(map.lng ? p[map.lng] : undefined);
+    const lat = r.point ? r.point[1] : parseCoordValue(map.lat ? p[map.lat] : undefined);
+    const check = validateThaiPoint(lng, lat);
+    if (!check.ok) {
+      unusable.push({ ...base, reason: check.reason, latValue: lat, lonValue: lng });
+      continue;
+    }
+    villages.push({ ...base, lng: lng!, lat: lat! });
   }
-  return { villages, rejections };
+  return { villages, unusable, rejections };
 }

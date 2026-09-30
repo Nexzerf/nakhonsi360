@@ -1,6 +1,6 @@
 import { NextResponse, type NextRequest } from 'next/server';
 import { getDb, withTimeout, TimeoutError } from '@/lib/db/client';
-import { connectedSources, inspectAdmin, latestAtStations, latestImports, nearestFeatures, nearestObservations, nearestVillages, waterwayNamesNear } from '@/lib/db/queries';
+import { connectedSources, inspectAdmin, latestAtStations, latestImports, nearestFeatures, nearestObservations, nearestVillages, unlocatedVillagesAt, waterwayNamesNear } from '@/lib/db/queries';
 import { CONDITION_VARIABLES } from '@/lib/registry/stationRules';
 import { buildVariableConditions } from '@/lib/inspect/conditions';
 import type { CardResult, ConditionsCard, ImportRecord, InspectResponse, InspectSection, SourceRef } from '@/lib/types';
@@ -108,8 +108,8 @@ export async function GET(req: NextRequest) {
         out.sections.village = await guarded(async () => {
           const sources = [ref('dopa.villages', dopa)];
           if (await outside()) return { status: 'empty', reason: 'outside_study_area', sources };
-          const nearest = await nearestVillages(sql, lng, lat, 3);
-          return nearest.length ? { status: 'ok', data: { nearest }, sources } : { status: 'empty', reason: 'no_public_data', sources };
+          const [nearest, unlocated] = await Promise.all([nearestVillages(sql, lng, lat, 3), unlocatedVillagesAt(sql, lng, lat)]);
+          return nearest.length || unlocated.length ? { status: 'ok', data: { nearest, unlocated }, sources } : { status: 'empty', reason: 'no_public_data', sources };
         });
       })(),
     );

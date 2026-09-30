@@ -100,7 +100,18 @@ export function overlayLayers(layer: LayerDef, locale: Locale): LayerSpecificati
       return [{ ...base, id: id(''), type: 'line', paint: { 'line-color': COLORS.subdistrict, 'line-width': 1, 'line-dasharray': [2, 2] } }];
     case 'villages':
       return [
-        { ...base, id: id(''), type: 'circle', paint: { 'circle-radius': ['interpolate', ['linear'], ['zoom'], 12, 3.5, 16, 6], 'circle-color': COLORS.village, 'circle-stroke-color': '#ffffff', 'circle-stroke-width': 1.5 } },
+        // A location corrected on import (see villages.location_method) is drawn hollow: approximate, not as published.
+        {
+          ...base,
+          id: id(''),
+          type: 'circle',
+          paint: {
+            'circle-radius': ['interpolate', ['linear'], ['zoom'], 12, 3.5, 16, 6],
+            'circle-color': ['case', ['==', ['coalesce', ['get', 'location_method'], 'source'], 'source'], COLORS.village, '#ffffff'],
+            'circle-stroke-color': ['case', ['==', ['coalesce', ['get', 'location_method'], 'source'], 'source'], '#ffffff', COLORS.village],
+            'circle-stroke-width': ['case', ['==', ['coalesce', ['get', 'location_method'], 'source'], 'source'], 1.5, 2],
+          },
+        },
         {
           ...base,
           id: id('-label'),

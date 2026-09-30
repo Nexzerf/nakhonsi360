@@ -71,7 +71,8 @@ export function LocationSearch() {
     } else {
       const h = o.hit;
       const name = placeName(locale, h.nameTh, h.nameEn) ?? undefined;
-      const hl = HIGHLIGHT[h.type];
+      // Villages without a usable location are found by their subdistrict; there is no point to highlight.
+      const hl = h.refTable === 'villages_unlocated' ? undefined : HIGHLIGHT[h.type];
       if (h.bbox) s.flyTo({ bbox: h.bbox });
       else s.flyTo({ center: [h.lng, h.lat] });
       s.select({ lat: h.lat, lng: h.lng, label: name, kind: h.type, highlight: hl ? { layerId: hl.layerId, key: hl.key, value: h.refId } : undefined });

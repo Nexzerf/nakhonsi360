@@ -200,6 +200,12 @@ function VillageCardView({ q }: { q: SectionQuery<VillageCard> }) {
                         {t('inspector.village.sharedLocation', { n: v.sharedLocationCount - 1 })}
                       </span>
                     )}
+                    {v.locationMethod !== 'source' && (
+                      <span className="mt-0.5 flex items-start gap-1 text-[11px] text-warn">
+                        <Icon name="alert" size={12} className="mt-0.5 shrink-0" />
+                        {t(`inspector.village.converted_${v.locationMethod}`, { m: formatDistance(v.locationUncertaintyM ?? 0, locale) })}
+                      </span>
+                    )}
                   </span>
                   <Distance meters={v.distanceM} />
                 </RowButton>
@@ -207,6 +213,22 @@ function VillageCardView({ q }: { q: SectionQuery<VillageCard> }) {
             ))}
           </ul>
           <p className="mt-1 text-xs text-fg-subtle">{t('inspector.village.nearestNote')}</p>
+          {q.data.data.unlocated.length > 0 && (
+            <div className="mt-3">
+              <h4 className="text-xs font-semibold text-fg-muted">{t('inspector.village.unlocatedTitle')}</h4>
+              <ul className="mt-1 space-y-1">
+                {q.data.data.unlocated.map((v) => (
+                  <li key={v.id} className="text-sm">
+                    <span className="block">{placeName(locale, v.nameTh, v.nameEn)}</span>
+                    <span className="block text-xs text-fg-subtle">
+                      {[v.moo ? t('inspector.village.moo', { moo: v.moo }) : null, t('inspector.village.code', { code: v.id }), t(`inspector.village.reason.${v.reason}`)].filter(Boolean).join(' · ')}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+              <p className="mt-1 text-xs text-fg-subtle">{t('inspector.village.unlocatedNote')}</p>
+            </div>
+          )}
           <SourceFooter refs={q.data.sources} />
         </>
       ) : (

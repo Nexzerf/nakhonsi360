@@ -58,6 +58,10 @@ export interface ImportMeta {
   sourceDate?: string;
   sourceRecordCount: number;
   importedCount: number;
+  /** Of importedCount: records whose location was corrected (and verified) by the importer. */
+  correctedLocationCount?: number;
+  /** Of importedCount: records kept without a usable location. */
+  unlocatedCount?: number;
   rejections: Array<Record<string, unknown>>;
   notes?: string;
 }
@@ -67,10 +71,10 @@ export async function recordImport(tx: postgres.TransactionSql, m: ImportMeta): 
   const [row] = await tx<{ id: string }[]>`
     insert into dataset_imports
       (source_id, source_file, source_url, source_sha256, source_version, source_date,
-       source_record_count, imported_count, rejected_count, rejections, notes)
+       source_record_count, imported_count, corrected_location_count, unlocated_count, rejected_count, rejections, notes)
     values
       (${m.sourceId}, ${m.sourceFile}, ${m.sourceUrl ?? null}, ${m.sourceSha256}, ${m.sourceVersion ?? null},
-       ${m.sourceDate ?? null}, ${m.sourceRecordCount}, ${m.importedCount}, ${m.rejections.length},
+       ${m.sourceDate ?? null}, ${m.sourceRecordCount}, ${m.importedCount}, ${m.correctedLocationCount ?? 0}, ${m.unlocatedCount ?? 0}, ${m.rejections.length},
        ${tx.json(m.rejections.slice(0, 500) as postgres.JSONValue)}, ${m.notes ?? null})
     returning id`;
   return Number(row!.id);

@@ -52,7 +52,7 @@ export const SOURCES: readonly DataSource[] = [
     verifiedAt: '2026-09-30',
     optional: false,
     phase: 1,
-    verificationNote: 'ตรวจสอบแล้ว: ไฟล์จริง (เผยแพร่ 5 ก.ย. 2566) ได้รับจากเจ้าของโครงการซึ่งดาวน์โหลดจาก URL ทางการ เพราะโฮสต์ opendata_tst.dopa.go.th เข้าถึงไม่ได้จากระบบ 1,636 ระเบียน นำเข้า 1,588 ปฏิเสธ 48 (พิกัดเป็นเมตร 7 จุด นอกจังหวัด 41 จุด ส่วนใหญ่ใช้พิกัดกรุงเทพฯ เป็นค่าแทน) — Verified with the real file (released 2023-09-05) supplied by the project owner from the official URL: 1,636 records, 1,588 imported, 48 rejected (7 projected coordinates, 41 outside the province, mostly a Bangkok placeholder point).',
+    verificationNote: 'ตรวจสอบแล้ว: ไฟล์จริง (เผยแพร่ 5 ก.ย. 2566) ได้รับจากเจ้าของโครงการซึ่งดาวน์โหลดจาก URL ทางการ เพราะโฮสต์ opendata_tst.dopa.go.th เข้าถึงไม่ได้จากระบบ มี 1,636 ระเบียน ทุกหมู่บ้านถูกนำเข้า: 7 หมู่บ้านใน ต.ห้วยปริก อ.ฉวาง ให้พิกัดเป็นเมตร (UTM สลับแกน) จึงแปลงเป็นโซน 47N/WGS 84 และยอมรับเพราะทุกจุดอยู่ใน ต.ห้วยปริก (คลาดเคลื่อนได้ราว 700 ม.) อีก 41 หมู่บ้านมีพิกัดนอกจังหวัด (24 จุดเป็นพิกัดกรุงเทพฯ ที่ใช้แทน) จึงเก็บไว้โดยไม่มีพิกัด ค้นหาได้และแสดงในตำบลตามที่ DOPA ระบุ — Verified with the real file (released 2023-09-05) supplied by the project owner: 1,636 records, all kept. 7 villages in ต.ห้วยปริก give metres (swapped-axis UTM); converted as zone 47N/WGS 84 and accepted because every point lands in ต.ห้วยปริก (±~700 m). 41 have a point outside the province (24 at a Bangkok placeholder): kept without a location, searchable and listed under their DOPA subdistrict.',
   },
   {
     id: 'osm.geofabrik',
