@@ -1,9 +1,9 @@
 import { NextResponse, type NextRequest } from 'next/server';
 import { getDb, withTimeout, TimeoutError } from '@/lib/db/client';
-import { connectedSources, inspectAdmin, latestAtStations, latestImports, nearestFeatures, nearestObservations, nearestVillages, unlocatedVillagesAt, waterwayNamesNear } from '@/lib/db/queries';
+import { connectedSources, hazardsAt, inspectAdmin, latestAtStations, latestImports, nearestFeatures, nearestObservations, nearestVillages, unlocatedVillagesAt, waterwayNamesNear } from '@/lib/db/queries';
 import { CONDITION_VARIABLES } from '@/lib/registry/stationRules';
 import { buildVariableConditions } from '@/lib/inspect/conditions';
-import type { CardResult, ConditionsCard, ImportRecord, InspectResponse, InspectSection, SourceRef } from '@/lib/types';
+import type { CardResult, ConditionsCard, HazardsCard, ImportRecord, InspectResponse, InspectSection, SourceRef } from '@/lib/types';
 
 export const dynamic = 'force-dynamic';
 
@@ -45,16 +45,14 @@ export async function GET(req: NextRequest) {
   const sql = getDb();
   const out: InspectResponse = { lat, lng, generatedAt: new Date().toISOString(), sections: {} };
 
-  for (const s of ['hazards', 'satellite'] as const) {
-    if (sections.includes(s)) out.sections[s] = { status: 'not_connected', ...PLANNED[s] };
-  }
+  if (sections.includes('satellite')) out.sections.satellite = { status: 'not_connected', ...PLANNED.satellite };
 
-  const wantDb = sections.filter((s) => s === 'admin' || s === 'village' || s === 'context' || s === 'conditions');
+  const wantDb = sections.filter((s) => s === 'admin' || s === 'village' || s === 'context' || s === 'conditions' || s === 'hazards');
   if (wantDb.length === 0) return NextResponse.json(out);
 
   if (!sql) {
     for (const s of wantDb) {
-      out.sections[s] = s === 'conditions' ? { status: 'not_connected', ...PLANNED.conditions } : { status: 'unavailable', reason: 'database_not_configured' };
+      out.sections[s] = s === 'conditions' || s === 'hazards' ? { status: 'not_connected', ...PLANNED[s] } : { status: 'unavailable', reason: 'database_not_configured' };
     }
     return NextResponse.json(out);
   }
@@ -142,8 +140,32 @@ export async function GET(req: NextRequest) {
     );
   }
 
+  if (wantDb.includes('hazards')) {
+    tasks.push(
+      (async () => {
+        out.sections.hazards = await guarded(async () => hazardsCard(sql, lng, lat, await outside()));
+      })(),
+    );
+  }
+
   await Promise.all(tasks);
   return NextResponse.json(out, { headers: { 'Cache-Control': 'no-store' } });
+}
+
+const HOTSPOT_RADIUS_M = 5_000;
+const HOTSPOT_DAYS = 7;
+
+async function hazardsCard(sql: NonNullable<ReturnType<typeof getDb>>, lng: number, lat: number, outsideArea: boolean): Promise<CardResult<HazardsCard>> {
+  const connected = await connectedSources(sql);
+  if (!PLANNED.hazards.sourceIds.some((id) => connected.has(id))) return { status: 'not_connected', ...PLANNED.hazards };
+  if (outsideArea) return { status: 'empty', reason: 'outside_study_area', sources: [] };
+  const data = await hazardsAt(sql, lng, lat, HOTSPOT_RADIUS_M, HOTSPOT_DAYS, PLANNED.hazards.sourceIds);
+  // Provenance: every checked source, with its latest detection here if any, else its last successful check.
+  const sources: SourceRef[] = data.checked.map((c) => {
+    const latest = data.hotspots.find((h) => h.sourceId === c.sourceId)?.latestObservedAt ?? null;
+    return { sourceId: c.sourceId, observedAt: latest, fetchedAt: c.lastSuccessAt, checkedNothingFound: latest === null };
+  });
+  return { status: 'ok', data, sources };
 }
 
 async function conditionsCard(sql: NonNullable<ReturnType<typeof getDb>>, lng: number, lat: number, outsideArea: boolean): Promise<CardResult<ConditionsCard>> {

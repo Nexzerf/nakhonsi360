@@ -9,9 +9,10 @@ import { readFileSync } from 'node:fs';
 import path from 'node:path';
 import postgres from 'postgres';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
+import { firmsHotspots } from '@/lib/adapters/firms';
 import { thaiwaterRain24h, thaiwaterWaterlevel } from '@/lib/adapters/thaiwater';
 import { runIngest } from '@/lib/ingest/runner';
-import { connectedSources, nearestObservations } from '@/lib/db/queries';
+import { connectedSources, hazardPoints, hazardsAt, nearestObservations } from '@/lib/db/queries';
 import type { IngestAdapter } from '@/lib/ingest/types';
 
 const { TEST_DATABASE_URL, CODAB_FILE } = process.env;
@@ -91,4 +92,36 @@ suite('ingest pipeline (real samples)', () => {
     expect(r?.station_id).toBe(st!.station_id);
     expect(r!.distance_m).toBeLessThan(1);
   });
+
+  it('stores FIRMS hotspots from the real samples inside the province only, once per detection', async () => {
+    const csv = (f: string) => readFileSync(path.join(root, 'data', 'samples', 'firms.hotspots', f), 'utf8');
+    const raw = { VIIRS_NOAA21_NRT: csv('VIIRS_NOAA21_NRT_2026-08-10.csv'), MODIS_NRT: csv('MODIS_NRT_2026-07-31.csv'), VIIRS_SNPP_NRT: csv('VIIRS_SNPP_NRT_latest-empty.csv') };
+    const first = await runIngest(sql, firmsHotspots, { raw });
+    expect(first.status).toBe('ok');
+    expect(first.hazards).toBeGreaterThan(0);
+    expect(first.hazards).toBeLessThanOrEqual(30); // 30 detections in the bbox; only those touching the province + 5 km are kept
+    const [{ outside } = { outside: -1 }] = await sql<{ outside: number }[]>`
+      select count(*)::int as outside from hazard_features h, province_extent pe where h.source_id = 'firms.hotspots' and not st_intersects(pe.buffered, h.geom)`;
+    expect(outside).toBe(0);
+    // Re-ingesting the same detections updates them in place.
+    await runIngest(sql, firmsHotspots, { raw });
+    const [{ n } = { n: -1 }] = await sql<{ n: number }[]>`select count(*)::int as n from hazard_features where source_id = 'firms.hotspots'`;
+    expect(n).toBe(first.hazards);
+  });
+
+  it('serves hotspots for the layer and the inspector, per source, with their own time', async () => {
+    // The samples are from July–August 2026: use a window wide enough to include them.
+    const days = Math.ceil((Date.now() - Date.parse('2026-07-01T00:00:00Z')) / 86_400_000) + 1;
+    const pts = await hazardPoints(sql, 'hotspot', ['firms.hotspots'], days);
+    expect(pts.length).toBeGreaterThan(0);
+    const p = pts[0]!;
+    expect(p.properties.sensor).toMatch(/^(VIIRS|MODIS)_/);
+    const card = await hazardsAt(sql, p.lng, p.lat, 5000, days, ['gistda.hotspots', 'firms.hotspots']);
+    const firms = card.hotspots.find((h) => h.sourceId === 'firms.hotspots')!;
+    expect(firms.count).toBeGreaterThan(0);
+    expect(firms.nearestM).toBeLessThan(1);
+    expect(card.checked.map((c) => c.sourceId)).toContain('firms.hotspots');
+    expect(card.notConnected).toEqual(['gistda.hotspots']);
+  });
 });
+

@@ -157,7 +157,8 @@
     "sourceFile": "Source file",
     "noImport": "Not imported yet",
     "zoomNote": "Display",
-    "locationQuality": "Of those imported: location corrected {corrected} (verified to lie in the subdistrict the source names) · without a usable location {unlocated} (searchable, not drawn on the map)"
+    "locationQuality": "Of those imported: location corrected {corrected} (verified to lie in the subdistrict the source names) · without a usable location {unlocated} (searchable, not drawn on the map)",
+    "checkedNothingFound": "last checked {time} · nothing found"
   },
   "freshness": {
     "LIVE": "Live",
@@ -219,5 +220,15 @@
     "°C": "°C",
     "µg/m³": "µg/m³",
     "m/s": "m/s"
+  },
+  "hazards": {
+    "hotspotsFound": "{count} hotspot(s) within {radius} in the last {days} days",
+    "hotspotsNearest": "nearest {distance} · latest detection {time}",
+    "noHotspots": "No hotspots within {radius} in the last {days} days",
+    "hotspotNote": "A hotspot is heat detected by satellite, not a confirmed fire. Satellites cannot see through cloud",
+    "flood": "A flood extent covers this point (observed {time})",
+    "flood_recurrent": "Inside a recurrent-flood area",
+    "warning": "A warning in force covers this point (issued {time})",
+    "notConnected": "Not connected yet"
   }
 }

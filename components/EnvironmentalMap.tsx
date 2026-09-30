@@ -12,6 +12,8 @@ import {
   OVERLAY_PREFIX,
   SELECTION_SOURCE,
   basemapStyle,
+  hazardLayers,
+  hazardSource,
   highlightLayers,
   localizeBasemap,
   overlayLayers,
@@ -31,11 +33,14 @@ const PMTILES_BASE = process.env.NEXT_PUBLIC_PMTILES_BASE_URL || undefined;
 const Z_ORDER = [
   'water-bodies', 'water-reservoirs', 'roads', 'coastline', 'water-streams', 'water-canals', 'water-rivers',
   'admin-subdistrict', 'admin-district', 'admin-province', 'villages',
+  'hotspots',
   'rain-24h', 'water-stations',
 ];
 
 /** Live station layers, clickable like villages. */
 const STATION_LAYER_IDS = ['water-stations', 'rain-24h'];
+/** Live hazard point layers. */
+const HAZARD_LAYER_IDS = ['hotspots'];
 
 let protocolRegistered = false;
 
@@ -208,6 +213,11 @@ export function EnvironmentalMap({ initialBounds }: { initialBounds: BBox | null
         for (const spec of stationLayers(layer, locale)) map.addLayer(spec);
         continue;
       }
+      if (layer.hazard) {
+        if (!map.getSource(srcId)) map.addSource(srcId, hazardSource(layer, origin));
+        for (const spec of hazardLayers(layer)) map.addLayer(spec);
+        continue;
+      }
       if (!map.getSource(srcId)) map.addSource(srcId, vectorSource(layer, origin, PMTILES_BASE));
       for (const spec of overlayLayers(layer, locale)) map.addLayer(spec);
     }
@@ -244,12 +254,12 @@ export function EnvironmentalMap({ initialBounds }: { initialBounds: BBox | null
     syncOverlays();
   }, [syncOverlays, styleVersion]);
 
-  // Refresh live station layers every 5 minutes.
+  // Refresh live station and hazard layers every 5 minutes.
   useEffect(() => {
     const id = setInterval(() => {
       const map = mapRef.current;
       if (!map) return;
-      for (const layerId of STATION_LAYER_IDS) {
+      for (const layerId of [...STATION_LAYER_IDS, ...HAZARD_LAYER_IDS]) {
         const src = map.getSource(overlaySourceId(layerId)) as GeoJSONSource | undefined;
         src?.setData(`${window.location.origin}/api/layers/${layerId}`);
       }

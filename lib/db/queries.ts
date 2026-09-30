@@ -12,6 +12,7 @@ import type {
   NearbyFeature,
   SearchHit,
   GazetteerType,
+  HazardsCard,
   UnlocatedVillage,
   VillageHit,
   VillageLocationMethod,
@@ -343,4 +344,51 @@ export interface StationFeatureRow {
 
 export async function latestStationReadings(sql: Sql, variable: string): Promise<StationFeatureRow[]> {
   return sql<StationFeatureRow[]>`select * from latest_station_readings(${variable})`;
+}
+
+// ---------------------------------------------------------------- hazards
+
+export interface HazardPointRow {
+  source_id: string;
+  kind: string;
+  observed_at: Date;
+  properties: Record<string, unknown>;
+  lng: number;
+  lat: number;
+}
+
+/** Point hazards (e.g. hotspots) of one kind from the given sources, observed within `days`. */
+export async function hazardPoints(sql: Sql, kind: string, sourceIds: string[], days: number): Promise<HazardPointRow[]> {
+  return sql<HazardPointRow[]>`
+    select source_id, kind, observed_at, properties, st_x(geom) as lng, st_y(geom) as lat
+      from hazard_features
+     where kind = ${kind} and source_id in ${sql(sourceIds)} and geometrytype(geom) = 'POINT'
+       and observed_at >= now() - make_interval(days => ${days})
+     order by observed_at desc
+     limit 5000`;
+}
+
+/** Hotspots near a point per source, flood polygons covering it, warnings in force covering it. */
+export async function hazardsAt(
+  sql: Sql, lng: number, lat: number, hotspotRadiusM: number, hotspotDays: number, sourceIds: string[],
+): Promise<HazardsCard> {
+  const [hot, floods, warnings, ok] = await Promise.all([
+    sql<{ source_id: string; hotspot_count: number; latest_observed_at: Date; nearest_m: number }[]>`
+      select * from hotspots_near(${lng}, ${lat}, ${hotspotRadiusM}, ${hotspotDays})`,
+    sql<{ source_id: string; kind: string; observed_at: Date; properties: Record<string, unknown> }[]>`select * from floods_at(${lng}, ${lat})`,
+    sql<{ source_id: string; observed_at: Date; valid_until: Date | null; properties: Record<string, unknown> }[]>`select * from warnings_at(${lng}, ${lat})`,
+    sql<{ source_id: string; last_ok: Date }[]>`
+      select source_id, max(finished_at) as last_ok from ingest_runs
+       where status in ('ok', 'partial') and source_id in ${sql(sourceIds)} group by source_id`,
+  ]);
+  const checked = ok.map((r) => ({ sourceId: r.source_id, lastSuccessAt: toIso(r.last_ok)! }));
+  return {
+    hotspotRadiusM,
+    hotspotDays,
+    hotspots: hot.map((r) => ({ sourceId: r.source_id, count: r.hotspot_count, latestObservedAt: toIso(r.latest_observed_at)!, nearestM: r.nearest_m })),
+    floods: floods.map((r) => ({ sourceId: r.source_id, kind: r.kind, observedAt: toIso(r.observed_at)!, properties: r.properties })),
+    warnings: warnings.map((r) => ({ sourceId: r.source_id, observedAt: toIso(r.observed_at)!, validUntil: toIso(r.valid_until), properties: r.properties })),
+    checked,
+    notConnected: sourceIds.filter((id) => !checked.some((c) => c.sourceId === id)),
+  };
 }

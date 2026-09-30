@@ -11,6 +11,7 @@
  */
 import { parseCoordValue, validateThaiPoint, type CoordRejection } from '@/lib/validation/geometry';
 import { cleanName, fieldKey, thaiDigitsToAscii } from '@/lib/import/text';
+import { parseCsvRows } from '@/lib/import/csv';
 
 export type VillageField = 'id' | 'nameTh' | 'nameEn' | 'moo' | 'lat' | 'lng' | 'subdistrict' | 'subdistrictCode' | 'district';
 
@@ -88,46 +89,9 @@ export function extractRecords(json: unknown): RawVillage[] {
   });
 }
 
-/** Minimal RFC 4180 CSV parser (quoted fields, embedded commas/newlines, BOM). */
+/** CSV villages file: one RawVillage per data row, keyed by the header. */
 export function parseCsv(text: string): RawVillage[] {
-  const rows: string[][] = [];
-  let row: string[] = [];
-  let field = '';
-  let quoted = false;
-  const s = text.replace(/^﻿/, '');
-  for (let i = 0; i < s.length; i++) {
-    const ch = s[i]!;
-    if (quoted) {
-      if (ch === '"') {
-        if (s[i + 1] === '"') {
-          field += '"';
-          i++;
-        } else quoted = false;
-      } else field += ch;
-    } else if (ch === '"') quoted = true;
-    else if (ch === ',') {
-      row.push(field);
-      field = '';
-    } else if (ch === '\n' || ch === '\r') {
-      if (ch === '\r' && s[i + 1] === '\n') i++;
-      row.push(field);
-      rows.push(row);
-      row = [];
-      field = '';
-    } else field += ch;
-  }
-  if (field !== '' || row.length) {
-    row.push(field);
-    rows.push(row);
-  }
-  const nonEmpty = rows.filter((r) => r.some((c) => c.trim() !== ''));
-  const [header, ...body] = nonEmpty;
-  if (!header) return [];
-  return body.map((r, index) => ({
-    index,
-    properties: Object.fromEntries(header.map((h, j) => [h.trim(), r[j] ?? ''])),
-    point: null,
-  }));
+  return parseCsvRows(text).map((properties, index) => ({ index, properties, point: null }));
 }
 
 /** Records that cannot be kept at all. Coordinate problems do not reject a village (see UnusableLocation). */

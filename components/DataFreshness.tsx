@@ -39,13 +39,23 @@ export function Dot({ color, className = '' }: { color: string; className?: stri
  * date the source states; if the source states none, the badge says so
  * instead of showing the import time as if it were the data date.
  */
-export function DataFreshness({ sourceId, observedAt, fetchedAt }: { sourceId: string; observedAt: string | null; fetchedAt: string | null }) {
+export function DataFreshness({ sourceId, observedAt, fetchedAt, checkedNothingFound }: { sourceId: string; observedAt: string | null; fetchedAt: string | null; checkedNothingFound?: boolean }) {
   const t = useT();
   const locale = useMapStore((s) => s.locale);
   const src = findSource(sourceId);
   if (!src) return null;
   const observed = observedAt ? new Date(observedAt) : null;
   const quality = classifyQuality(observed, src);
+
+  if (!observed && checkedNothingFound && fetchedAt) {
+    // Nothing detected is a result: say when the source was last checked, not "no date stated".
+    return (
+      <span className="inline-flex items-center gap-1.5 text-xs text-fg-muted" title={formatDateTime(new Date(fetchedAt), locale)}>
+        <Dot color="var(--neutral-dot)" />
+        <span className="tabular">{t('provenance.checkedNothingFound', { time: formatRelative(new Date(fetchedAt), locale) })}</span>
+      </span>
+    );
+  }
 
   if (!observed) {
     return (

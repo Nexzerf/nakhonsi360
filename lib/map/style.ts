@@ -195,6 +195,34 @@ export function selectionLayers(): LayerSpecification[] {
   ];
 }
 
+/** GeoJSON source for a live hazard layer (not clustered: each detection is shown). */
+export function hazardSource(layer: LayerDef, origin: string): SourceSpecification {
+  return { type: 'geojson', data: `${origin}/api/layers/${layer.id}` };
+}
+
+/**
+ * Hazard point layers (hotspots). One colour: a detection is a detection, and
+ * the sources' own confidence scales differ (VIIRS l/n/h, MODIS 0–100), so no
+ * colour scale is invented. Size grows with zoom only.
+ */
+export function hazardLayers(layer: LayerDef): LayerSpecification[] {
+  const color = layer.legend.type === 'circle' ? layer.legend.color : '#dc2626';
+  return [
+    {
+      id: `${OVERLAY_PREFIX}${layer.id}`,
+      type: 'circle',
+      source: overlaySourceId(layer.id),
+      paint: {
+        'circle-radius': ['interpolate', ['linear'], ['zoom'], 7, 3, 12, 5, 15, 8],
+        'circle-color': color,
+        'circle-opacity': 0.85,
+        'circle-stroke-color': '#ffffff',
+        'circle-stroke-width': 1,
+      },
+    },
+  ];
+}
+
 /** GeoJSON source for a live station layer: clustered at province zooms (≤ 9). */
 export function stationSource(layer: LayerDef, origin: string): SourceSpecification {
   return { type: 'geojson', data: `${origin}/api/layers/${layer.id}`, cluster: true, clusterMaxZoom: 9, clusterRadius: 36 };

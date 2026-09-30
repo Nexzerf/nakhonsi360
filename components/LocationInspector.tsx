@@ -2,13 +2,13 @@
 
 import { useQuery } from '@tanstack/react-query';
 import { useEffect, useRef, useState } from 'react';
-import { formatCoord, formatDistance } from '@/lib/freshness/format';
+import { formatCoord, formatDateTime, formatDistance } from '@/lib/freshness/format';
 import { placeName } from '@/lib/i18n';
 import { findSource } from '@/lib/registry/sources';
 import { COLORS, type IconId } from '@/lib/registry/layers';
 import { useIsMobile } from '@/lib/hooks';
 import { useMapStore, useT, type SheetSnap } from '@/lib/state/store';
-import type { AdminCard, CardResult, ConditionReading, ConditionsCard, ContextCard, FeatureKind, InspectResponse, InspectSection, SourceRef, VariableConditions, VillageCard } from '@/lib/types';
+import type { AdminCard, CardResult, ConditionReading, ConditionsCard, ContextCard, FeatureKind, HazardsCard, InspectResponse, InspectSection, SourceRef, VariableConditions, VillageCard } from '@/lib/types';
 import { CONDITION_VARIABLES } from '@/lib/registry/stationRules';
 import { DataFreshness } from '@/components/DataFreshness';
 import { GeoBreadcrumb } from '@/components/GeoBreadcrumb';
@@ -118,7 +118,7 @@ function SourceFooter({ refs }: { refs: SourceRef[] }) {
             <button type="button" className="min-h-6 text-left text-fg-muted underline decoration-line-strong underline-offset-2 hover:text-accent" onClick={() => useMapStore.getState().showInfo(null, s.sourceId)}>
               {src?.attribution ?? s.sourceId}
             </button>
-            <DataFreshness sourceId={s.sourceId} observedAt={s.observedAt} fetchedAt={s.fetchedAt} />
+            <DataFreshness sourceId={s.sourceId} observedAt={s.observedAt} fetchedAt={s.fetchedAt} checkedNothingFound={s.checkedNothingFound} />
           </div>
         );
       })}
@@ -423,6 +423,65 @@ function ConditionsCardView({ q }: { q: SectionQuery<ConditionsCard> }) {
   );
 }
 
+function HazardsCardView({ sel }: { sel: Sel }) {
+  const t = useT();
+  const locale = useMapStore((s) => s.locale);
+  const q = useSection<HazardsCard>('hazards', sel);
+  const r = q.data;
+  if (r?.status === 'not_connected') return <PlannedCard section="hazards" sel={sel} />;
+  if (r?.status !== 'ok') {
+    return (
+      <Card id="card-hazards" title={t('inspector.sections.hazards')} icon="warning">
+        <CardState q={q} />
+      </Card>
+    );
+  }
+  const d = r.data;
+  const radius = formatDistance(d.hotspotRadiusM, locale);
+  const srcName = (id: string) => {
+    const src = findSource(id);
+    return src ? (locale === 'en' ? src.datasetNameEn : src.datasetName) : id;
+  };
+  const hotspotSourcesChecked = d.checked.some((c) => findSource(c.sourceId)?.id.endsWith('hotspots'));
+  return (
+    <Card id="card-hazards" title={t('inspector.sections.hazards')} icon="warning">
+      <ul className="space-y-2">
+        {d.floods.map((f, i) => (
+          <li key={`f${i}`} className="flex items-start gap-2 text-sm">
+            <span aria-hidden="true" className="mt-0.5 shrink-0" style={{ color: COLORS.flood }}><Icon name="flood" size={16} /></span>
+            {t(`hazards.${f.kind === 'flood_recurrent' ? 'flood_recurrent' : 'flood'}`, { time: formatDateTime(new Date(f.observedAt), locale) })}
+          </li>
+        ))}
+        {d.warnings.map((w, i) => (
+          <li key={`w${i}`} className="flex items-start gap-2 text-sm">
+            <Icon name="warning" size={16} className="mt-0.5 shrink-0 text-warn" />
+            {t('hazards.warning', { time: formatDateTime(new Date(w.observedAt), locale) })}
+          </li>
+        ))}
+        {d.hotspots.map((h) => (
+          <li key={h.sourceId} className="flex items-start gap-2">
+            <span aria-hidden="true" className="mt-0.5 shrink-0" style={{ color: COLORS.fire }}><Icon name="fire" size={16} /></span>
+            <span className="min-w-0 flex-1">
+              <span className="block text-sm">{t('hazards.hotspotsFound', { count: h.count, radius, days: d.hotspotDays })}</span>
+              <span className="block text-xs text-fg-subtle">
+                {srcName(h.sourceId)} · {t('hazards.hotspotsNearest', { distance: formatDistance(h.nearestM, locale), time: formatDateTime(new Date(h.latestObservedAt), locale) })}
+              </span>
+            </span>
+          </li>
+        ))}
+      </ul>
+      {hotspotSourcesChecked && d.hotspots.length === 0 && <EmptyState main={t('hazards.noHotspots', { radius, days: d.hotspotDays })} />}
+      {hotspotSourcesChecked && <p className="mt-1.5 text-xs text-fg-subtle">{t('hazards.hotspotNote')}</p>}
+      {d.notConnected.length > 0 && (
+        <p className="mt-2 border-t border-line pt-2 text-xs text-fg-subtle">
+          {t('hazards.notConnected')}: {d.notConnected.map(srcName).join(', ')}
+        </p>
+      )}
+      <SourceFooter refs={r.sources} />
+    </Card>
+  );
+}
+
 const PLANNED_ICON: Record<'hazards' | 'satellite', IconId> = { hazards: 'warning', satellite: 'satellite' };
 
 function PlannedCard({ section, sel }: { section: 'hazards' | 'satellite'; sel: Sel }) {
@@ -577,7 +636,7 @@ export function LocationInspector() {
 
       <div className="scroll-thin flex-1 space-y-2.5 overflow-y-auto overscroll-contain bg-surface-subtle p-2.5 pb-6">
         <ConditionsCardView q={conditions} />
-        <PlannedCard section="hazards" sel={selection} />
+        <HazardsCardView sel={selection} />
         <VillageCardView q={village} />
         <ContextCardView q={context} />
         <AdminCardView q={admin} />
@@ -596,7 +655,7 @@ export function LocationInspector() {
                       {locale === 'en' ? src.organizationEn : src.organization}
                     </button>
                     <span className="block text-xs text-fg-subtle">{locale === 'en' ? src.datasetNameEn : src.datasetName}</span>
-                    <DataFreshness sourceId={r.sourceId} observedAt={r.observedAt} fetchedAt={r.fetchedAt} />
+                    <DataFreshness sourceId={r.sourceId} observedAt={r.observedAt} fetchedAt={r.fetchedAt} checkedNothingFound={r.checkedNothingFound} />
                   </li>
                 );
               })}

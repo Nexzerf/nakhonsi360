@@ -1,3 +1,5 @@
+import type { HazardKind } from '@/lib/ingest/types';
+
 /**
  * Map layer registry. Each overlay knows its group, source(s), zoom range,
  * icon and legend symbol. Layers whose phase is later than the current build
@@ -55,6 +57,8 @@ export interface LayerDef {
   sourceLayer?: string;
   /** Live station layers: the observation variable served by /api/layers/:id as GeoJSON. */
   variable?: string;
+  /** Live hazard layers: the hazard_features kind served by /api/layers/:id as GeoJSON, and how many days back. */
+  hazard?: { kind: HazardKind; days: number };
   /** Short note on zoom behaviour for the ⓘ panel. */
   zoomNoteTh?: string;
   zoomNoteEn?: string;
@@ -173,7 +177,7 @@ export const LAYERS: readonly LayerDef[] = [
   { id: 'flood', group: 'hazards', th: 'น้ำท่วม', en: 'Flood', icon: 'flood', sourceIds: ['gistda.flood'], phase: 2, defaultOn: false, minzoom: 0, legend: { type: 'fill', color: '#67e8f9', outline: COLORS.flood } },
   { id: 'flood-recurrent', group: 'hazards', th: 'น้ำท่วมซ้ำซาก', en: 'Recurrent flood', icon: 'flood', sourceIds: ['gistda.flood'], phase: 2, defaultOn: false, minzoom: 0, legend: { type: 'fill', color: '#a5f3fc', outline: COLORS.flood, pattern: 'hatch' } },
   { id: 'soil-moisture', group: 'hazards', th: 'ภัยแล้ง / ความชื้นในดิน', en: 'Drought / soil moisture', icon: 'drought', sourceIds: ['gistda.soilmoisture'], phase: 3, defaultOn: false, minzoom: 0, legend: { type: 'fill', color: '#fed7aa', outline: COLORS.drought } },
-  { id: 'hotspots', group: 'hazards', th: 'จุดความร้อน', en: 'Hotspots', icon: 'fire', sourceIds: ['gistda.hotspots', 'firms.hotspots'], phase: 2, defaultOn: false, minzoom: 0, legend: { type: 'circle', color: COLORS.fire, stroke: '#fff', radius: 4 } },
+  { id: 'hotspots', group: 'hazards', th: 'จุดความร้อน (7 วัน)', en: 'Hotspots (7 days)', icon: 'fire', sourceIds: ['gistda.hotspots', 'firms.hotspots'], phase: 2, defaultOn: false, minzoom: 0, hazard: { kind: 'hotspot', days: 7 }, legend: { type: 'circle', color: COLORS.fire, stroke: '#fff', radius: 4 } },
   { id: 'landslide', group: 'hazards', th: 'ดินถล่ม', en: 'Landslide risk', icon: 'landslide', sourceIds: ['dmr.landslide'], phase: 3, defaultOn: false, minzoom: 0, legend: { type: 'fill', color: '#fecaca', outline: COLORS.danger, pattern: 'dots' } },
   { id: 'earthquake', group: 'hazards', th: 'แผ่นดินไหว', en: 'Earthquakes', icon: 'earthquake', sourceIds: ['tmd.earthquake'], phase: 2, defaultOn: false, minzoom: 0, legend: { type: 'circle', color: '#7c3aed', stroke: '#fff', radius: 5 } },
 

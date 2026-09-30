@@ -296,12 +296,12 @@ export const SOURCES: readonly DataSource[] = [
     endpoint: 'https://firms.modaps.eosdis.nasa.gov/api/area/',
     requiresKey: true,
     expectedUpdateMinutes: 180,
-    coverage: 'Global',
-    verified: false,
-    verifiedAt: null,
+    coverage: 'Global; VIIRS (S-NPP, NOAA-20, NOAA-21, 375 m) and MODIS (Terra/Aqua, 1 km), near real time, several overpasses a day',
+    verified: true,
+    verifiedAt: '2026-09-30',
     optional: true,
     phase: 2,
-    verificationNote: NOT_STARTED,
+    verificationNote: 'ตรวจสอบแล้ว: เรียก Area API ด้วย MAP_KEY จริงสำหรับกรอบจังหวัด + 5 กม. ทั้ง 4 เซนเซอร์ บันทึกคำตอบจริงไว้ใน data/samples/firms.hotspots (ไม่มีคีย์) ช่วง 5 วันล่าสุดไม่มีจุดความร้อน (ฤดูฝน) ส่วนเดือน ก.ค.–ส.ค. 2569 พบ 208 จุด ค่าความเชื่อมั่นแสดงตามที่เผยแพร่ (VIIRS: l/n/h, MODIS: 0–100) — Verified: real Area API calls with a MAP_KEY for the province bbox + 5 km, all 4 sensors; responses saved in data/samples/firms.hotspots (key removed). No hotspots in the last 5 days (rainy season); 208 detections in Jul–Aug 2026. Confidence shown as published.',
   },
 
   // ---------------------------------------------------------------- Phase 3

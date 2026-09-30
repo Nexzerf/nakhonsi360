@@ -112,6 +112,8 @@ export interface SourceRef {
   observedAt: string | null;
   /** When we fetched/imported it. */
   fetchedAt: string | null;
+  /** The source was checked at fetchedAt and reported nothing here (e.g. no hotspots): there is no observation time to show. */
+  checkedNothingFound?: boolean;
 }
 
 export type CardResult<T> =
@@ -191,6 +193,19 @@ export interface VillageCard {
   unlocated: UnlocatedVillage[];
 }
 
+export interface HazardsCard {
+  hotspotRadiusM: number;
+  hotspotDays: number;
+  /** One row per source with detections in the radius (sources are never merged). */
+  hotspots: Array<{ sourceId: string; count: number; latestObservedAt: string; nearestM: number }>;
+  floods: Array<{ sourceId: string; kind: string; observedAt: string; properties: Record<string, unknown> }>;
+  warnings: Array<{ sourceId: string; observedAt: string; validUntil: string | null; properties: Record<string, unknown> }>;
+  /** Connected hazard sources and when each last delivered successfully (an empty result is still a result). */
+  checked: Array<{ sourceId: string; lastSuccessAt: string }>;
+  /** Hazard sources that are planned but not connected yet. */
+  notConnected: string[];
+}
+
 export interface ContextCard {
   radiusM: number;
   features: NearbyFeature[];
@@ -248,7 +263,7 @@ export interface InspectResponse {
     village: CardResult<VillageCard>;
     context: CardResult<ContextCard>;
     conditions: CardResult<ConditionsCard>;
-    hazards: CardResult<never>;
+    hazards: CardResult<HazardsCard>;
     satellite: CardResult<never>;
   }>;
 }
