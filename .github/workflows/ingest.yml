@@ -1,7 +1,8 @@
 name: Ingest live data
 
-# Pulls live sources (ThaiWater water level + 24-h rain, more as adapters are
-# verified) into the database every 15 minutes, then applies retention.
+# Pulls live sources (ThaiWater water level + 24-h rain, NASA FIRMS hotspots,
+# TMD NWP forecasts at most every 3 h) into the database every 15 minutes,
+# then applies retention.
 # Requires the DATABASE_URL repository secret; without it the job is skipped.
 on:
   schedule:
@@ -42,6 +43,7 @@ jobs:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
           TMD_UID: ${{ secrets.TMD_UID }}
           TMD_UKEY: ${{ secrets.TMD_UKEY }}
+          TMD_NWP_TOKEN: ${{ secrets.TMD_NWP_TOKEN }}
           GISTDA_API_KEY: ${{ secrets.GISTDA_API_KEY }}
           FIRMS_MAP_KEY: ${{ secrets.FIRMS_MAP_KEY }}
         run: |

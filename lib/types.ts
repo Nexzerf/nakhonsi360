@@ -206,6 +206,20 @@ export interface HazardsCard {
   notConnected: string[];
 }
 
+/** Model forecast for the subdistrict at a point (never shown as a measurement). */
+export interface ForecastCard {
+  sourceId: string;
+  placeCode: string;
+  placeName: string | null;
+  /** The source's reference point for the place, and its distance from the selected point. */
+  refLng: number;
+  refLat: number;
+  refDistanceM: number;
+  fetchedAt: string;
+  hourly: Array<{ validAt: string; values: Record<string, number> }>;
+  daily: Array<{ validAt: string; values: Record<string, number> }>;
+}
+
 export interface ContextCard {
   radiusM: number;
   features: NearbyFeature[];
@@ -252,7 +266,7 @@ export interface ConditionsCard {
   variables: VariableConditions[];
 }
 
-export type InspectSection = 'admin' | 'village' | 'context' | 'conditions' | 'hazards' | 'satellite';
+export type InspectSection = 'admin' | 'village' | 'context' | 'conditions' | 'forecast' | 'hazards' | 'satellite';
 
 export interface InspectResponse {
   lat: number;
@@ -263,6 +277,7 @@ export interface InspectResponse {
     village: CardResult<VillageCard>;
     context: CardResult<ContextCard>;
     conditions: CardResult<ConditionsCard>;
+    forecast: CardResult<ForecastCard>;
     hazards: CardResult<HazardsCard>;
     satellite: CardResult<never>;
   }>;

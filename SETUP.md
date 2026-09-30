@@ -101,8 +101,9 @@ Keys stay server-side (never `NEXT_PUBLIC_`). None are needed in Phase 1.
 | Variable | Service | How to get it |
 |---|---|---|
 | `TMD_UID`, `TMD_UKEY` | กรมอุตุนิยมวิทยา (TMD) open data API | Register at https://data.tmd.go.th → the account page shows `uid` and `ukey`. Data is copyrighted: credit "กรมอุตุนิยมวิทยา" wherever it is shown. |
+| `TMD_NWP_TOKEN` | TMD Weather Forecast API (NWP, WRF model) | Register at https://data.tmd.go.th/nwpapi/ and create an OAuth access token (a long JWT). Sent as `Authorization: Bearer …`. Limits: 60 requests/min, 100,000 datapoints/h; the adapter runs at most every 3 h (`npm run ingest -- --source tmd.nwp --force` to run it now). Credit "กรมอุตุนิยมวิทยา". Also add it as a GitHub Actions secret for the scheduled ingest. |
 | `GISTDA_API_KEY` | GISTDA API Gateway (flood, soil moisture) | Register at https://api-gateway.gistda.or.th and create an API key. |
-| `FIRMS_MAP_KEY` | NASA FIRMS (hotspot backup) | Request a MAP_KEY at https://firms.modaps.eosdis.nasa.gov/api/map_key/ (limit 5,000 requests / 10 min). |
+| `FIRMS_MAP_KEY` | NASA FIRMS (hotspots) | Request a MAP_KEY at https://firms.modaps.eosdis.nasa.gov/api/map_key/ (limit 5,000 transactions / 10 min). Also add it as a GitHub Actions secret for the scheduled ingest. |
 | `COPERNICUS_CLIENT_ID`, `COPERNICUS_CLIENT_SECRET` | Copernicus Data Space (Sentinel-2) | Create a free account at https://dataspace.copernicus.eu, then create OAuth client credentials in the dashboard. Check the free monthly quota. |
 | `SUPABASE_SERVICE_ROLE_KEY` | Supabase | Project Settings → API. Only for scheduled ingest jobs. |
 

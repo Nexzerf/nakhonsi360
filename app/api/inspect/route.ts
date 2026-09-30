@@ -1,6 +1,6 @@
 import { NextResponse, type NextRequest } from 'next/server';
 import { getDb, withTimeout, TimeoutError } from '@/lib/db/client';
-import { connectedSources, hazardsAt, inspectAdmin, latestAtStations, latestImports, nearestFeatures, nearestObservations, nearestVillages, unlocatedVillagesAt, waterwayNamesNear } from '@/lib/db/queries';
+import { connectedSources, forecastAt, hazardsAt, inspectAdmin, latestAtStations, latestImports, nearestFeatures, nearestObservations, nearestVillages, unlocatedVillagesAt, waterwayNamesNear } from '@/lib/db/queries';
 import { CONDITION_VARIABLES } from '@/lib/registry/stationRules';
 import { buildVariableConditions } from '@/lib/inspect/conditions';
 import type { CardResult, ConditionsCard, HazardsCard, ImportRecord, InspectResponse, InspectSection, SourceRef } from '@/lib/types';
@@ -9,10 +9,11 @@ export const dynamic = 'force-dynamic';
 
 const CARD_TIMEOUT_MS = 4000;
 const CONTEXT_RADIUS_M = 30_000;
-const ALL_SECTIONS: InspectSection[] = ['admin', 'village', 'context', 'conditions', 'hazards', 'satellite'];
+const ALL_SECTIONS: InspectSection[] = ['admin', 'village', 'context', 'conditions', 'forecast', 'hazards', 'satellite'];
 
 /** Sections whose sources are built in later phases. */
-const PLANNED: Record<'conditions' | 'hazards' | 'satellite', { phase: number; sourceIds: string[] }> = {
+const PLANNED: Record<'conditions' | 'forecast' | 'hazards' | 'satellite', { phase: number; sourceIds: string[] }> = {
+  forecast: { phase: 2, sourceIds: ['tmd.nwp'] },
   conditions: { phase: 2, sourceIds: ['thaiwater.rain24h', 'thaiwater.waterlevel', 'tmd.weather', 'air4thai.aqi'] },
   hazards: { phase: 2, sourceIds: ['gistda.flood', 'gistda.hotspots', 'firms.hotspots', 'dmr.landslide', 'dmcr.coast'] },
   satellite: { phase: 4, sourceIds: ['copernicus.sentinel2'] },
@@ -47,12 +48,12 @@ export async function GET(req: NextRequest) {
 
   if (sections.includes('satellite')) out.sections.satellite = { status: 'not_connected', ...PLANNED.satellite };
 
-  const wantDb = sections.filter((s) => s === 'admin' || s === 'village' || s === 'context' || s === 'conditions' || s === 'hazards');
+  const wantDb = sections.filter((s) => s !== 'satellite');
   if (wantDb.length === 0) return NextResponse.json(out);
 
   if (!sql) {
     for (const s of wantDb) {
-      out.sections[s] = s === 'conditions' || s === 'hazards' ? { status: 'not_connected', ...PLANNED[s] } : { status: 'unavailable', reason: 'database_not_configured' };
+      out.sections[s] = s === 'conditions' || s === 'forecast' || s === 'hazards' ? { status: 'not_connected', ...PLANNED[s] } : { status: 'unavailable', reason: 'database_not_configured' };
     }
     return NextResponse.json(out);
   }
@@ -140,6 +141,21 @@ export async function GET(req: NextRequest) {
     );
   }
 
+  if (wantDb.includes('forecast')) {
+    tasks.push(
+      (async () => {
+        out.sections.forecast = await guarded(async () => {
+          const connected = await connectedSources(sql);
+          if (!PLANNED.forecast.sourceIds.some((id) => connected.has(id))) return { status: 'not_connected', ...PLANNED.forecast };
+          if (await outside()) return { status: 'empty', reason: 'outside_study_area', sources: [] };
+          const data = await forecastAt(sql, lng, lat, FORECAST_HOURS, FORECAST_DAYS);
+          if (!data) return { status: 'empty', reason: 'no_public_data', sources: [] };
+          return { status: 'ok', data, sources: [{ sourceId: data.sourceId, observedAt: null, fetchedAt: data.fetchedAt }] };
+        });
+      })(),
+    );
+  }
+
   if (wantDb.includes('hazards')) {
     tasks.push(
       (async () => {
@@ -152,6 +168,8 @@ export async function GET(req: NextRequest) {
   return NextResponse.json(out, { headers: { 'Cache-Control': 'no-store' } });
 }
 
+const FORECAST_HOURS = 24;
+const FORECAST_DAYS = 7;
 const HOTSPOT_RADIUS_M = 5_000;
 const HOTSPOT_DAYS = 7;
 

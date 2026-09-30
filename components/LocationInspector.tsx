@@ -2,13 +2,13 @@
 
 import { useQuery } from '@tanstack/react-query';
 import { useEffect, useRef, useState } from 'react';
-import { formatCoord, formatDateTime, formatDistance } from '@/lib/freshness/format';
+import { formatCoord, formatDateTime, formatDay, formatDistance, formatHour } from '@/lib/freshness/format';
 import { placeName } from '@/lib/i18n';
 import { findSource } from '@/lib/registry/sources';
 import { COLORS, type IconId } from '@/lib/registry/layers';
 import { useIsMobile } from '@/lib/hooks';
 import { useMapStore, useT, type SheetSnap } from '@/lib/state/store';
-import type { AdminCard, CardResult, ConditionReading, ConditionsCard, ContextCard, FeatureKind, HazardsCard, InspectResponse, InspectSection, SourceRef, VariableConditions, VillageCard } from '@/lib/types';
+import type { AdminCard, CardResult, ConditionReading, ConditionsCard, ContextCard, FeatureKind, ForecastCard, HazardsCard, InspectResponse, InspectSection, SourceRef, VariableConditions, VillageCard } from '@/lib/types';
 import { CONDITION_VARIABLES } from '@/lib/registry/stationRules';
 import { DataFreshness } from '@/components/DataFreshness';
 import { GeoBreadcrumb } from '@/components/GeoBreadcrumb';
@@ -423,6 +423,68 @@ function ConditionsCardView({ q }: { q: SectionQuery<ConditionsCard> }) {
   );
 }
 
+const num = (v: number | undefined, digits = 0) => (v === undefined ? '–' : v.toFixed(digits));
+
+function ForecastCardView({ sel }: { sel: Sel }) {
+  const t = useT();
+  const locale = useMapStore((s) => s.locale);
+  const q = useSection<ForecastCard>('forecast', sel);
+  const r = q.data;
+  if (r?.status === 'not_connected') return null;
+  if (r?.status !== 'ok') {
+    return (
+      <Card id="card-forecast" title={t('inspector.sections.forecast')} icon="rain">
+        <CardState q={q} />
+      </Card>
+    );
+  }
+  const d = r.data;
+  const cond = (v: number | undefined) => (v === undefined ? '' : t(`forecast.cond.${v}`));
+  // Every third hour keeps the card short; the values shown are the source's own hourly values.
+  const hours = d.hourly.filter((_, i) => i % 3 === 0).slice(0, 8);
+  const todayKey = formatDay(new Date(), locale);
+  return (
+    <Card id="card-forecast" title={t('inspector.sections.forecast')} icon="rain" aside={<span className="chip">{t('forecast.chip')}</span>}>
+      <p className="text-xs text-fg-muted">{t('forecast.modelNote')}</p>
+      <p className="mt-0.5 text-xs text-fg-subtle">{t('forecast.place', { name: d.placeName ?? d.placeCode, distance: formatDistance(d.refDistanceM, locale) })}</p>
+      {hours.length > 0 && (
+        <>
+          <h4 className="mt-2.5 text-xs font-semibold text-fg-muted">{t('forecast.nextHours')}</h4>
+          <ul className="mt-1 grid grid-cols-4 gap-1.5">
+            {hours.map((h) => (
+              <li key={h.validAt} className="rounded-md bg-surface-subtle px-1.5 py-1.5 text-center">
+                <span className="tabular block text-xs text-fg-subtle">{formatHour(new Date(h.validAt), locale)}</span>
+                <span className="tabular block text-sm font-semibold">{num(h.values.tc)}°</span>
+                <span className="block truncate text-[11px] text-fg-muted" title={cond(h.values.cond)}>{cond(h.values.cond)}</span>
+                {h.values.rain !== undefined && h.values.rain > 0 && <span className="tabular block text-[11px] text-fg-subtle">{t('forecast.rainShort', { value: num(h.values.rain, 1) })}</span>}
+              </li>
+            ))}
+          </ul>
+        </>
+      )}
+      {d.daily.length > 0 && (
+        <>
+          <h4 className="mt-2.5 text-xs font-semibold text-fg-muted">{t('forecast.nextDays')}</h4>
+          <ul className="mt-1 divide-y divide-line">
+            {d.daily.map((day) => {
+              const label = formatDay(new Date(day.validAt), locale);
+              return (
+                <li key={day.validAt} className="flex items-baseline gap-2 py-1.5 text-sm">
+                  <span className="w-24 shrink-0 text-fg-muted">{label === todayKey ? t('forecast.today') : label}</span>
+                  <span className="min-w-0 flex-1 truncate">{cond(day.values.cond)}</span>
+                  <span className="tabular shrink-0 text-xs text-fg-subtle">{day.values.rain !== undefined ? t('forecast.rain', { value: num(day.values.rain, 1) }) : ''}</span>
+                  <span className="tabular w-16 shrink-0 text-right font-medium">{t('forecast.tempRange', { min: num(day.values.tc_min), max: num(day.values.tc_max) })}</span>
+                </li>
+              );
+            })}
+          </ul>
+        </>
+      )}
+      <SourceFooter refs={r.sources} />
+    </Card>
+  );
+}
+
 function HazardsCardView({ sel }: { sel: Sel }) {
   const t = useT();
   const locale = useMapStore((s) => s.locale);
@@ -517,6 +579,9 @@ export function LocationInspector() {
   const village = useSection<VillageCard>('village', selection);
   const context = useSection<ContextCard>('context', selection);
   const conditions = useSection<ConditionsCard>('conditions', selection);
+  // Same queries as the forecast and hazards cards (shared cache); used here for the sources list.
+  const forecast = useSection<ForecastCard>('forecast', selection);
+  const hazards = useSection<HazardsCard>('hazards', selection);
 
   // Highlight the containing subdistrict when the user clicked a bare point.
   useEffect(() => {
@@ -540,7 +605,7 @@ export function LocationInspector() {
   const crumbLevels = levels.filter((l) => l.level <= maxLevel);
   const villageCrumb = isVillage && selection.label ? { name: selection.label, lng: selection.lng, lat: selection.lat } : undefined;
 
-  const allRefs = [conditions, admin, village, context].flatMap((q) => (q.data && 'sources' in q.data ? q.data.sources : []));
+  const allRefs = [conditions, forecast, hazards, admin, village, context].flatMap((q) => (q.data && 'sources' in q.data ? q.data.sources : []));
   const uniqueRefs = [...new Map(allRefs.map((r) => [r.sourceId, r])).values()];
 
   const copy = async () => {
@@ -636,6 +701,7 @@ export function LocationInspector() {
 
       <div className="scroll-thin flex-1 space-y-2.5 overflow-y-auto overscroll-contain bg-surface-subtle p-2.5 pb-6">
         <ConditionsCardView q={conditions} />
+        <ForecastCardView sel={selection} />
         <HazardsCardView sel={selection} />
         <VillageCardView q={village} />
         <ContextCardView q={context} />

@@ -47,6 +47,16 @@ export function DataFreshness({ sourceId, observedAt, fetchedAt, checkedNothingF
   const observed = observedAt ? new Date(observedAt) : null;
   const quality = classifyQuality(observed, src);
 
+  if (!observed && src.kind === 'forecast' && fetchedAt) {
+    // A forecast has no observation time; say when it was fetched.
+    return (
+      <span className="inline-flex items-center gap-1.5 text-xs text-fg-muted" title={formatDateTime(new Date(fetchedAt), locale)}>
+        <Dot color="var(--info)" />
+        <span className="tabular">{t('provenance.forecastFetched', { time: formatRelative(new Date(fetchedAt), locale) })}</span>
+      </span>
+    );
+  }
+
   if (!observed && checkedNothingFound && fetchedAt) {
     // Nothing detected is a result: say when the source was last checked, not "no date stated".
     return (

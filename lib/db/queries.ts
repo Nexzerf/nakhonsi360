@@ -11,6 +11,7 @@ import type {
   ImportRecord,
   NearbyFeature,
   SearchHit,
+  ForecastCard,
   GazetteerType,
   HazardsCard,
   UnlocatedVillage,
@@ -390,5 +391,31 @@ export async function hazardsAt(
     warnings: warnings.map((r) => ({ sourceId: r.source_id, observedAt: toIso(r.observed_at)!, validUntil: toIso(r.valid_until), properties: r.properties })),
     checked,
     notConnected: sourceIds.filter((id) => !checked.some((c) => c.sourceId === id)),
+  };
+}
+
+// ---------------------------------------------------------------- forecasts
+
+/** Hourly and daily model forecast for the subdistrict containing the point; null when none is stored. */
+export async function forecastAt(sql: Sql, lng: number, lat: number, hours: number, days: number): Promise<ForecastCard | null> {
+  type Row = { source_id: string; place_code: string; place_name: string | null; valid_at: Date; fetched_at: Date; vals: Record<string, number>; ref_lng: number; ref_lat: number; distance_m: number };
+  const [hourly, daily] = await Promise.all([
+    sql<Row[]>`select * from forecast_at(${lng}, ${lat}, 'hourly', ${hours})`,
+    sql<Row[]>`select * from forecast_at(${lng}, ${lat}, 'daily', ${days})`,
+  ]);
+  const first = hourly[0] ?? daily[0];
+  if (!first) return null;
+  const fetched = [...hourly, ...daily].map((r) => new Date(r.fetched_at).getTime());
+  return {
+    sourceId: first.source_id,
+    placeCode: first.place_code,
+    placeName: first.place_name,
+    refLng: first.ref_lng,
+    refLat: first.ref_lat,
+    refDistanceM: first.distance_m,
+    // The oldest fetch among the rows shown, so the card never looks newer than its data.
+    fetchedAt: new Date(Math.min(...fetched)).toISOString(),
+    hourly: hourly.map((r) => ({ validAt: toIso(r.valid_at)!, values: r.vals })),
+    daily: daily.map((r) => ({ validAt: toIso(r.valid_at)!, values: r.vals })),
   };
 }

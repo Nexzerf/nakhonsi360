@@ -78,7 +78,8 @@
       "hazards": "Hazards",
       "context": "Geographic context",
       "satellite": "Satellite",
-      "sources": "Sources"
+      "sources": "Sources",
+      "forecast": "Weather forecast"
     },
     "admin": {
       "province": "Province",
@@ -158,7 +159,8 @@
     "noImport": "Not imported yet",
     "zoomNote": "Display",
     "locationQuality": "Of those imported: location corrected {corrected} (verified to lie in the subdistrict the source names) · without a usable location {unlocated} (searchable, not drawn on the map)",
-    "checkedNothingFound": "last checked {time} · nothing found"
+    "checkedNothingFound": "last checked {time} · nothing found",
+    "forecastFetched": "forecast · fetched {time}"
   },
   "freshness": {
     "LIVE": "Live",
@@ -230,5 +232,30 @@
     "flood_recurrent": "Inside a recurrent-flood area",
     "warning": "A warning in force covers this point (issued {time})",
     "notConnected": "Not connected yet"
+  },
+  "forecast": {
+    "modelNote": "Computer model forecast, not a measurement",
+    "place": "Forecast for the reference point of {name} subdistrict ({distance} from the selected point)",
+    "nextHours": "Next hours",
+    "nextDays": "Daily",
+    "today": "Today",
+    "rain": "rain {value} mm",
+    "tempRange": "{min}–{max}°",
+    "cond": {
+      "1": "Clear",
+      "2": "Partly cloudy",
+      "3": "Cloudy",
+      "4": "Overcast",
+      "5": "Light rain",
+      "6": "Moderate rain",
+      "7": "Heavy rain",
+      "8": "Thunderstorm",
+      "9": "Very cold",
+      "10": "Cold",
+      "11": "Cool",
+      "12": "Very hot"
+    },
+    "chip": "Forecast",
+    "rainShort": "{value} mm"
   }
 }
