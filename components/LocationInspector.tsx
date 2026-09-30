@@ -187,13 +187,19 @@ function VillageCardView({ q }: { q: SectionQuery<VillageCard> }) {
                   }}
                 >
                   <span aria-hidden="true" className="tabular flex h-8 min-w-8 shrink-0 items-center justify-center rounded-md px-1 text-xs font-semibold" style={{ background: `color-mix(in srgb, ${COLORS.village} 12%, transparent)`, color: COLORS.village }}>
-                    {v.moo ?? '·'}
+                    {v.moo ?? <Icon name="village" size={16} />}
                   </span>
                   <span className="min-w-0 flex-1">
                     <span className="block truncate text-sm">{placeName(locale, v.nameTh, v.nameEn)}</span>
                     <span className="block truncate text-xs text-fg-subtle">
-                      {[v.moo ? t('inspector.village.moo', { moo: v.moo }) : null, v.subdistrictTh ? `ต.${v.subdistrictTh}` : null, v.districtTh ? `อ.${v.districtTh}` : null].filter(Boolean).join(' · ')}
+                      {[v.moo ? t('inspector.village.moo', { moo: v.moo }) : null, v.subdistrictTh ? `ต.${v.subdistrictTh}` : null, v.districtTh ? `อ.${v.districtTh}` : null, t('inspector.village.code', { code: v.id })].filter(Boolean).join(' · ')}
                     </span>
+                    {v.sharedLocationCount > 1 && (
+                      <span className="mt-0.5 flex items-start gap-1 text-[11px] text-warn">
+                        <Icon name="alert" size={12} className="mt-0.5 shrink-0" />
+                        {t('inspector.village.sharedLocation', { n: v.sharedLocationCount - 1 })}
+                      </span>
+                    )}
                   </span>
                   <Distance meters={v.distanceM} />
                 </RowButton>

@@ -138,6 +138,8 @@ export interface VillageHit {
   lng: number;
   lat: number;
   distanceM: number;
+  /** Number of source records at this exact coordinate (1 = unique). */
+  sharedLocationCount: number;
 }
 
 export type FeatureKind =

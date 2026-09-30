@@ -88,7 +88,9 @@
     "village": {
       "moo": "Moo {moo}",
       "distance": "{distance} away",
-      "nearestNote": "Villages are DOPA location points with no boundary; distance is to the point"
+      "nearestNote": "Villages are DOPA location points with no boundary; distance is to the point",
+      "code": "code {code}",
+      "sharedLocation": "In the source this location is shared with {n} other village(s), so it may not be the village's actual position"
     },
     "features": {
       "river": "Nearest river",

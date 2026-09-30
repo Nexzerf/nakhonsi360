@@ -1,10 +1,11 @@
 /**
  * Parse the DOPA village dataset ("ข้อมูลที่ตั้งและสภาพทั่วไปของหมู่บ้าน").
  *
- * The exact schema of the GD Catalog file has not been verified yet (the build
- * environment could not reach gdcatalog.go.th), so field names are detected
- * from candidates and can be overridden. Records that cannot be parsed are
- * rejected with a reason — never guessed, never filled with placeholders.
+ * Verified schema (2023 release, นครศรีธรรมราช): a JSON array with `mcode`
+ * (8-digit village code), `mname`, `tname`/`tcode`, `aname`/`acode`,
+ * `oct_side15_lat`/`oct_side15_lon` and ~65 survey fields. There is no
+ * village-number (หมู่ที่) field. Other candidates are kept for other releases.
+ * Records that cannot be parsed are rejected with a reason — never guessed.
  */
 import { parseCoordValue, validateThaiPoint, type CoordRejection } from '@/lib/validation/geometry';
 import { cleanName, fieldKey, thaiDigitsToAscii } from '@/lib/import/text';
@@ -12,14 +13,14 @@ import { cleanName, fieldKey, thaiDigitsToAscii } from '@/lib/import/text';
 export type VillageField = 'id' | 'nameTh' | 'nameEn' | 'moo' | 'lat' | 'lng' | 'subdistrict' | 'district';
 
 export const VILLAGE_FIELD_CANDIDATES: Record<VillageField, string[]> = {
-  id: ['village_code', 'vill_code', 'villagecode', 'vil_code', 'vcode', 'mb_code', 'รหัสหมู่บ้าน', 'รหัส', 'code', 'id'],
-  nameTh: ['village_name_th', 'village_name', 'vill_name', 'villagename', 'vil_name', 'mb_name', 'ชื่อหมู่บ้าน', 'หมู่บ้าน', 'name_th', 'name'],
+  id: ['mcode', 'village_code', 'vill_code', 'villagecode', 'vil_code', 'vcode', 'mb_code', 'รหัสหมู่บ้าน', 'รหัส', 'code', 'id'],
+  nameTh: ['mname', 'village_name_th', 'village_name', 'vill_name', 'villagename', 'vil_name', 'mb_name', 'ชื่อหมู่บ้าน', 'หมู่บ้าน', 'name_th', 'name'],
   nameEn: ['village_name_en', 'vill_name_e', 'name_en', 'eng_name', 'name_eng'],
   moo: ['moo', 'village_no', 'vill_no', 'moo_no', 'mu', 'หมู่ที่', 'หมู่'],
-  lat: ['latitude', 'lat', 'ละติจูด', 'lat_dd', 'gps_lat', 'y_coord', 'y'],
-  lng: ['longitude', 'lon', 'long', 'lng', 'ลองจิจูด', 'lon_dd', 'gps_long', 'gps_lon', 'x_coord', 'x'],
-  subdistrict: ['tambon_name', 'tambon', 'subdistrict', 'tam_name', 'ตำบล', 'ชื่อตำบล'],
-  district: ['amphoe_name', 'amphoe', 'district', 'amp_name', 'อำเภอ', 'ชื่ออำเภอ'],
+  lat: ['oct_side15_lat', 'latitude', 'lat', 'ละติจูด', 'lat_dd', 'gps_lat', 'y_coord', 'y'],
+  lng: ['oct_side15_lon', 'longitude', 'lon', 'long', 'lng', 'ลองจิจูด', 'lon_dd', 'gps_long', 'gps_lon', 'x_coord', 'x'],
+  subdistrict: ['tname', 'tambon_name', 'tambon', 'subdistrict', 'tam_name', 'ตำบล', 'ชื่อตำบล'],
+  district: ['aname', 'amphoe_name', 'amphoe', 'district', 'amp_name', 'อำเภอ', 'ชื่ออำเภอ'],
 };
 
 export type VillageFieldMap = Partial<Record<VillageField, string>>;
@@ -136,6 +137,9 @@ export interface ParsedVillage {
   lng: number;
   lat: number;
   adminText: string | null;
+  /** Subdistrict / district names as stated by the source for this village. */
+  subdistrictText: string | null;
+  districtText: string | null;
   properties: Record<string, unknown>;
 }
 
@@ -181,9 +185,9 @@ export function parseVillages(
       continue;
     }
     seen.add(id);
-    const adminText = [map.subdistrict ? cleanName(p[map.subdistrict]) : null, map.district ? cleanName(p[map.district]) : null]
-      .filter(Boolean)
-      .join(' / ');
+    const subdistrictText = map.subdistrict ? cleanName(p[map.subdistrict]) : null;
+    const districtText = map.district ? cleanName(p[map.district]) : null;
+    const adminText = [subdistrictText, districtText].filter(Boolean).join(' / ');
     villages.push({
       id,
       nameTh,
@@ -192,6 +196,8 @@ export function parseVillages(
       lng: lng!,
       lat: lat!,
       adminText: adminText || null,
+      subdistrictText,
+      districtText,
       properties: p,
     });
   }

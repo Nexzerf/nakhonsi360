@@ -55,12 +55,12 @@ main(async () => {
       for (let i = 0; i < villages.length; i += 500) {
         const chunk = villages.slice(i, i + 500);
         await tx`
-          insert into stage_villages (id, name_th, name_en, moo, source_admin_text, geom, properties)
-          select v.id, v.name_th, v.name_en, v.moo, v.admin_text,
+          insert into stage_villages (id, name_th, name_en, moo, source_admin_text, source_subdistrict, source_district, geom, properties)
+          select v.id, v.name_th, v.name_en, v.moo, v.admin_text, v.sub, v.dist,
                  st_setsrid(st_makepoint(v.lng, v.lat), 4326), v.properties
             from jsonb_to_recordset(${tx.json(
-              chunk.map((v) => ({ id: v.id, name_th: v.nameTh, name_en: v.nameEn, moo: v.moo, admin_text: v.adminText, lng: v.lng, lat: v.lat, properties: v.properties })) as never,
-            )}::jsonb) as v(id text, name_th text, name_en text, moo smallint, admin_text text, lng float8, lat float8, properties jsonb)`;
+              chunk.map((v) => ({ id: v.id, name_th: v.nameTh, name_en: v.nameEn, moo: v.moo, admin_text: v.adminText, sub: v.subdistrictText, dist: v.districtText, lng: v.lng, lat: v.lat, properties: v.properties })) as never,
+            )}::jsonb) as v(id text, name_th text, name_en text, moo smallint, admin_text text, sub text, dist text, lng float8, lat float8, properties jsonb)`;
       }
       const outside = await tx<{ id: string }[]>`
         delete from stage_villages s
@@ -88,9 +88,16 @@ main(async () => {
       });
       await tx`delete from villages`;
       await tx`
-        insert into villages (id, name_th, name_en, moo, source_admin_text, geom, properties, import_id)
-        select id, name_th, name_en, moo, source_admin_text, geom, properties, ${importId} from stage_villages`;
+        insert into villages (id, name_th, name_en, moo, source_admin_text, source_subdistrict, source_district, geom, properties, import_id)
+        select id, name_th, name_en, moo, source_admin_text, source_subdistrict, source_district, geom, properties, ${importId} from stage_villages`;
       const [{ n: assigned } = { n: 0 }] = await tx<{ n: number }[]>`select assign_village_subdistricts() as n`;
+      await tx`select refresh_village_shared_locations()`;
+      const [{ n: mismatch } = { n: 0 }] = await tx<{ n: number }[]>`
+        select count(*)::int as n from villages v join admin_areas s on s.pcode = v.subdistrict_pcode
+         where v.source_subdistrict is not null and replace(s.name_th, ' ', '') <> replace(v.source_subdistrict, ' ', '')`;
+      console.log(`Villages whose point lies in a different subdistrict polygon than the one the source names (source names are shown): ${mismatch}`);
+      const [{ n: shared } = { n: 0 }] = await tx<{ n: number }[]>`select count(*)::int as n from villages where shared_location_count > 1`;
+      console.log(`Villages sharing an identical coordinate with another village (kept, flagged in the UI): ${shared}`);
       const [{ n: unassigned } = { n: 0 }] = await tx<{ n: number }[]>`select count(*)::int as n from villages where subdistrict_pcode is null`;
       const [{ n: gaz } = { n: 0 }] = await tx<{ n: number }[]>`select refresh_gazetteer() as n`;
       console.log(`Imported ${imported} villages (import id ${importId}); ${assigned - unassigned} inside a subdistrict polygon, ${unassigned} in the 5 km buffer only. Gazetteer: ${gaz}.`);

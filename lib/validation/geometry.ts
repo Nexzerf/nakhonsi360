@@ -1,6 +1,6 @@
 import { THAILAND_ENVELOPE, bboxContains } from '@/lib/geo/bbox';
 
-export type CoordRejection = 'not_a_number' | 'sentinel_value' | 'outside_thailand' | 'swapped_lat_lng';
+export type CoordRejection = 'not_a_number' | 'sentinel_value' | 'outside_thailand' | 'swapped_lat_lng' | 'projected_coordinates';
 
 const SENTINELS = new Set([-999, -9999, 9999, 999, 0]);
 
@@ -29,5 +29,7 @@ export function validateThaiPoint(lng: number | null, lat: number | null): { ok:
   if (SENTINELS.has(lng) || SENTINELS.has(lat)) return { ok: false, reason: 'sentinel_value' };
   if (bboxContains(THAILAND_ENVELOPE, lng, lat)) return { ok: true };
   if (bboxContains(THAILAND_ENVELOPE, lat, lng)) return { ok: false, reason: 'swapped_lat_lng' };
+  // Metres (e.g. UTM) in degree fields. Not converted: the datum (WGS84 vs Indian 1975) is not stated.
+  if (Math.abs(lng) > 1000 && Math.abs(lat) > 1000) return { ok: false, reason: 'projected_coordinates' };
   return { ok: false, reason: 'outside_thailand' };
 }

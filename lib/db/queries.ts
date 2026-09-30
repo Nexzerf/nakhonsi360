@@ -109,6 +109,7 @@ export async function nearestVillages(sql: Sql, lng: number, lat: number, limit 
       lng: number;
       lat: number;
       distance_m: number;
+      shared_location_count: number;
     }[]
   >`select * from nearest_villages(${lng}, ${lat}, ${limit})`;
   return rows.map((r) => ({
@@ -122,6 +123,7 @@ export async function nearestVillages(sql: Sql, lng: number, lat: number, limit 
     lng: r.lng,
     lat: r.lat,
     distanceM: r.distance_m,
+    sharedLocationCount: r.shared_location_count ?? 1,
   }));
 }
 
