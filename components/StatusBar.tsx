@@ -16,7 +16,10 @@ export function StatusBar() {
   const { data, isError } = useSources();
   const [open, setOpen] = useState(false);
 
-  const active = (data?.sources ?? []).filter((s) => s.phase <= CURRENT_PHASE && s.health.status !== 'external');
+  // Sources of the current phase plus any later-phase live source that is already connected.
+  const active = (data?.sources ?? []).filter(
+    (s) => s.health.status !== 'external' && (s.phase <= CURRENT_PHASE || ['ok', 'degraded', 'down'].includes(s.health.status)),
+  );
   const ok = active.filter((s) => s.health.status === 'ok').length;
   const last = active
     .map((s) => s.health.lastImport?.importedAt ?? s.health.lastRun?.finishedAt)

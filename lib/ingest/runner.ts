@@ -128,15 +128,21 @@ export async function runIngest(
           observed_at: o.observedAt,
           fetched_at: o.fetchedAt,
           official_status: o.officialStatus ?? null,
+          official_level: o.officialLevel ?? null,
+          official_color: o.officialColor ?? null,
+          official_detail: o.officialDetail ?? null,
           raw: (o.raw ?? null) as never,
         }));
       let obsInserted = 0;
       for (let i = 0; i < obsRows.length; i += 1000) {
         const r = await tx`
-          insert into observations (source_id, station_id, variable, value, unit, observed_at, fetched_at, official_status, raw)
-          select ${adapter.sourceId}, r.station_id, r.variable, r.value, r.unit, r.observed_at, r.fetched_at, r.official_status, r.raw
+          insert into observations (source_id, station_id, variable, value, unit, observed_at, fetched_at,
+                                    official_status, official_level, official_color, official_detail, raw)
+          select ${adapter.sourceId}, r.station_id, r.variable, r.value, r.unit, r.observed_at, r.fetched_at,
+                 r.official_status, r.official_level, r.official_color, r.official_detail, r.raw
             from jsonb_to_recordset(${tx.json(obsRows.slice(i, i + 1000) as never)}::jsonb)
-              as r(station_id text, variable text, value float8, unit text, observed_at timestamptz, fetched_at timestamptz, official_status text, raw jsonb)
+              as r(station_id text, variable text, value float8, unit text, observed_at timestamptz, fetched_at timestamptz,
+                   official_status text, official_level smallint, official_color text, official_detail text, raw jsonb)
           on conflict (source_id, station_id, variable, observed_at) do nothing`;
         obsInserted += r.count;
       }
@@ -169,6 +175,34 @@ export async function runIngest(
        where id = ${runId}`;
     return { ...base, ...counts, status, rejected: batch.rejections.length };
   } catch (err) {
-    return await fail(err instanceof Error ? err.message : String(err));
+    return await fail(describeError(err));
   }
+}
+
+/** Error text including the network cause (e.g. "fetch failed (ECONNRESET: socket hang up)"). */
+export function describeError(err: unknown): string {
+  if (!(err instanceof Error)) return String(err);
+  const cause = (err as Error & { cause?: { code?: string; message?: string } }).cause;
+  const detail = cause ? [cause.code, cause.message].filter(Boolean).join(': ') : '';
+  return detail && !err.message.includes(detail) ? `${err.message} (${detail})` : err.message;
+}
+
+/**
+ * GET with polite retries: network errors and 429/5xx are retried with
+ * backoff (2 s, 6 s); other HTTP errors fail immediately.
+ */
+export async function fetchWithRetry(fetchImpl: typeof fetch, url: string, init: RequestInit & { timeoutMs?: number } = {}, delays = [2000, 6000]): Promise<Response> {
+  let last: unknown;
+  for (let attempt = 0; attempt <= delays.length; attempt++) {
+    try {
+      const r = await fetchImpl(url, { ...init, signal: AbortSignal.timeout(init.timeoutMs ?? 60_000) });
+      if (r.status !== 429 && r.status < 500) return r;
+      last = new Error(`HTTP ${r.status}`);
+    } catch (err) {
+      last = err;
+    }
+    const wait = delays[attempt];
+    if (wait !== undefined) await new Promise((res) => setTimeout(res, wait));
+  }
+  throw last instanceof Error ? last : new Error(String(last));
 }

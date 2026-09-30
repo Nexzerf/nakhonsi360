@@ -8,7 +8,8 @@ import { findSource } from '@/lib/registry/sources';
 import { COLORS, type IconId } from '@/lib/registry/layers';
 import { useIsMobile } from '@/lib/hooks';
 import { useMapStore, useT, type SheetSnap } from '@/lib/state/store';
-import type { AdminCard, CardResult, ContextCard, FeatureKind, InspectResponse, InspectSection, SourceRef, VillageCard } from '@/lib/types';
+import type { AdminCard, CardResult, ConditionReading, ConditionsCard, ContextCard, FeatureKind, InspectResponse, InspectSection, SourceRef, VariableConditions, VillageCard } from '@/lib/types';
+import { CONDITION_VARIABLES } from '@/lib/registry/stationRules';
 import { DataFreshness } from '@/components/DataFreshness';
 import { GeoBreadcrumb } from '@/components/GeoBreadcrumb';
 import { Icon } from '@/components/Icon';
@@ -268,9 +269,135 @@ function ContextCardView({ q }: { q: SectionQuery<ContextCard> }) {
   );
 }
 
-const PLANNED_ICON: Record<'conditions' | 'hazards' | 'satellite', IconId> = { conditions: 'rain', hazards: 'warning', satellite: 'satellite' };
+// ---------------------------------------------------------------- current conditions
 
-function PlannedCard({ section, sel }: { section: 'conditions' | 'hazards' | 'satellite'; sel: Sel }) {
+function formatValue(v: number, variable: string, locale: string): string {
+  const decimals = CONDITION_VARIABLES.find((r) => r.variable === variable)?.decimals ?? 1;
+  return v.toLocaleString(locale === 'th' ? 'th-TH' : 'en-GB', { minimumFractionDigits: decimals, maximumFractionDigits: decimals });
+}
+
+function Reading({ r, variable, elsewhere }: { r: ConditionReading; variable: string; elsewhere?: boolean }) {
+  const t = useT();
+  const locale = useMapStore((s) => s.locale);
+  const src = findSource(r.sourceId);
+  const station = placeName(locale, r.stationNameTh, r.stationNameEn);
+  const org = src ? (locale === 'en' ? src.organizationEn : src.organization) : r.sourceId;
+  return (
+    <div className={elsewhere ? 'rounded-md border border-dashed border-line-strong px-3 py-2' : ''}>
+      <div className="flex flex-wrap items-baseline gap-x-2 gap-y-1">
+        <span className={`tabular font-semibold tracking-tight ${elsewhere ? 'text-lg text-fg-muted' : 'text-2xl'}`}>{formatValue(r.value, variable, locale)}</span>
+        <span className="text-sm text-fg-muted">{t(`units.${r.unit}`)}</span>
+        {r.officialStatus && (
+          <span className="chip" style={r.officialColor ? { borderColor: r.officialColor } : undefined}>
+            {r.officialColor && <span aria-hidden="true" className="h-2 w-2 rounded-full" style={{ background: r.officialColor }} />}
+            {r.officialStatus}
+          </span>
+        )}
+      </div>
+      {(r.officialDetail || r.bankPercent !== null) && (
+        <p className="mt-0.5 text-xs text-fg-muted">
+          {[r.officialDetail, r.bankPercent !== null ? t('conditions.bankPct', { pct: formatValue(r.bankPercent, 'water_level_bank_pct', locale) }) : null].filter(Boolean).join(' · ')}
+        </p>
+      )}
+      <p className="mt-1 text-xs text-fg-subtle">
+        {station && <span className="text-fg-muted">{station}</span>}
+        {' · '}
+        {r.distanceM < 50 ? t('conditions.atStation') : t('conditions.distance', { distance: formatDistance(r.distanceM, locale) })}
+        {r.agencyTh && <> · {t('conditions.via', { agency: r.agencyTh, source: org })}</>}
+      </p>
+      <div className="mt-1">
+        <DataFreshness sourceId={r.sourceId} observedAt={r.observedAt} fetchedAt={r.fetchedAt} />
+      </div>
+      {r.officialStatus && !elsewhere && (
+        <p className="mt-1 text-[11px] text-fg-subtle">{t('conditions.statusNote', { source: src?.organization ?? r.sourceId })}</p>
+      )}
+    </div>
+  );
+}
+
+function VariableRow({ v }: { v: VariableConditions }) {
+  const t = useT();
+  const locale = useMapStore((s) => s.locale);
+  const rule = CONDITION_VARIABLES.find((r) => r.variable === v.variable);
+  const label = rule ? (locale === 'en' ? rule.en : rule.th) : v.variable;
+  const radius = formatDistance(v.rule.radiusM, locale);
+  return (
+    <li className="py-2.5 first:pt-0.5">
+      <div className="mb-1 flex items-center gap-2">
+        <span className="text-xs font-semibold text-fg-muted">{label}</span>
+        {v.disagree && (
+          <span className="chip border-warn text-warn">
+            <Icon name="alert" size={12} /> {t('conditions.disagree')}
+          </span>
+        )}
+      </div>
+      {v.readings.length > 0 ? (
+        <div className="space-y-3">
+          {v.readings.map((r) => (
+            <Reading key={r.sourceId} r={r} variable={v.variable} />
+          ))}
+        </div>
+      ) : (
+        <div className="space-y-2">
+          <EmptyState
+            main={v.rule.kind === 'same_river' ? t('conditions.noStationRiver', { radius }) : t('conditions.noStationRadius', { radius })}
+            reason={v.rule.kind === 'same_river' ? t('conditions.riverRuleNote') : undefined}
+          />
+          {v.elsewhere && (
+            <div>
+              <p className="mb-1 text-[11px] text-fg-subtle">{t('conditions.elsewhere')}</p>
+              <Reading r={v.elsewhere} variable={v.variable} elsewhere />
+            </div>
+          )}
+        </div>
+      )}
+    </li>
+  );
+}
+
+function ConditionsCardView({ q }: { q: SectionQuery<ConditionsCard> }) {
+  const t = useT();
+  const locale = useMapStore((s) => s.locale);
+  const r = q.data;
+  if (r?.status === 'not_connected') {
+    return (
+      <Card id="card-conditions" title={t('inspector.sections.conditions')} icon="rain" aside={<span className="chip">{t('layers.plannedPhase', { phase: r.phase })}</span>}>
+        <EmptyState main={t('empty.noPublicData')} reason={`${t('inspector.plannedLabel')}: ${t('inspector.planned.conditions')}`} />
+      </Card>
+    );
+  }
+  if (r?.status !== 'ok') {
+    return (
+      <Card id="card-conditions" title={t('inspector.sections.conditions')} icon="rain">
+        <CardState q={q} />
+      </Card>
+    );
+  }
+  const live = r.data.variables.filter((v) => v.connectedSourceIds.length > 0);
+  const pending = r.data.variables.filter((v) => v.connectedSourceIds.length === 0);
+  const label = (variable: string) => {
+    const rule = CONDITION_VARIABLES.find((x) => x.variable === variable);
+    return rule ? (locale === 'en' ? rule.en : rule.th) : variable;
+  };
+  return (
+    <Card id="card-conditions" title={t('inspector.sections.conditions')} icon="rain">
+      <ul className="divide-y divide-line">
+        {live.map((v) => (
+          <VariableRow key={v.variable} v={v} />
+        ))}
+      </ul>
+      {pending.length > 0 && (
+        <p className="mt-2 border-t border-line pt-2 text-xs text-fg-subtle">
+          {t('conditions.pending')}: {pending.map((v) => label(v.variable)).join(', ')}
+        </p>
+      )}
+    </Card>
+  );
+}
+
+const PLANNED_ICON: Record<'hazards' | 'satellite', IconId> = { hazards: 'warning', satellite: 'satellite' };
+
+function PlannedCard({ section, sel }: { section: 'hazards' | 'satellite'; sel: Sel }) {
   const t = useT();
   const q = useSection<never>(section, sel);
   const phase = q.data?.status === 'not_connected' ? q.data.phase : null;
@@ -302,6 +429,7 @@ export function LocationInspector() {
   const admin = useSection<AdminCard>('admin', selection);
   const village = useSection<VillageCard>('village', selection);
   const context = useSection<ContextCard>('context', selection);
+  const conditions = useSection<ConditionsCard>('conditions', selection);
 
   // Highlight the containing subdistrict when the user clicked a bare point.
   useEffect(() => {
@@ -318,10 +446,14 @@ export function LocationInspector() {
   const sub = levels.find((l) => l.level === 3);
   const isVillage = selection.highlight?.layerId === 'villages';
   const title = selection.label ?? (sub ? (locale === 'th' || !sub.nameEn ? `ต.${sub.nameTh}` : sub.nameEn) : t('inspector.selectedPoint'));
-  const kind = isVillage ? t('inspector.type.village') : selection.label ? t('inspector.type.place') : sub ? t('inspector.type.subdistrict') : t('inspector.type.point');
+  const kindKey = selection.kind ?? (isVillage ? 'village' : selection.label ? 'place' : sub ? 'subdistrict' : 'point');
+  const kind = t(`inspector.type.${kindKey === 'point' && sub && !selection.label ? 'subdistrict' : kindKey}`);
+  // An admin-area selection stops the breadcrumb at its own level.
+  const maxLevel = kindKey === 'province' ? 1 : kindKey === 'district' ? 2 : 3;
+  const crumbLevels = levels.filter((l) => l.level <= maxLevel);
   const villageCrumb = isVillage && selection.label ? { name: selection.label, lng: selection.lng, lat: selection.lat } : undefined;
 
-  const allRefs = [admin, village, context].flatMap((q) => (q.data && 'sources' in q.data ? q.data.sources : []));
+  const allRefs = [conditions, admin, village, context].flatMap((q) => (q.data && 'sources' in q.data ? q.data.sources : []));
   const uniqueRefs = [...new Map(allRefs.map((r) => [r.sourceId, r])).values()];
 
   const copy = async () => {
@@ -394,9 +526,9 @@ export function LocationInspector() {
           <h2 id="inspector-title" className="mt-0.5 text-xl leading-snug font-semibold tracking-tight" tabIndex={-1}>
             {title}
           </h2>
-          {levels.length > 0 && (
+          {crumbLevels.length > 0 && (
             <div className="mt-1">
-              <GeoBreadcrumb levels={levels} village={villageCrumb} />
+              <GeoBreadcrumb levels={crumbLevels} village={villageCrumb} />
             </div>
           )}
           <div className="mt-2 flex items-center gap-2">
@@ -416,7 +548,7 @@ export function LocationInspector() {
       </header>
 
       <div className="scroll-thin flex-1 space-y-2.5 overflow-y-auto overscroll-contain bg-surface-subtle p-2.5 pb-6">
-        <PlannedCard section="conditions" sel={selection} />
+        <ConditionsCardView q={conditions} />
         <PlannedCard section="hazards" sel={selection} />
         <VillageCardView q={village} />
         <ContextCardView q={context} />

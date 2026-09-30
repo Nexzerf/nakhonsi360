@@ -183,3 +183,70 @@ export function selectionLayers(): LayerSpecification[] {
     { id: `${OVERLAY_PREFIX}selection`, type: 'circle', source: SELECTION_SOURCE, paint: { 'circle-radius': 6, 'circle-color': '#1d4ed8', 'circle-stroke-color': '#ffffff', 'circle-stroke-width': 2 } },
   ];
 }
+
+/** GeoJSON source for a live station layer: clustered at province zooms (≤ 9). */
+export function stationSource(layer: LayerDef, origin: string): SourceSpecification {
+  return { type: 'geojson', data: `${origin}/api/layers/${layer.id}`, cluster: true, clusterMaxZoom: 9, clusterRadius: 36 };
+}
+
+/**
+ * Station layers. The fill colour is the source's own official status colour
+ * when it publishes one (ThaiWater water level); otherwise a neutral layer
+ * colour with no meaning attached. Values are labelled from zoom 10.
+ */
+export function stationLayers(layer: LayerDef, locale: Locale): LayerSpecification[] {
+  const source = overlaySourceId(layer.id);
+  const id = (s: string) => `${OVERLAY_PREFIX}${layer.id}${s}`;
+  const neutral = layer.legend.type === 'circle' ? layer.legend.color : '#475569';
+  const unitLabel = layer.variable === 'rain_24h' ? (locale === 'th' ? ' มม.' : ' mm') : layer.variable === 'water_level' ? (locale === 'th' ? ' ม.รทก.' : ' m MSL') : '';
+  return [
+    {
+      id: id('-cluster'),
+      type: 'circle',
+      source,
+      filter: ['has', 'point_count'],
+      paint: {
+        'circle-color': layer.variable === 'rain_24h' ? '#eff6ff' : '#f8fafc',
+        'circle-stroke-color': neutral,
+        'circle-stroke-width': 2,
+        'circle-radius': ['step', ['get', 'point_count'], 12, 10, 15, 30, 19],
+      },
+    },
+    {
+      id: id('-cluster-count'),
+      type: 'symbol',
+      source,
+      filter: ['has', 'point_count'],
+      layout: { 'text-field': ['get', 'point_count_abbreviated'], 'text-font': ['Noto Sans Regular'], 'text-size': 11, 'text-allow-overlap': true },
+      paint: { 'text-color': '#1f2937' },
+    },
+    {
+      id: id(''),
+      type: 'circle',
+      source,
+      filter: ['!', ['has', 'point_count']],
+      paint: {
+        'circle-radius': ['interpolate', ['linear'], ['zoom'], 8, 5, 14, 8],
+        'circle-color': ['coalesce', ['get', 'official_color'], neutral],
+        'circle-stroke-color': '#ffffff',
+        'circle-stroke-width': 1.75,
+      },
+    },
+    {
+      id: id('-label'),
+      type: 'symbol',
+      source,
+      minzoom: 10,
+      filter: ['!', ['has', 'point_count']],
+      layout: {
+        'text-field': ['concat', ['number-format', ['get', 'value'], { 'max-fraction-digits': 2 }], unitLabel],
+        'text-font': ['Noto Sans Regular'],
+        'text-size': 11,
+        'text-offset': [0, 1.1],
+        'text-anchor': 'top',
+        'text-optional': true,
+      },
+      paint: { 'text-color': '#111827', 'text-halo-color': '#ffffff', 'text-halo-width': 1.5 },
+    },
+  ];
+}

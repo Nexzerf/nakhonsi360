@@ -9,6 +9,11 @@ export const PLAUSIBLE_RANGES: Record<string, { unit: string; min: number; max: 
   pm25: { unit: 'µg/m³', min: 0, max: 1000 },
   wind_speed: { unit: 'm/s', min: 0, max: 90 },
   wind_dir: { unit: '°', min: 0, max: 360 },
+  // Water surface elevation; Thai terrain spans below sea level (tidal) to ~2,565 m.
+  water_level: { unit: 'm MSL', min: -20, max: 2600 },
+  // ThaiWater "storage_percent": water level as % of channel (bank) capacity; > 100 means overbank.
+  // Negative when water is below the channel reference level (seen in real data down to about −58%).
+  water_level_bank_pct: { unit: '%', min: -1000, max: 1000 },
 };
 
 /** Values that sources use to mean "missing". */

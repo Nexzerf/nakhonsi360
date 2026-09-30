@@ -1,0 +1,8018 @@
+{
+ "_sample": {
+  "fetchedAt": "2026-09-29T21:17:00Z",
+  "fetchedAtNote": "file mtime of the download (UTC)",
+  "filter": "records with geocode.province_code == '80' (นครศรีธรรมราช), unmodified",
+  "url": "https://api-v3.thaiwater.net/api/v1/thaiwater30/public/rain_24h",
+  "fullResponseSha256": "f301474aee36e7b5215c2384cd3f77c18d1e1c4aad902fce53a087d7dccd68c6",
+  "fullResponseBytes": 4498887,
+  "totalRecords": 4359
+ },
+ "result": "OK",
+ "data": [
+  {
+   "id": 312557872,
+   "rain_24h": 46.5,
+   "rain_1h": 0,
+   "rainfall_datetime": "2026-09-30 02:00",
+   "station_type": "rainfall_24h",
+   "agency": {
+    "agency_name": {
+     "th": "กรมทรัพยากรน้ำ",
+     "en": "Department of Water Resources",
+     "jp": ""
+    },
+    "agency_shortname": {
+     "th": "ทน.",
+     "en": "DWR",
+     "jp": ""
+    }
+   },
+   "geocode": {
+    "warning_zone": "09",
+    "area_code": "5",
+    "area_name": {
+     "th": "ภาคใต้",
+     "en": "South"
+    },
+    "amphoe_name": {
+     "th": "นบพิตำ",
+     "en": "Nopphitam District"
+    },
+    "tumbon_name": {
+     "th": "กรุงชิง",
+     "en": "Krung Ching"
+    },
+    "province_code": "80",
+    "province_name": {
+     "th": "นครศรีธรรมราช",
+     "en": "Nakhon Si Thammarat"
+    }
+   },
+   "station": {
+    "id": 1080887,
+    "tele_station_name": {
+     "th": "บ้านห้วยตง"
+    },
+    "tele_station_lat": 8.918984,
+    "tele_station_long": 99.611986,
+    "tele_station_oldcode": "STN1598",
+    "tele_station_type": "rainfall_24h",
+    "sub_basin_id": "1917"
+   },
+   "basin": {
+    "id": 22,
+    "basin_code": 19,
+    "basin_name": {
+     "th": "ลุ่มน้ำภาคใต้ฝั่งตะวันออกตอนบน",
+     "en": "Peninsula - Upper East Coast Basin"
+    }
+   }
+  },
+  {
+   "id": 312559631,
+   "rain_24h": 42,
+   "rain_1h": 0,
+   "rainfall_datetime": "2026-09-30 03:00",
+   "station_type": "rainfall_24h",
+   "agency": {
+    "agency_name": {
+     "th": "กรมชลประทาน ",
+     "en": "Royal Irrigation Department",
+     "jp": ""
+    },
+    "agency_shortname": {
+     "th": "ชป.",
+     "en": "RID",
+     "jp": ""
+    }
+   },
+   "geocode": {
+    "warning_zone": "09",
+    "area_code": "5",
+    "area_name": {
+     "th": "ภาคใต้",
+     "en": "South"
+    },
+    "amphoe_name": {
+     "th": "เชียรใหญ่",
+     "en": "Chian Yai District"
+    },
+    "tumbon_name": {
+     "th": "การะเกด",
+     "en": "Karaket"
+    },
+    "province_code": "80",
+    "province_name": {
+     "th": "นครศรีธรรมราช",
+     "en": "Nakhon Si Thammarat"
+    }
+   },
+   "station": {
+    "id": 1317057,
+    "tele_station_name": {
+     "th": "บ้านการะเกด"
+    },
+    "tele_station_lat": 8.085369,
+    "tele_station_long": 100.132404,
+    "tele_station_oldcode": "ridtele_TPN13",
+    "tele_station_type": "rainfall_24h",
+    "sub_basin_id": "1919"
+   },
+   "basin": {
+    "id": 22,
+    "basin_code": 19,
+    "basin_name": {
+     "th": "ลุ่มน้ำภาคใต้ฝั่งตะวันออกตอนบน",
+     "en": "Peninsula - Upper East Coast Basin"
+    }
+   }
+  },
+  {
+   "id": 312557257,
+   "rain_24h": 42,
+   "rainfall_datetime": "2026-09-30 02:00",
+   "station_type": "rainfall_24h",
+   "agency": {
+    "agency_name": {
+     "th": "กรมทรัพยากรน้ำ",
+     "en": "Department of Water Resources",
+     "jp": ""
+    },
+    "agency_shortname": {
+     "th": "ทน.",
+     "en": "DWR",
+     "jp": ""
+    }
+   },
+   "geocode": {
+    "warning_zone": "09",
+    "area_code": "5",
+    "area_name": {
+     "th": "ภาคใต้",
+     "en": "South"
+    },
+    "amphoe_name": {
+     "th": "นบพิตำ",
+     "en": "Nopphitam District"
+    },
+    "tumbon_name": {
+     "th": "กรุงชิง",
+     "en": "Krung Ching"
+    },
+    "province_code": "80",
+    "province_name": {
+     "th": "นครศรีธรรมราช",
+     "en": "Nakhon Si Thammarat"
+    }
+   },
+   "station": {
+    "id": 1863,
+    "tele_station_name": {
+     "th": "บ้านปากลง"
+    },
+    "tele_station_lat": 8.802477,
+    "tele_station_long": 99.604791,
+    "tele_station_oldcode": "STN0061",
+    "tele_station_type": "rainfall_24h",
+    "sub_basin_id": "1918"
+   },
+   "basin": {
+    "id": 22,
+    "basin_code": 19,
+    "basin_name": {
+     "th": "ลุ่มน้ำภาคใต้ฝั่งตะวันออกตอนบน",
+     "en": "Peninsula - Upper East Coast Basin"
+    }
+   }
+  },
+  {
+   "id": 312557260,
+   "rain_24h": 40.5,
+   "rain_1h": 0,
+   "rainfall_datetime": "2026-09-30 02:00",
+   "station_type": "rainfall_24h",
+   "agency": {
+    "agency_name": {
+     "th": "กรมทรัพยากรน้ำ",
+     "en": "Department of Water Resources",
+     "jp": ""
+    },
+    "agency_shortname": {
+     "th": "ทน.",
+     "en": "DWR",
+     "jp": ""
+    }
+   },
+   "geocode": {
+    "warning_zone": "09",
+    "area_code": "5",
+    "area_name": {
+     "th": "ภาคใต้",
+     "en": "South"
+    },
+    "amphoe_name": {
+     "th": "นบพิตำ",
+     "en": "Nopphitam District"
+    },
+    "tumbon_name": {
+     "th": "นาเหรง",
+     "en": "Na Reng"
+    },
+    "province_code": "80",
+    "province_name": {
+     "th": "นครศรีธรรมราช",
+     "en": "Nakhon Si Thammarat"
+    }
+   },
+   "station": {
+    "id": 1866,
+    "tele_station_name": {
+     "th": "บ้านหน้าถ้ำ"
+    },
+    "tele_station_lat": 8.665483,
+    "tele_station_long": 99.765332,
+    "tele_station_oldcode": "STN0289",
+    "tele_station_type": "rainfall_24h",
+    "sub_basin_id": "1919"
+   },
+   "basin": {
+    "id": 22,
+    "basin_code": 19,
+    "basin_name": {
+     "th": "ลุ่มน้ำภาคใต้ฝั่งตะวันออกตอนบน",
+     "en": "Peninsula - Upper East Coast Basin"
+    }
+   }
+  },
+  {
+   "id": 312556181,
+   "rain_24h": 34.6,
+   "rain_1h": 0,
+   "rainfall_datetime": "2026-09-30 03:00",
+   "station_type": "rainfall_24h",
+   "agency": {
+    "agency_name": {
+     "th": "สถาบันสารสนเทศทรัพยากรน้ำ (องค์การมหาชน)",
+     "en": "Hydro – Informatics Institute (Public Organization)",
+     "jp": ""
+    },
+    "agency_shortname": {
+     "th": "สสน.",
+     "en": "HII",
+     "jp": ""
+    }
+   },
+   "geocode": {
+    "warning_zone": "09",
+    "area_code": "5",
+    "area_name": {
+     "th": "ภาคใต้",
+     "en": "South"
+    },
+    "amphoe_name": {
+     "th": "เชียรใหญ่",
+     "en": "Chian Yai District"
+    },
+    "tumbon_name": {
+     "th": "การะเกด",
+     "en": "Karaket"
+    },
+    "province_code": "80",
+    "province_name": {
+     "th": "นครศรีธรรมราช",
+     "en": "Nakhon Si Thammarat"
+    }
+   },
+   "station": {
+    "id": 792,
+    "tele_station_name": {
+     "en": "Nakhon Si Thammarat 2",
+     "th": "เชียรใหญ่"
+    },
+    "tele_station_lat": 8.089498,
+    "tele_station_long": 100.12784,
+    "tele_station_oldcode": "NKO002",
+    "tele_station_type": "rainfall_24h",
+    "sub_basin_id": "1919"
+   },
+   "basin": {
+    "id": 22,
+    "basin_code": 19,
+    "basin_name": {
+     "th": "ลุ่มน้ำภาคใต้ฝั่งตะวันออกตอนบน",
+     "en": "Peninsula - Upper East Coast Basin"
+    }
+   }
+  },
+  {
+   "id": 312559856,
+   "rain_24h": 29.8,
+   "rain_1h": 0,
+   "rainfall_datetime": "2026-09-30 04:00",
+   "station_type": "rainfall_24h",
+   "agency": {
+    "agency_name": {
+     "th": "มูลนิธิอาสาเพื่อนพึ่ง (ภาฯ) ยามยาก สภากาชาดไทย",
+     "en": "Friend in Need (of “Pa”) Volunteers Foundation",
+     "jp": ""
+    },
+    "agency_shortname": {
+     "th": "พพภ",
+     "en": "FOP",
+     "jp": ""
+    }
+   },
+   "geocode": {
+    "warning_zone": "09",
+    "area_code": "5",
+    "area_name": {
+     "th": "ภาคใต้",
+     "en": "South"
+    },
+    "amphoe_name": {
+     "th": "ชะอวด",
+     "en": "Cha-uat District"
+    },
+    "tumbon_name": {
+     "th": "ขอนหาด",
+     "en": "Khon Hat"
+    },
+    "province_code": "80",
+    "province_name": {
+     "th": "นครศรีธรรมราช",
+     "en": "Nakhon Si Thammarat"
+    }
+   },
+   "station": {
+    "id": 855521,
+    "tele_station_name": {
+     "en": "Forest Protection Unit of Khuan Nang Hean",
+     "th": "หน่วยพิทักษ์ป่าควนนางเหวน"
+    },
+    "tele_station_lat": 7.884335,
+    "tele_station_long": 100.06661,
+    "tele_station_oldcode": "MOU131",
+    "tele_station_type": "rainfall_24h",
+    "sub_basin_id": "2001",
+    "sponsor_by": "บริษัท ทรู คอร์ปอเรชั่น จำกัด (มหาชน)"
+   },
+   "basin": {
+    "id": 24,
+    "basin_code": 20,
+    "basin_name": {
+     "th": "ลุ่มน้ำทะเลสาบสงขลา",
+     "en": "Thale Sap Songkhla Basin"
+    }
+   }
+  },
+  {
+   "id": 312559627,
+   "rain_24h": 22,
+   "rain_1h": 0,
+   "rainfall_datetime": "2026-09-30 03:00",
+   "station_type": "rainfall_24h",
+   "agency": {
+    "agency_name": {
+     "th": "กรมชลประทาน ",
+     "en": "Royal Irrigation Department",
+     "jp": ""
+    },
+    "agency_shortname": {
+     "th": "ชป.",
+     "en": "RID",
+     "jp": ""
+    }
+   },
+   "geocode": {
+    "warning_zone": "09",
+    "area_code": "5",
+    "area_name": {
+     "th": "ภาคใต้",
+     "en": "South"
+    },
+    "amphoe_name": {
+     "th": "ปากพนัง",
+     "en": "Pak Phanang District"
+    },
+    "tumbon_name": {
+     "th": "ปากแพรก",
+     "en": "Pak Phraek"
+    },
+    "province_code": "80",
+    "province_name": {
+     "th": "นครศรีธรรมราช",
+     "en": "Nakhon Si Thammarat"
+    }
+   },
+   "station": {
+    "id": 1317048,
+    "tele_station_name": {
+     "th": "บ้านปากแพรก"
+    },
+    "tele_station_lat": 8.219533,
+    "tele_station_long": 100.200906,
+    "tele_station_oldcode": "ridtele_TPN04",
+    "tele_station_type": "rainfall_24h",
+    "sub_basin_id": "1919"
+   },
+   "basin": {
+    "id": 22,
+    "basin_code": 19,
+    "basin_name": {
+     "th": "ลุ่มน้ำภาคใต้ฝั่งตะวันออกตอนบน",
+     "en": "Peninsula - Upper East Coast Basin"
+    }
+   }
+  },
+  {
+   "id": 312557261,
+   "rain_24h": 19,
+   "rain_1h": 0,
+   "rainfall_datetime": "2026-09-30 02:00",
+   "station_type": "rainfall_24h",
+   "agency": {
+    "agency_name": {
+     "th": "กรมทรัพยากรน้ำ",
+     "en": "Department of Water Resources",
+     "jp": ""
+    },
+    "agency_shortname": {
+     "th": "ทน.",
+     "en": "DWR",
+     "jp": ""
+    }
+   },
+   "geocode": {
+    "warning_zone": "09",
+    "area_code": "5",
+    "area_name": {
+     "th": "ภาคใต้",
+     "en": "South"
+    },
+    "amphoe_name": {
+     "th": "ช้างกลาง",
+     "en": "Chang Klang District"
+    },
+    "tumbon_name": {
+     "th": "ช้างกลาง",
+     "en": "Chang Klang"
+    },
+    "province_code": "80",
+    "province_name": {
+     "th": "นครศรีธรรมราช",
+     "en": "Nakhon Si Thammarat"
+    }
+   },
+   "station": {
+    "id": 1867,
+    "tele_station_name": {
+     "th": "บ้านท่าแพ"
+    },
+    "tele_station_lat": 8.350061,
+    "tele_station_long": 99.677413,
+    "tele_station_oldcode": "STN0748",
+    "tele_station_type": "rainfall_24h",
+    "sub_basin_id": "1909"
+   },
+   "basin": {
+    "id": 22,
+    "basin_code": 19,
+    "basin_name": {
+     "th": "ลุ่มน้ำภาคใต้ฝั่งตะวันออกตอนบน",
+     "en": "Peninsula - Upper East Coast Basin"
+    }
+   }
+  },
+  {
+   "id": 312559664,
+   "rain_24h": 15,
+   "rain_1h": 0,
+   "rainfall_datetime": "2026-09-30 03:00",
+   "station_type": "rainfall_24h",
+   "agency": {
+    "agency_name": {
+     "th": "กรมชลประทาน ",
+     "en": "Royal Irrigation Department",
+     "jp": ""
+    },
+    "agency_shortname": {
+     "th": "ชป.",
+     "en": "RID",
+     "jp": ""
+    }
+   },
+   "geocode": {
+    "warning_zone": "09",
+    "area_code": "5",
+    "area_name": {
+     "th": "ภาคใต้",
+     "en": "South"
+    },
+    "amphoe_name": {
+     "th": "ถ้ำพรรณรา",
+     "en": "Tham Phannara District"
+    },
+    "tumbon_name": {
+     "th": "ถ้ำพรรณรา",
+     "en": "Tham Phannara"
+    },
+    "province_code": "80",
+    "province_name": {
+     "th": "นครศรีธรรมราช",
+     "en": "Nakhon Si Thammarat"
+    }
+   },
+   "station": {
+    "id": 1317133,
+    "tele_station_name": {
+     "th": "บ้านวังตลับ"
+    },
+    "tele_station_lat": 8.398225,
+    "tele_station_long": 99.346551,
+    "tele_station_oldcode": "ridtele_TTP03",
+    "tele_station_type": "rainfall_24h",
+    "sub_basin_id": "1911"
+   },
+   "basin": {
+    "id": 22,
+    "basin_code": 19,
+    "basin_name": {
+     "th": "ลุ่มน้ำภาคใต้ฝั่งตะวันออกตอนบน",
+     "en": "Peninsula - Upper East Coast Basin"
+    }
+   }
+  },
+  {
+   "id": 312557222,
+   "rain_24h": 12,
+   "rain_1h": 0,
+   "rainfall_datetime": "2026-09-30 02:00",
+   "station_type": "rainfall_24h",
+   "agency": {
+    "agency_name": {
+     "th": "กรมทรัพยากรน้ำ",
+     "en": "Department of Water Resources",
+     "jp": ""
+    },
+    "agency_shortname": {
+     "th": "ทน.",
+     "en": "DWR",
+     "jp": ""
+    }
+   },
+   "geocode": {
+    "warning_zone": "09",
+    "area_code": "5",
+    "area_name": {
+     "th": "ภาคใต้",
+     "en": "South"
+    },
+    "amphoe_name": {
+     "th": "พรหมคีรี",
+     "en": "Phrom Khiri District"
+    },
+    "tumbon_name": {
+     "th": "ทอนหงส์",
+     "en": "Thon Hong"
+    },
+    "province_code": "80",
+    "province_name": {
+     "th": "นครศรีธรรมราช",
+     "en": "Nakhon Si Thammarat"
+    }
+   },
+   "station": {
+    "id": 1821,
+    "tele_station_name": {
+     "th": "บ้านวังลุง"
+    },
+    "tele_station_lat": 8.591058,
+    "tele_station_long": 99.777887,
+    "tele_station_oldcode": "STN0217",
+    "tele_station_type": "rainfall_24h",
+    "sub_basin_id": "1919"
+   },
+   "basin": {
+    "id": 22,
+    "basin_code": 19,
+    "basin_name": {
+     "th": "ลุ่มน้ำภาคใต้ฝั่งตะวันออกตอนบน",
+     "en": "Peninsula - Upper East Coast Basin"
+    }
+   }
+  },
+  {
+   "id": 312557245,
+   "rain_24h": 7,
+   "rain_1h": 0,
+   "rainfall_datetime": "2026-09-30 02:00",
+   "station_type": "rainfall_24h",
+   "agency": {
+    "agency_name": {
+     "th": "กรมทรัพยากรน้ำ",
+     "en": "Department of Water Resources",
+     "jp": ""
+    },
+    "agency_shortname": {
+     "th": "ทน.",
+     "en": "DWR",
+     "jp": ""
+    }
+   },
+   "geocode": {
+    "warning_zone": "09",
+    "area_code": "5",
+    "area_name": {
+     "th": "ภาคใต้",
+     "en": "South"
+    },
+    "amphoe_name": {
+     "th": "สิชล",
+     "en": "Sichon District"
+    },
+    "tumbon_name": {
+     "th": "เขาน้อย",
+     "en": "Khao Noi"
+    },
+    "province_code": "80",
+    "province_name": {
+     "th": "นครศรีธรรมราช",
+     "en": "Nakhon Si Thammarat"
+    }
+   },
+   "station": {
+    "id": 1849,
+    "tele_station_name": {
+     "th": "บ้านสำนักเนียน"
+    },
+    "tele_station_lat": 8.934702,
+    "tele_station_long": 99.699615,
+    "tele_station_oldcode": "STN0066",
+    "tele_station_type": "rainfall_24h",
+    "sub_basin_id": "1917"
+   },
+   "basin": {
+    "id": 22,
+    "basin_code": 19,
+    "basin_name": {
+     "th": "ลุ่มน้ำภาคใต้ฝั่งตะวันออกตอนบน",
+     "en": "Peninsula - Upper East Coast Basin"
+    }
+   }
+  },
+  {
+   "id": 312557256,
+   "rain_24h": 7,
+   "rain_1h": 0,
+   "rainfall_datetime": "2026-09-30 02:00",
+   "station_type": "rainfall_24h",
+   "agency": {
+    "agency_name": {
+     "th": "กรมทรัพยากรน้ำ",
+     "en": "Department of Water Resources",
+     "jp": ""
+    },
+    "agency_shortname": {
+     "th": "ทน.",
+     "en": "DWR",
+     "jp": ""
+    }
+   },
+   "geocode": {
+    "warning_zone": "09",
+    "area_code": "5",
+    "area_name": {
+     "th": "ภาคใต้",
+     "en": "South"
+    },
+    "amphoe_name": {
+     "th": "นบพิตำ",
+     "en": "Nopphitam District"
+    },
+    "tumbon_name": {
+     "th": "นบพิตำ",
+     "en": "Nopphitam"
+    },
+    "province_code": "80",
+    "province_name": {
+     "th": "นครศรีธรรมราช",
+     "en": "Nakhon Si Thammarat"
+    }
+   },
+   "station": {
+    "id": 1862,
+    "tele_station_name": {
+     "th": "บ้านทอนผักกูด"
+    },
+    "tele_station_lat": 8.721701,
+    "tele_station_long": 99.793181,
+    "tele_station_oldcode": "STN0739",
+    "tele_station_type": "rainfall_24h",
+    "sub_basin_id": "1918"
+   },
+   "basin": {
+    "id": 22,
+    "basin_code": 19,
+    "basin_name": {
+     "th": "ลุ่มน้ำภาคใต้ฝั่งตะวันออกตอนบน",
+     "en": "Peninsula - Upper East Coast Basin"
+    }
+   }
+  },
+  {
+   "id": 312559798,
+   "rain_24h": 7,
+   "rain_1h": 0,
+   "rainfall_datetime": "2026-09-30 04:00",
+   "station_type": "rainfall_24h",
+   "agency": {
+    "agency_name": {
+     "th": "มูลนิธิอาสาเพื่อนพึ่ง (ภาฯ) ยามยาก สภากาชาดไทย",
+     "en": "Friend in Need (of “Pa”) Volunteers Foundation",
+     "jp": ""
+    },
+    "agency_shortname": {
+     "th": "พพภ",
+     "en": "FOP",
+     "jp": ""
+    }
+   },
+   "geocode": {
+    "warning_zone": "09",
+    "area_code": "5",
+    "area_name": {
+     "th": "ภาคใต้",
+     "en": "South"
+    },
+    "amphoe_name": {
+     "th": "ทุ่งสง",
+     "en": "Thung Song District"
+    },
+    "tumbon_name": {
+     "th": "ถ้ำใหญ่",
+     "en": "Tham Yai"
+    },
+    "province_code": "80",
+    "province_name": {
+     "th": "นครศรีธรรมราช",
+     "en": "Nakhon Si Thammarat"
+    }
+   },
+   "station": {
+    "id": 740734,
+    "tele_station_name": {
+     "en": "Nam Tok Yong National Park",
+     "th": "ที่ทำการอุทยานแห่งชาติน้ำตกโยง"
+    },
+    "tele_station_lat": 8.172421,
+    "tele_station_long": 99.74128,
+    "tele_station_oldcode": "FOP033",
+    "tele_station_type": "rainfall_24h",
+    "sub_basin_id": "2209",
+    "sponsor_by": "มูลนิธิอาสาเพื่อนพึ่ง (ภาฯ) ยามยาก สภากาชาดไทย"
+   },
+   "basin": {
+    "id": 27,
+    "basin_code": 22,
+    "basin_name": {
+     "th": "ลุ่มน้ำภาคใต้ฝั่งตะวันตก",
+     "en": "Peninsula - West Coast Basin"
+    }
+   }
+  },
+  {
+   "id": 312558404,
+   "rain_24h": 6.5,
+   "rain_1h": 0,
+   "rainfall_datetime": "2026-09-30 02:00",
+   "station_type": "rainfall_24h",
+   "agency": {
+    "agency_name": {
+     "th": "กรมทรัพยากรน้ำ",
+     "en": "Department of Water Resources",
+     "jp": ""
+    },
+    "agency_shortname": {
+     "th": "ทน.",
+     "en": "DWR",
+     "jp": ""
+    }
+   },
+   "geocode": {
+    "warning_zone": "09",
+    "area_code": "5",
+    "area_name": {
+     "th": "ภาคใต้",
+     "en": "South"
+    },
+    "amphoe_name": {
+     "th": "พรหมคีรี",
+     "en": "Phrom Khiri District"
+    },
+    "tumbon_name": {
+     "th": "ทอนหงส์",
+     "en": "Thon Hong"
+    },
+    "province_code": "80",
+    "province_name": {
+     "th": "นครศรีธรรมราช",
+     "en": "Nakhon Si Thammarat"
+    }
+   },
+   "station": {
+    "id": 1459082,
+    "tele_station_name": {
+     "th": "บ้านในเขียว 1"
+    },
+    "tele_station_lat": 8.553659,
+    "tele_station_long": 99.808922,
+    "tele_station_oldcode": "STN2217",
+    "tele_station_type": "rainfall_24h",
+    "sub_basin_id": "1919"
+   },
+   "basin": {
+    "id": 22,
+    "basin_code": 19,
+    "basin_name": {
+     "th": "ลุ่มน้ำภาคใต้ฝั่งตะวันออกตอนบน",
+     "en": "Peninsula - Upper East Coast Basin"
+    }
+   }
+  },
+  {
+   "id": 312547044,
+   "rain_24h": 5.5,
+   "rain_1h": 0,
+   "rainfall_datetime": "2026-09-30 00:00",
+   "station_type": "rainfall_24h",
+   "agency": {
+    "agency_name": {
+     "th": "กรมทรัพยากรน้ำ",
+     "en": "Department of Water Resources",
+     "jp": ""
+    },
+    "agency_shortname": {
+     "th": "ทน.",
+     "en": "DWR",
+     "jp": ""
+    }
+   },
+   "geocode": {
+    "warning_zone": "09",
+    "area_code": "5",
+    "area_name": {
+     "th": "ภาคใต้",
+     "en": "South"
+    },
+    "amphoe_name": {
+     "th": "นบพิตำ",
+     "en": "Nopphitam District"
+    },
+    "tumbon_name": {
+     "th": "กรุงชิง",
+     "en": "Krung Ching"
+    },
+    "province_code": "80",
+    "province_name": {
+     "th": "นครศรีธรรมราช",
+     "en": "Nakhon Si Thammarat"
+    }
+   },
+   "station": {
+    "id": 1123936,
+    "tele_station_name": {
+     "th": "บ้านปากลง"
+    },
+    "tele_station_lat": 8.802936,
+    "tele_station_long": 99.609612,
+    "tele_station_oldcode": "STN2099",
+    "tele_station_type": "rainfall_24h",
+    "sub_basin_id": "1918"
+   },
+   "basin": {
+    "id": 22,
+    "basin_code": 19,
+    "basin_name": {
+     "th": "ลุ่มน้ำภาคใต้ฝั่งตะวันออกตอนบน",
+     "en": "Peninsula - Upper East Coast Basin"
+    }
+   }
+  },
+  {
+   "id": 312558303,
+   "rain_24h": 4.5,
+   "rain_1h": 0,
+   "rainfall_datetime": "2026-09-30 02:00",
+   "station_type": "rainfall_24h",
+   "agency": {
+    "agency_name": {
+     "th": "กรมทรัพยากรน้ำ",
+     "en": "Department of Water Resources",
+     "jp": ""
+    },
+    "agency_shortname": {
+     "th": "ทน.",
+     "en": "DWR",
+     "jp": ""
+    }
+   },
+   "geocode": {
+    "warning_zone": "09",
+    "area_code": "5",
+    "area_name": {
+     "th": "ภาคใต้",
+     "en": "South"
+    },
+    "amphoe_name": {
+     "th": "ถ้ำพรรณรา",
+     "en": "Tham Phannara District"
+    },
+    "tumbon_name": {
+     "th": "ถ้ำพรรณรา",
+     "en": "Tham Phannara"
+    },
+    "province_code": "80",
+    "province_name": {
+     "th": "นครศรีธรรมราช",
+     "en": "Nakhon Si Thammarat"
+    }
+   },
+   "station": {
+    "id": 1123935,
+    "tele_station_name": {
+     "th": "บ้านวังหิน"
+    },
+    "tele_station_lat": 8.398103,
+    "tele_station_long": 99.345943,
+    "tele_station_oldcode": "STN2098",
+    "tele_station_type": "rainfall_24h",
+    "sub_basin_id": "1911"
+   },
+   "basin": {
+    "id": 22,
+    "basin_code": 19,
+    "basin_name": {
+     "th": "ลุ่มน้ำภาคใต้ฝั่งตะวันออกตอนบน",
+     "en": "Peninsula - Upper East Coast Basin"
+    }
+   }
+  },
+  {
+   "id": 312559800,
+   "rain_24h": 3.6,
+   "rain_1h": 0,
+   "rainfall_datetime": "2026-09-30 04:00",
+   "station_type": "rainfall_24h",
+   "agency": {
+    "agency_name": {
+     "th": "มูลนิธิอาสาเพื่อนพึ่ง (ภาฯ) ยามยาก สภากาชาดไทย",
+     "en": "Friend in Need (of “Pa”) Volunteers Foundation",
+     "jp": ""
+    },
+    "agency_shortname": {
+     "th": "พพภ",
+     "en": "FOP",
+     "jp": ""
+    }
+   },
+   "geocode": {
+    "warning_zone": "09",
+    "area_code": "5",
+    "area_name": {
+     "th": "ภาคใต้",
+     "en": "South"
+    },
+    "amphoe_name": {
+     "th": "ชะอวด",
+     "en": "Cha-uat District"
+    },
+    "tumbon_name": {
+     "th": "วังอ่าง",
+     "en": "Wang Ang"
+    },
+    "province_code": "80",
+    "province_name": {
+     "th": "นครศรีธรรมราช",
+     "en": "Nakhon Si Thammarat"
+    }
+   },
+   "station": {
+    "id": 740736,
+    "tele_station_name": {
+     "en": "Khlong Wang Khian Bridge",
+     "th": "สะพานข้ามคลองวังเคียน"
+    },
+    "tele_station_lat": 7.954553,
+    "tele_station_long": 99.896324,
+    "tele_station_oldcode": "FOP035",
+    "tele_station_type": "rainfall_24h",
+    "sub_basin_id": "1919",
+    "sponsor_by": "มูลนิธิอาสาเพื่อนพึ่ง (ภาฯ) ยามยาก สภากาชาดไทย"
+   },
+   "basin": {
+    "id": 22,
+    "basin_code": 19,
+    "basin_name": {
+     "th": "ลุ่มน้ำภาคใต้ฝั่งตะวันออกตอนบน",
+     "en": "Peninsula - Upper East Coast Basin"
+    }
+   }
+  },
+  {
+   "id": 312549892,
+   "rain_24h": 3.2,
+   "rainfall_datetime": "2026-09-30 01:00",
+   "station_type": "rainfall_24h",
+   "agency": {
+    "agency_name": {
+     "th": "กรมอุตุนิยมวิทยา ",
+     "en": "Thai Meteorological Department",
+     "jp": ""
+    },
+    "agency_shortname": {
+     "th": "อต.",
+     "en": "TMD",
+     "jp": ""
+    }
+   },
+   "geocode": {
+    "warning_zone": "09",
+    "area_code": "5",
+    "area_name": {
+     "th": "ภาคใต้",
+     "en": "South"
+    },
+    "amphoe_name": {
+     "th": "เมืองนครศรีธรรมราช",
+     "en": "Mueang Nakhon Si Thammarat District"
+    },
+    "tumbon_name": {
+     "th": "ท่าเรือ",
+     "en": "Tha Ruea"
+    },
+    "province_code": "80",
+    "province_name": {
+     "th": "นครศรีธรรมราช",
+     "en": "Nakhon Si Thammarat"
+    }
+   },
+   "station": {
+    "id": 3737,
+    "tele_station_name": {
+     "en": "NAKHONSI THAMMARAT AGROMET.",
+     "th": "นครศรีธรรมราช สกษ."
+    },
+    "tele_station_lat": 8.35931,
+    "tele_station_long": 100,
+    "tele_station_oldcode": "48554",
+    "tele_station_type": "rainfall_24h",
+    "sub_basin_id": "1919"
+   },
+   "basin": {
+    "id": 22,
+    "basin_code": 19,
+    "basin_name": {
+     "th": "ลุ่มน้ำภาคใต้ฝั่งตะวันออกตอนบน",
+     "en": "Peninsula - Upper East Coast Basin"
+    }
+   }
+  },
+  {
+   "id": 312560174,
+   "rain_24h": 2.8,
+   "rain_1h": 0,
+   "rainfall_datetime": "2026-09-30 04:00",
+   "station_type": "rainfall_24h",
+   "agency": {
+    "agency_name": {
+     "th": "มูลนิธิอาสาเพื่อนพึ่ง (ภาฯ) ยามยาก สภากาชาดไทย",
+     "en": "Friend in Need (of “Pa”) Volunteers Foundation",
+     "jp": ""
+    },
+    "agency_shortname": {
+     "th": "พพภ",
+     "en": "FOP",
+     "jp": ""
+    }
+   },
+   "geocode": {
+    "warning_zone": "09",
+    "area_code": "5",
+    "area_name": {
+     "th": "ภาคใต้",
+     "en": "South"
+    },
+    "amphoe_name": {
+     "th": "สิชล",
+     "en": "Sichon District"
+    },
+    "tumbon_name": {
+     "th": "เขาน้อย",
+     "en": "Khao Noi"
+    },
+    "province_code": "80",
+    "province_name": {
+     "th": "นครศรีธรรมราช",
+     "en": "Nakhon Si Thammarat"
+    }
+   },
+   "station": {
+    "id": 8270339,
+    "tele_station_name": {
+     "en": "National Park Protection Unit No. 7 (Khlong Yot Nam)",
+     "th": "หน่วยพิทักษ์อุทยานแห่งชาติที่ ขน.7 (คลองยอดน้ำ)"
+    },
+    "tele_station_lat": 8.91637,
+    "tele_station_long": 99.73282,
+    "tele_station_oldcode": "MOU446",
+    "tele_station_type": "rainfall_24h",
+    "sub_basin_id": "1917",
+    "sponsor_by": "มูลนิธิอาสาเพื่อนพึ่ง (ภาฯ) ยามยาก สภากาชาดไทย"
+   },
+   "basin": {
+    "id": 22,
+    "basin_code": 19,
+    "basin_name": {
+     "th": "ลุ่มน้ำภาคใต้ฝั่งตะวันออกตอนบน",
+     "en": "Peninsula - Upper East Coast Basin"
+    }
+   }
+  },
+  {
+   "id": 312557870,
+   "rain_24h": 2.5,
+   "rain_1h": 0,
+   "rainfall_datetime": "2026-09-30 02:00",
+   "station_type": "rainfall_24h",
+   "agency": {
+    "agency_name": {
+     "th": "กรมทรัพยากรน้ำ",
+     "en": "Department of Water Resources",
+     "jp": ""
+    },
+    "agency_shortname": {
+     "th": "ทน.",
+     "en": "DWR",
+     "jp": ""
+    }
+   },
+   "geocode": {
+    "warning_zone": "09",
+    "area_code": "5",
+    "area_name": {
+     "th": "ภาคใต้",
+     "en": "South"
+    },
+    "amphoe_name": {
+     "th": "ท่าศาลา",
+     "en": "Tha Sala District"
+    },
+    "tumbon_name": {
+     "th": "ตลิ่งชัน",
+     "en": "Taling Chan"
+    },
+    "province_code": "80",
+    "province_name": {
+     "th": "นครศรีธรรมราช",
+     "en": "Nakhon Si Thammarat"
+    }
+   },
+   "station": {
+    "id": 1080885,
+    "tele_station_name": {
+     "th": "บ้านนาท้อน"
+    },
+    "tele_station_lat": 8.790631,
+    "tele_station_long": 99.825486,
+    "tele_station_oldcode": "STN1596",
+    "tele_station_type": "rainfall_24h",
+    "sub_basin_id": "1917"
+   },
+   "basin": {
+    "id": 22,
+    "basin_code": 19,
+    "basin_name": {
+     "th": "ลุ่มน้ำภาคใต้ฝั่งตะวันออกตอนบน",
+     "en": "Peninsula - Upper East Coast Basin"
+    }
+   }
+  },
+  {
+   "id": 312545249,
+   "rain_24h": 1.5,
+   "rain_1h": 0,
+   "rainfall_datetime": "2026-09-30 00:00",
+   "station_type": "rainfall_24h",
+   "agency": {
+    "agency_name": {
+     "th": "กรมทรัพยากรน้ำ",
+     "en": "Department of Water Resources",
+     "jp": ""
+    },
+    "agency_shortname": {
+     "th": "ทน.",
+     "en": "DWR",
+     "jp": ""
+    }
+   },
+   "geocode": {
+    "warning_zone": "09",
+    "area_code": "5",
+    "area_name": {
+     "th": "ภาคใต้",
+     "en": "South"
+    },
+    "amphoe_name": {
+     "th": "สิชล",
+     "en": "Sichon District"
+    },
+    "tumbon_name": {
+     "th": "เทพราช",
+     "en": "Theppharat"
+    },
+    "province_code": "80",
+    "province_name": {
+     "th": "นครศรีธรรมราช",
+     "en": "Nakhon Si Thammarat"
+    }
+   },
+   "station": {
+    "id": 1847,
+    "tele_station_name": {
+     "th": "บ้านเผียนบน"
+    },
+    "tele_station_lat": 8.874653,
+    "tele_station_long": 99.778902,
+    "tele_station_oldcode": "STN0213",
+    "tele_station_type": "rainfall_24h",
+    "sub_basin_id": "1917"
+   },
+   "basin": {
+    "id": 22,
+    "basin_code": 19,
+    "basin_name": {
+     "th": "ลุ่มน้ำภาคใต้ฝั่งตะวันออกตอนบน",
+     "en": "Peninsula - Upper East Coast Basin"
+    }
+   }
+  },
+  {
+   "id": 312559630,
+   "rain_24h": 1,
+   "rain_1h": 0,
+   "rainfall_datetime": "2026-09-30 03:00",
+   "station_type": "rainfall_24h",
+   "agency": {
+    "agency_name": {
+     "th": "กรมชลประทาน ",
+     "en": "Royal Irrigation Department",
+     "jp": ""
+    },
+    "agency_shortname": {
+     "th": "ชป.",
+     "en": "RID",
+     "jp": ""
+    }
+   },
+   "geocode": {
+    "warning_zone": "09",
+    "area_code": "5",
+    "area_name": {
+     "th": "ภาคใต้",
+     "en": "South"
+    },
+    "amphoe_name": {
+     "th": "ชะอวด",
+     "en": "Cha-uat District"
+    },
+    "tumbon_name": {
+     "th": "บ้านตูล",
+     "en": "Ban Tun"
+    },
+    "province_code": "80",
+    "province_name": {
+     "th": "นครศรีธรรมราช",
+     "en": "Nakhon Si Thammarat"
+    }
+   },
+   "station": {
+    "id": 1317054,
+    "tele_station_name": {
+     "th": "บ้านตูล"
+    },
+    "tele_station_lat": 8.041068,
+    "tele_station_long": 99.981933,
+    "tele_station_oldcode": "ridtele_TPN10",
+    "tele_station_type": "rainfall_24h",
+    "sub_basin_id": "1919"
+   },
+   "basin": {
+    "id": 22,
+    "basin_code": 19,
+    "basin_name": {
+     "th": "ลุ่มน้ำภาคใต้ฝั่งตะวันออกตอนบน",
+     "en": "Peninsula - Upper East Coast Basin"
+    }
+   }
+  },
+  {
+   "id": 312557981,
+   "rain_24h": 1,
+   "rain_1h": 0,
+   "rainfall_datetime": "2026-09-30 02:00",
+   "station_type": "rainfall_24h",
+   "agency": {
+    "agency_name": {
+     "th": "กรมทรัพยากรน้ำ",
+     "en": "Department of Water Resources",
+     "jp": ""
+    },
+    "agency_shortname": {
+     "th": "ทน.",
+     "en": "DWR",
+     "jp": ""
+    }
+   },
+   "geocode": {
+    "warning_zone": "09",
+    "area_code": "5",
+    "area_name": {
+     "th": "ภาคใต้",
+     "en": "South"
+    },
+    "amphoe_name": {
+     "th": "ถ้ำพรรณรา",
+     "en": "Tham Phannara District"
+    },
+    "tumbon_name": {
+     "th": "ถ้ำพรรณรา",
+     "en": "Tham Phannara"
+    },
+    "province_code": "80",
+    "province_name": {
+     "th": "นครศรีธรรมราช",
+     "en": "Nakhon Si Thammarat"
+    }
+   },
+   "station": {
+    "id": 1081007,
+    "tele_station_name": {
+     "th": "บ้านโพธิ์ประสิทธิ์"
+    },
+    "tele_station_lat": 8.405911,
+    "tele_station_long": 99.401296,
+    "tele_station_oldcode": "STN1718",
+    "tele_station_type": "rainfall_24h",
+    "sub_basin_id": "1911"
+   },
+   "basin": {
+    "id": 22,
+    "basin_code": 19,
+    "basin_name": {
+     "th": "ลุ่มน้ำภาคใต้ฝั่งตะวันออกตอนบน",
+     "en": "Peninsula - Upper East Coast Basin"
+    }
+   }
+  },
+  {
+   "id": 312557255,
+   "rain_24h": 1,
+   "rain_1h": 0,
+   "rainfall_datetime": "2026-09-30 02:00",
+   "station_type": "rainfall_24h",
+   "agency": {
+    "agency_name": {
+     "th": "กรมทรัพยากรน้ำ",
+     "en": "Department of Water Resources",
+     "jp": ""
+    },
+    "agency_shortname": {
+     "th": "ทน.",
+     "en": "DWR",
+     "jp": ""
+    }
+   },
+   "geocode": {
+    "warning_zone": "09",
+    "area_code": "5",
+    "area_name": {
+     "th": "ภาคใต้",
+     "en": "South"
+    },
+    "amphoe_name": {
+     "th": "นบพิตำ",
+     "en": "Nopphitam District"
+    },
+    "tumbon_name": {
+     "th": "นบพิตำ",
+     "en": "Nopphitam"
+    },
+    "province_code": "80",
+    "province_name": {
+     "th": "นครศรีธรรมราช",
+     "en": "Nakhon Si Thammarat"
+    }
+   },
+   "station": {
+    "id": 1861,
+    "tele_station_name": {
+     "th": "บ้านเขาเหล็ก"
+    },
+    "tele_station_lat": 8.768398,
+    "tele_station_long": 99.725103,
+    "tele_station_oldcode": "STN0504",
+    "tele_station_type": "rainfall_24h",
+    "sub_basin_id": "1918"
+   },
+   "basin": {
+    "id": 22,
+    "basin_code": 19,
+    "basin_name": {
+     "th": "ลุ่มน้ำภาคใต้ฝั่งตะวันออกตอนบน",
+     "en": "Peninsula - Upper East Coast Basin"
+    }
+   }
+  },
+  {
+   "id": 312557258,
+   "rain_24h": 1,
+   "rain_1h": 0,
+   "rainfall_datetime": "2026-09-30 02:00",
+   "station_type": "rainfall_24h",
+   "agency": {
+    "agency_name": {
+     "th": "กรมทรัพยากรน้ำ",
+     "en": "Department of Water Resources",
+     "jp": ""
+    },
+    "agency_shortname": {
+     "th": "ทน.",
+     "en": "DWR",
+     "jp": ""
+    }
+   },
+   "geocode": {
+    "warning_zone": "09",
+    "area_code": "5",
+    "area_name": {
+     "th": "ภาคใต้",
+     "en": "South"
+    },
+    "amphoe_name": {
+     "th": "นบพิตำ",
+     "en": "Nopphitam District"
+    },
+    "tumbon_name": {
+     "th": "กรุงชิง",
+     "en": "Krung Ching"
+    },
+    "province_code": "80",
+    "province_name": {
+     "th": "นครศรีธรรมราช",
+     "en": "Nakhon Si Thammarat"
+    }
+   },
+   "station": {
+    "id": 1864,
+    "tele_station_name": {
+     "th": "บ้านนบ"
+    },
+    "tele_station_lat": 8.792715,
+    "tele_station_long": 99.703165,
+    "tele_station_oldcode": "STN0740",
+    "tele_station_type": "rainfall_24h",
+    "sub_basin_id": "1918"
+   },
+   "basin": {
+    "id": 22,
+    "basin_code": 19,
+    "basin_name": {
+     "th": "ลุ่มน้ำภาคใต้ฝั่งตะวันออกตอนบน",
+     "en": "Peninsula - Upper East Coast Basin"
+    }
+   }
+  },
+  {
+   "id": 312559876,
+   "rain_24h": 0.6,
+   "rain_1h": 0,
+   "rainfall_datetime": "2026-09-30 04:00",
+   "station_type": "rainfall_24h",
+   "agency": {
+    "agency_name": {
+     "th": "มูลนิธิอาสาเพื่อนพึ่ง (ภาฯ) ยามยาก สภากาชาดไทย",
+     "en": "Friend in Need (of “Pa”) Volunteers Foundation",
+     "jp": ""
+    },
+    "agency_shortname": {
+     "th": "พพภ",
+     "en": "FOP",
+     "jp": ""
+    }
+   },
+   "geocode": {
+    "warning_zone": "09",
+    "area_code": "5",
+    "area_name": {
+     "th": "ภาคใต้",
+     "en": "South"
+    },
+    "amphoe_name": {
+     "th": "ชะอวด",
+     "en": "Cha-uat District"
+    },
+    "tumbon_name": {
+     "th": "เกาะขันธ์",
+     "en": "Ko Khan"
+    },
+    "province_code": "80",
+    "province_name": {
+     "th": "นครศรีธรรมราช",
+     "en": "Nakhon Si Thammarat"
+    }
+   },
+   "station": {
+    "id": 1101571,
+    "tele_station_name": {
+     "en": "Ko Khan (Ban Namtok)",
+     "th": "ชุมชนตำบลเกาะขันธ์ (บ้านน้ำตก)"
+    },
+    "tele_station_lat": 7.963767,
+    "tele_station_long": 99.7776,
+    "tele_station_oldcode": "FOP060",
+    "tele_station_type": "rainfall_24h",
+    "sub_basin_id": "1919",
+    "sponsor_by": "มูลนิธิอาสาเพื่อนพึ่ง (ภาฯ) ยามยาก สภากาชาดไทย"
+   },
+   "basin": {
+    "id": 22,
+    "basin_code": 19,
+    "basin_name": {
+     "th": "ลุ่มน้ำภาคใต้ฝั่งตะวันออกตอนบน",
+     "en": "Peninsula - Upper East Coast Basin"
+    }
+   }
+  },
+  {
+   "id": 312556376,
+   "rain_24h": 0.6,
+   "rain_1h": 0,
+   "rainfall_datetime": "2026-09-30 03:00",
+   "station_type": "rainfall_24h",
+   "agency": {
+    "agency_name": {
+     "th": "สถาบันสารสนเทศทรัพยากรน้ำ (องค์การมหาชน)",
+     "en": "Hydro – Informatics Institute (Public Organization)",
+     "jp": ""
+    },
+    "agency_shortname": {
+     "th": "สสน.",
+     "en": "HII",
+     "jp": ""
+    }
+   },
+   "geocode": {
+    "warning_zone": "09",
+    "area_code": "5",
+    "area_name": {
+     "th": "ภาคใต้",
+     "en": "South"
+    },
+    "amphoe_name": {
+     "th": "ถ้ำพรรณรา",
+     "en": "Tham Phannara District"
+    },
+    "tumbon_name": {
+     "th": "ถ้ำพรรณรา",
+     "en": "Tham Phannara"
+    },
+    "province_code": "80",
+    "province_name": {
+     "th": "นครศรีธรรมราช",
+     "en": "Nakhon Si Thammarat"
+    }
+   },
+   "station": {
+    "id": 12483,
+    "tele_station_name": {
+     "en": "Nakhon Si Thammarat 3",
+     "th": "ถ้ำพรรณรา"
+    },
+    "tele_station_lat": 8.391227,
+    "tele_station_long": 99.39519,
+    "tele_station_oldcode": "NKO003",
+    "tele_station_type": "rainfall_24h",
+    "sub_basin_id": "1911"
+   },
+   "basin": {
+    "id": 22,
+    "basin_code": 19,
+    "basin_name": {
+     "th": "ลุ่มน้ำภาคใต้ฝั่งตะวันออกตอนบน",
+     "en": "Peninsula - Upper East Coast Basin"
+    }
+   }
+  },
+  {
+   "id": 312559802,
+   "rain_24h": 0.6,
+   "rain_1h": 0,
+   "rainfall_datetime": "2026-09-30 04:00",
+   "station_type": "rainfall_24h",
+   "agency": {
+    "agency_name": {
+     "th": "มูลนิธิอาสาเพื่อนพึ่ง (ภาฯ) ยามยาก สภากาชาดไทย",
+     "en": "Friend in Need (of “Pa”) Volunteers Foundation",
+     "jp": ""
+    },
+    "agency_shortname": {
+     "th": "พพภ",
+     "en": "FOP",
+     "jp": ""
+    }
+   },
+   "geocode": {
+    "warning_zone": "09",
+    "area_code": "5",
+    "area_name": {
+     "th": "ภาคใต้",
+     "en": "South"
+    },
+    "amphoe_name": {
+     "th": "ชะอวด",
+     "en": "Cha-uat District"
+    },
+    "tumbon_name": {
+     "th": "เกาะขันธ์",
+     "en": "Ko Khan"
+    },
+    "province_code": "80",
+    "province_name": {
+     "th": "นครศรีธรรมราช",
+     "en": "Nakhon Si Thammarat"
+    }
+   },
+   "station": {
+    "id": 740738,
+    "tele_station_name": {
+     "en": "Kham Khlong Huai Kruat Bridge",
+     "th": "สะพานข้ามคลองห้วยกรวด"
+    },
+    "tele_station_lat": 7.8768,
+    "tele_station_long": 99.93328,
+    "tele_station_oldcode": "FOP037",
+    "tele_station_type": "rainfall_24h",
+    "sub_basin_id": "2001",
+    "sponsor_by": "มูลนิธิอาสาเพื่อนพึ่ง (ภาฯ) ยามยาก สภากาชาดไทย"
+   },
+   "basin": {
+    "id": 24,
+    "basin_code": 20,
+    "basin_name": {
+     "th": "ลุ่มน้ำทะเลสาบสงขลา",
+     "en": "Thale Sap Songkhla Basin"
+    }
+   }
+  },
+  {
+   "id": 312557230,
+   "rain_24h": 0.5,
+   "rain_1h": 0,
+   "rainfall_datetime": "2026-09-30 02:00",
+   "station_type": "rainfall_24h",
+   "agency": {
+    "agency_name": {
+     "th": "กรมทรัพยากรน้ำ",
+     "en": "Department of Water Resources",
+     "jp": ""
+    },
+    "agency_shortname": {
+     "th": "ทน.",
+     "en": "DWR",
+     "jp": ""
+    }
+   },
+   "geocode": {
+    "warning_zone": "09",
+    "area_code": "5",
+    "area_name": {
+     "th": "ภาคใต้",
+     "en": "South"
+    },
+    "amphoe_name": {
+     "th": "พิปูน",
+     "en": "Phipun District"
+    },
+    "tumbon_name": {
+     "th": "พิปูน",
+     "en": "Phipun"
+    },
+    "province_code": "80",
+    "province_name": {
+     "th": "นครศรีธรรมราช",
+     "en": "Nakhon Si Thammarat"
+    }
+   },
+   "station": {
+    "id": 1830,
+    "tele_station_name": {
+     "th": "บ้านเหนือฟ้า"
+    },
+    "tele_station_lat": 8.53029,
+    "tele_station_long": 99.638021,
+    "tele_station_oldcode": "STN0752",
+    "tele_station_type": "rainfall_24h",
+    "sub_basin_id": "1910"
+   },
+   "basin": {
+    "id": 22,
+    "basin_code": 19,
+    "basin_name": {
+     "th": "ลุ่มน้ำภาคใต้ฝั่งตะวันออกตอนบน",
+     "en": "Peninsula - Upper East Coast Basin"
+    }
+   }
+  },
+  {
+   "id": 312557240,
+   "rain_24h": 0.5,
+   "rain_1h": 0,
+   "rainfall_datetime": "2026-09-30 02:00",
+   "station_type": "rainfall_24h",
+   "agency": {
+    "agency_name": {
+     "th": "กรมทรัพยากรน้ำ",
+     "en": "Department of Water Resources",
+     "jp": ""
+    },
+    "agency_shortname": {
+     "th": "ทน.",
+     "en": "DWR",
+     "jp": ""
+    }
+   },
+   "geocode": {
+    "warning_zone": "09",
+    "area_code": "5",
+    "area_name": {
+     "th": "ภาคใต้",
+     "en": "South"
+    },
+    "amphoe_name": {
+     "th": "ร่อนพิบูลย์",
+     "en": "Ron Phibun District"
+    },
+    "tumbon_name": {
+     "th": "หินตก",
+     "en": "Hin Tok"
+    },
+    "province_code": "80",
+    "province_name": {
+     "th": "นครศรีธรรมราช",
+     "en": "Nakhon Si Thammarat"
+    }
+   },
+   "station": {
+    "id": 1842,
+    "tele_station_name": {
+     "th": "บ้านห้วยไม้แก่น"
+    },
+    "tele_station_lat": 8.252363,
+    "tele_station_long": 99.837896,
+    "tele_station_oldcode": "STN0153",
+    "tele_station_type": "rainfall_24h",
+    "sub_basin_id": "1919"
+   },
+   "basin": {
+    "id": 22,
+    "basin_code": 19,
+    "basin_name": {
+     "th": "ลุ่มน้ำภาคใต้ฝั่งตะวันออกตอนบน",
+     "en": "Peninsula - Upper East Coast Basin"
+    }
+   }
+  },
+  {
+   "id": 312557896,
+   "rain_24h": 0.5,
+   "rain_1h": 0,
+   "rainfall_datetime": "2026-09-30 02:00",
+   "station_type": "rainfall_24h",
+   "agency": {
+    "agency_name": {
+     "th": "กรมทรัพยากรน้ำ",
+     "en": "Department of Water Resources",
+     "jp": ""
+    },
+    "agency_shortname": {
+     "th": "ทน.",
+     "en": "DWR",
+     "jp": ""
+    }
+   },
+   "geocode": {
+    "warning_zone": "09",
+    "area_code": "5",
+    "area_name": {
+     "th": "ภาคใต้",
+     "en": "South"
+    },
+    "amphoe_name": {
+     "th": "ร่อนพิบูลย์",
+     "en": "Ron Phibun District"
+    },
+    "tumbon_name": {
+     "th": "ร่อนพิบูลย์",
+     "en": "Ron Phibun"
+    },
+    "province_code": "80",
+    "province_name": {
+     "th": "นครศรีธรรมราช",
+     "en": "Nakhon Si Thammarat"
+    }
+   },
+   "station": {
+    "id": 1080912,
+    "tele_station_name": {
+     "th": "บ้านต้นกอ"
+    },
+    "tele_station_lat": 8.143581,
+    "tele_station_long": 99.803812,
+    "tele_station_oldcode": "STN1623",
+    "tele_station_type": "rainfall_24h",
+    "sub_basin_id": "1919"
+   },
+   "basin": {
+    "id": 22,
+    "basin_code": 19,
+    "basin_name": {
+     "th": "ลุ่มน้ำภาคใต้ฝั่งตะวันออกตอนบน",
+     "en": "Peninsula - Upper East Coast Basin"
+    }
+   }
+  },
+  {
+   "id": 312557888,
+   "rain_24h": 0.5,
+   "rain_1h": 0,
+   "rainfall_datetime": "2026-09-30 02:00",
+   "station_type": "rainfall_24h",
+   "agency": {
+    "agency_name": {
+     "th": "กรมทรัพยากรน้ำ",
+     "en": "Department of Water Resources",
+     "jp": ""
+    },
+    "agency_shortname": {
+     "th": "ทน.",
+     "en": "DWR",
+     "jp": ""
+    }
+   },
+   "geocode": {
+    "warning_zone": "09",
+    "area_code": "5",
+    "area_name": {
+     "th": "ภาคใต้",
+     "en": "South"
+    },
+    "amphoe_name": {
+     "th": "ช้างกลาง",
+     "en": "Chang Klang District"
+    },
+    "tumbon_name": {
+     "th": "ช้างกลาง",
+     "en": "Chang Klang"
+    },
+    "province_code": "80",
+    "province_name": {
+     "th": "นครศรีธรรมราช",
+     "en": "Nakhon Si Thammarat"
+    }
+   },
+   "station": {
+    "id": 1080903,
+    "tele_station_name": {
+     "th": "บ้านน้ำน้อยเหนือ"
+    },
+    "tele_station_lat": 8.383586,
+    "tele_station_long": 99.619279,
+    "tele_station_oldcode": "STN1614",
+    "tele_station_type": "rainfall_24h",
+    "sub_basin_id": "1909"
+   },
+   "basin": {
+    "id": 22,
+    "basin_code": 19,
+    "basin_name": {
+     "th": "ลุ่มน้ำภาคใต้ฝั่งตะวันออกตอนบน",
+     "en": "Peninsula - Upper East Coast Basin"
+    }
+   }
+  },
+  {
+   "id": 312557887,
+   "rain_24h": 0.5,
+   "rain_1h": 0,
+   "rainfall_datetime": "2026-09-30 02:00",
+   "station_type": "rainfall_24h",
+   "agency": {
+    "agency_name": {
+     "th": "กรมทรัพยากรน้ำ",
+     "en": "Department of Water Resources",
+     "jp": ""
+    },
+    "agency_shortname": {
+     "th": "ทน.",
+     "en": "DWR",
+     "jp": ""
+    }
+   },
+   "geocode": {
+    "warning_zone": "09",
+    "area_code": "5",
+    "area_name": {
+     "th": "ภาคใต้",
+     "en": "South"
+    },
+    "amphoe_name": {
+     "th": "ถ้ำพรรณรา",
+     "en": "Tham Phannara District"
+    },
+    "tumbon_name": {
+     "th": "ดุสิต",
+     "en": "Dusit"
+    },
+    "province_code": "80",
+    "province_name": {
+     "th": "นครศรีธรรมราช",
+     "en": "Nakhon Si Thammarat"
+    }
+   },
+   "station": {
+    "id": 1080902,
+    "tele_station_name": {
+     "th": "บ้านคลองฉนวนจันทร์"
+    },
+    "tele_station_lat": 8.445369,
+    "tele_station_long": 99.37104,
+    "tele_station_oldcode": "STN1613",
+    "tele_station_type": "rainfall_24h",
+    "sub_basin_id": "1911"
+   },
+   "basin": {
+    "id": 22,
+    "basin_code": 19,
+    "basin_name": {
+     "th": "ลุ่มน้ำภาคใต้ฝั่งตะวันออกตอนบน",
+     "en": "Peninsula - Upper East Coast Basin"
+    }
+   }
+  },
+  {
+   "id": 312558306,
+   "rain_24h": 0.5,
+   "rainfall_datetime": "2026-09-30 02:00",
+   "station_type": "rainfall_24h",
+   "agency": {
+    "agency_name": {
+     "th": "กรมทรัพยากรน้ำ",
+     "en": "Department of Water Resources",
+     "jp": ""
+    },
+    "agency_shortname": {
+     "th": "ทน.",
+     "en": "DWR",
+     "jp": ""
+    }
+   },
+   "geocode": {
+    "warning_zone": "09",
+    "area_code": "5",
+    "area_name": {
+     "th": "ภาคใต้",
+     "en": "South"
+    },
+    "amphoe_name": {
+     "th": "พรหมคีรี",
+     "en": "Phrom Khiri District"
+    },
+    "tumbon_name": {
+     "th": "พรหมโลก",
+     "en": "Phrom Lok"
+    },
+    "province_code": "80",
+    "province_name": {
+     "th": "นครศรีธรรมราช",
+     "en": "Nakhon Si Thammarat"
+    }
+   },
+   "station": {
+    "id": 1123939,
+    "tele_station_name": {
+     "th": "ชุมชนพรุชนใต้"
+    },
+    "tele_station_lat": 8.52936,
+    "tele_station_long": 99.798322,
+    "tele_station_oldcode": "STN2102",
+    "tele_station_type": "rainfall_24h",
+    "sub_basin_id": "1919"
+   },
+   "basin": {
+    "id": 22,
+    "basin_code": 19,
+    "basin_name": {
+     "th": "ลุ่มน้ำภาคใต้ฝั่งตะวันออกตอนบน",
+     "en": "Peninsula - Upper East Coast Basin"
+    }
+   }
+  },
+  {
+   "id": 312558298,
+   "rain_24h": 0.5,
+   "rain_1h": 0,
+   "rainfall_datetime": "2026-09-30 02:00",
+   "station_type": "rainfall_24h",
+   "agency": {
+    "agency_name": {
+     "th": "กรมทรัพยากรน้ำ",
+     "en": "Department of Water Resources",
+     "jp": ""
+    },
+    "agency_shortname": {
+     "th": "ทน.",
+     "en": "DWR",
+     "jp": ""
+    }
+   },
+   "geocode": {
+    "warning_zone": "09",
+    "area_code": "5",
+    "area_name": {
+     "th": "ภาคใต้",
+     "en": "South"
+    },
+    "amphoe_name": {
+     "th": "ฉวาง",
+     "en": "Chawang District"
+    },
+    "tumbon_name": {
+     "th": "ละอาย",
+     "en": "La-Ai"
+    },
+    "province_code": "80",
+    "province_name": {
+     "th": "นครศรีธรรมราช",
+     "en": "Nakhon Si Thammarat"
+    }
+   },
+   "station": {
+    "id": 1123929,
+    "tele_station_name": {
+     "th": "บ้านมะปรางงาม"
+    },
+    "tele_station_lat": 8.467122,
+    "tele_station_long": 99.603386,
+    "tele_station_oldcode": "STN2092",
+    "tele_station_type": "rainfall_24h",
+    "sub_basin_id": "1909"
+   },
+   "basin": {
+    "id": 22,
+    "basin_code": 19,
+    "basin_name": {
+     "th": "ลุ่มน้ำภาคใต้ฝั่งตะวันออกตอนบน",
+     "en": "Peninsula - Upper East Coast Basin"
+    }
+   }
+  },
+  {
+   "id": 312558157,
+   "rain_24h": 0.5,
+   "rain_1h": 0,
+   "rainfall_datetime": "2026-09-30 02:00",
+   "station_type": "rainfall_24h",
+   "agency": {
+    "agency_name": {
+     "th": "กรมทรัพยากรน้ำ",
+     "en": "Department of Water Resources",
+     "jp": ""
+    },
+    "agency_shortname": {
+     "th": "ทน.",
+     "en": "DWR",
+     "jp": ""
+    }
+   },
+   "geocode": {
+    "warning_zone": "09",
+    "area_code": "5",
+    "area_name": {
+     "th": "ภาคใต้",
+     "en": "South"
+    },
+    "amphoe_name": {
+     "th": "ทุ่งสง",
+     "en": "Thung Song District"
+    },
+    "tumbon_name": {
+     "th": "น้ำตก",
+     "en": "Namtok"
+    },
+    "province_code": "80",
+    "province_name": {
+     "th": "นครศรีธรรมราช",
+     "en": "Nakhon Si Thammarat"
+    }
+   },
+   "station": {
+    "id": 1123766,
+    "tele_station_name": {
+     "th": "บ้านวังธน"
+    },
+    "tele_station_lat": 7.962891,
+    "tele_station_long": 99.777735,
+    "tele_station_oldcode": "STN1928",
+    "tele_station_type": "rainfall_24h",
+    "sub_basin_id": "1919"
+   },
+   "basin": {
+    "id": 22,
+    "basin_code": 19,
+    "basin_name": {
+     "th": "ลุ่มน้ำภาคใต้ฝั่งตะวันออกตอนบน",
+     "en": "Peninsula - Upper East Coast Basin"
+    }
+   }
+  },
+  {
+   "id": 312558158,
+   "rain_24h": 0.5,
+   "rain_1h": 0,
+   "rainfall_datetime": "2026-09-30 02:00",
+   "station_type": "rainfall_24h",
+   "agency": {
+    "agency_name": {
+     "th": "กรมทรัพยากรน้ำ",
+     "en": "Department of Water Resources",
+     "jp": ""
+    },
+    "agency_shortname": {
+     "th": "ทน.",
+     "en": "DWR",
+     "jp": ""
+    }
+   },
+   "geocode": {
+    "warning_zone": "09",
+    "area_code": "5",
+    "area_name": {
+     "th": "ภาคใต้",
+     "en": "South"
+    },
+    "amphoe_name": {
+     "th": "ชะอวด",
+     "en": "Cha-uat District"
+    },
+    "tumbon_name": {
+     "th": "วังอ่าง",
+     "en": "Wang Ang"
+    },
+    "province_code": "80",
+    "province_name": {
+     "th": "นครศรีธรรมราช",
+     "en": "Nakhon Si Thammarat"
+    }
+   },
+   "station": {
+    "id": 1123767,
+    "tele_station_name": {
+     "th": "บ้านทุ่งโชน"
+    },
+    "tele_station_lat": 7.961605,
+    "tele_station_long": 99.852501,
+    "tele_station_oldcode": "STN1929",
+    "tele_station_type": "rainfall_24h",
+    "sub_basin_id": "1919"
+   },
+   "basin": {
+    "id": 22,
+    "basin_code": 19,
+    "basin_name": {
+     "th": "ลุ่มน้ำภาคใต้ฝั่งตะวันออกตอนบน",
+     "en": "Peninsula - Upper East Coast Basin"
+    }
+   }
+  },
+  {
+   "id": 312559801,
+   "rain_24h": 0.4,
+   "rain_1h": 0,
+   "rainfall_datetime": "2026-09-30 04:00",
+   "station_type": "rainfall_24h",
+   "agency": {
+    "agency_name": {
+     "th": "มูลนิธิอาสาเพื่อนพึ่ง (ภาฯ) ยามยาก สภากาชาดไทย",
+     "en": "Friend in Need (of “Pa”) Volunteers Foundation",
+     "jp": ""
+    },
+    "agency_shortname": {
+     "th": "พพภ",
+     "en": "FOP",
+     "jp": ""
+    }
+   },
+   "geocode": {
+    "warning_zone": "09",
+    "area_code": "5",
+    "area_name": {
+     "th": "ภาคใต้",
+     "en": "South"
+    },
+    "amphoe_name": {
+     "th": "ชะอวด",
+     "en": "Cha-uat District"
+    },
+    "tumbon_name": {
+     "th": "เกาะขันธ์",
+     "en": "Ko Khan"
+    },
+    "province_code": "80",
+    "province_name": {
+     "th": "นครศรีธรรมราช",
+     "en": "Nakhon Si Thammarat"
+    }
+   },
+   "station": {
+    "id": 740737,
+    "tele_station_name": {
+     "en": "Huai Nam Sai Bridge",
+     "th": "สะพานห้วยน้ำใส"
+    },
+    "tele_station_lat": 7.889575,
+    "tele_station_long": 99.87421,
+    "tele_station_oldcode": "FOP036",
+    "tele_station_type": "rainfall_24h",
+    "sub_basin_id": "1919",
+    "sponsor_by": "มูลนิธิอาสาเพื่อนพึ่ง (ภาฯ) ยามยาก สภากาชาดไทย"
+   },
+   "basin": {
+    "id": 22,
+    "basin_code": 19,
+    "basin_name": {
+     "th": "ลุ่มน้ำภาคใต้ฝั่งตะวันออกตอนบน",
+     "en": "Peninsula - Upper East Coast Basin"
+    }
+   }
+  },
+  {
+   "id": 312554738,
+   "rain_24h": 0.1,
+   "rainfall_datetime": "2026-09-30 02:50",
+   "station_type": "rainfall_24h",
+   "agency": {
+    "agency_name": {
+     "th": "กรมป้องกันและบรรเทาสาธารณภัย",
+     "en": "Department of Disaster Prevention and Mitigation",
+     "jp": "防災・防災省"
+    },
+    "agency_shortname": {
+     "th": "ปภ.",
+     "en": "DISASTER",
+     "jp": ""
+    }
+   },
+   "geocode": {
+    "warning_zone": "09",
+    "area_code": "5",
+    "area_name": {
+     "th": "ภาคใต้",
+     "en": "South"
+    },
+    "amphoe_name": {
+     "th": "ขนอม",
+     "en": "Khanom District"
+    },
+    "tumbon_name": {
+     "th": "ขนอม",
+     "en": "Khanom"
+    },
+    "province_code": "80",
+    "province_name": {
+     "th": "นครศรีธรรมราช",
+     "en": "Nakhon Si Thammarat"
+    }
+   },
+   "station": {
+    "id": 1100946,
+    "tele_station_name": {
+     "th": "อาคาร กศน. หมู่ 10"
+    },
+    "tele_station_lat": 9.16228,
+    "tele_station_long": 99.84988,
+    "tele_station_oldcode": "TH25",
+    "tele_station_type": "rainfall_24h",
+    "sub_basin_id": "1917"
+   },
+   "basin": {
+    "id": 22,
+    "basin_code": 19,
+    "basin_name": {
+     "th": "ลุ่มน้ำภาคใต้ฝั่งตะวันออกตอนบน",
+     "en": "Peninsula - Upper East Coast Basin"
+    }
+   }
+  },
+  {
+   "id": 312554740,
+   "rain_24h": 0.1,
+   "rainfall_datetime": "2026-09-30 02:50",
+   "station_type": "rainfall_24h",
+   "agency": {
+    "agency_name": {
+     "th": "กรมป้องกันและบรรเทาสาธารณภัย",
+     "en": "Department of Disaster Prevention and Mitigation",
+     "jp": "防災・防災省"
+    },
+    "agency_shortname": {
+     "th": "ปภ.",
+     "en": "DISASTER",
+     "jp": ""
+    }
+   },
+   "geocode": {
+    "warning_zone": "09",
+    "area_code": "5",
+    "area_name": {
+     "th": "ภาคใต้",
+     "en": "South"
+    },
+    "amphoe_name": {
+     "th": "ขนอม",
+     "en": "Khanom District"
+    },
+    "tumbon_name": {
+     "th": "ท้องเนียน",
+     "en": "Thong Nian"
+    },
+    "province_code": "80",
+    "province_name": {
+     "th": "นครศรีธรรมราช",
+     "en": "Nakhon Si Thammarat"
+    }
+   },
+   "station": {
+    "id": 1100949,
+    "tele_station_name": {
+     "th": "บ้านผู้ใหญ่บ้าน หมู่ 3"
+    },
+    "tele_station_lat": 9.29857,
+    "tele_station_long": 99.83434,
+    "tele_station_oldcode": "TH58",
+    "tele_station_type": "rainfall_24h",
+    "sub_basin_id": "1917"
+   },
+   "basin": {
+    "id": 22,
+    "basin_code": 19,
+    "basin_name": {
+     "th": "ลุ่มน้ำภาคใต้ฝั่งตะวันออกตอนบน",
+     "en": "Peninsula - Upper East Coast Basin"
+    }
+   }
+  },
+  {
+   "id": 312556177,
+   "rain_24h": 0,
+   "rain_1h": 0,
+   "rainfall_datetime": "2026-09-30 03:00",
+   "station_type": "rainfall_24h",
+   "agency": {
+    "agency_name": {
+     "th": "สถาบันสารสนเทศทรัพยากรน้ำ (องค์การมหาชน)",
+     "en": "Hydro – Informatics Institute (Public Organization)",
+     "jp": ""
+    },
+    "agency_shortname": {
+     "th": "สสน.",
+     "en": "HII",
+     "jp": ""
+    }
+   },
+   "geocode": {
+    "warning_zone": "09",
+    "area_code": "5",
+    "area_name": {
+     "th": "ภาคใต้",
+     "en": "South"
+    },
+    "amphoe_name": {
+     "th": "ลานสกา",
+     "en": "Lan Saka District"
+    },
+    "tumbon_name": {
+     "th": "ขุนทะเล",
+     "en": "Khun Thale"
+    },
+    "province_code": "80",
+    "province_name": {
+     "th": "นครศรีธรรมราช",
+     "en": "Nakhon Si Thammarat"
+    }
+   },
+   "station": {
+    "id": 789,
+    "tele_station_name": {
+     "en": "Khun Thale",
+     "th": "อบต.ขุนทะเล"
+    },
+    "tele_station_lat": 8.33883,
+    "tele_station_long": 99.8521,
+    "tele_station_oldcode": "KTLE",
+    "tele_station_type": "rainfall_24h",
+    "sub_basin_id": "1919"
+   },
+   "basin": {
+    "id": 0,
+    "basin_name": {}
+   }
+  },
+  {
+   "id": 312556178,
+   "rain_24h": 0,
+   "rain_1h": 0,
+   "rainfall_datetime": "2026-09-30 03:00",
+   "station_type": "rainfall_24h",
+   "agency": {
+    "agency_name": {
+     "th": "สถาบันสารสนเทศทรัพยากรน้ำ (องค์การมหาชน)",
+     "en": "Hydro – Informatics Institute (Public Organization)",
+     "jp": ""
+    },
+    "agency_shortname": {
+     "th": "สสน.",
+     "en": "HII",
+     "jp": ""
+    }
+   },
+   "geocode": {
+    "warning_zone": "09",
+    "area_code": "5",
+    "area_name": {
+     "th": "ภาคใต้",
+     "en": "South"
+    },
+    "amphoe_name": {
+     "th": "เชียรใหญ่",
+     "en": "Chian Yai District"
+    },
+    "tumbon_name": {
+     "th": "การะเกด",
+     "en": "Karaket"
+    },
+    "province_code": "80",
+    "province_name": {
+     "th": "นครศรีธรรมราช",
+     "en": "Nakhon Si Thammarat"
+    }
+   },
+   "station": {
+    "id": 791,
+    "tele_station_name": {
+     "en": "Wat Tayikaram School",
+     "th": "รร.วัดทายิการาม"
+    },
+    "tele_station_lat": 8.08212,
+    "tele_station_long": 100.16427,
+    "tele_station_oldcode": "BTWN",
+    "tele_station_type": "rainfall_24h",
+    "sub_basin_id": "1919"
+   },
+   "basin": {
+    "id": 0,
+    "basin_name": {}
+   }
+  },
+  {
+   "id": 312556183,
+   "rain_24h": 0,
+   "rain_1h": 0,
+   "rainfall_datetime": "2026-09-30 03:00",
+   "station_type": "rainfall_24h",
+   "agency": {
+    "agency_name": {
+     "th": "สถาบันสารสนเทศทรัพยากรน้ำ (องค์การมหาชน)",
+     "en": "Hydro – Informatics Institute (Public Organization)",
+     "jp": ""
+    },
+    "agency_shortname": {
+     "th": "สสน.",
+     "en": "HII",
+     "jp": ""
+    }
+   },
+   "geocode": {
+    "warning_zone": "09",
+    "area_code": "5",
+    "area_name": {
+     "th": "ภาคใต้",
+     "en": "South"
+    },
+    "amphoe_name": {
+     "th": "ท่าศาลา",
+     "en": "Tha Sala District"
+    },
+    "tumbon_name": {
+     "th": "สระแก้ว",
+     "en": "Sa Kaeo"
+    },
+    "province_code": "80",
+    "province_name": {
+     "th": "นครศรีธรรมราช",
+     "en": "Nakhon Si Thammarat"
+    }
+   },
+   "station": {
+    "id": 794,
+    "tele_station_name": {
+     "en": "Nop Phi Tam 1",
+     "th": "ท่าศาลา"
+    },
+    "tele_station_lat": 8.786868,
+    "tele_station_long": 99.911316,
+    "tele_station_oldcode": "NPI001",
+    "tele_station_type": "rainfall_24h",
+    "sub_basin_id": "1918"
+   },
+   "basin": {
+    "id": 0,
+    "basin_name": {}
+   }
+  },
+  {
+   "id": 312556185,
+   "rain_24h": 0,
+   "rain_1h": 0,
+   "rainfall_datetime": "2026-09-30 03:00",
+   "station_type": "rainfall_24h",
+   "agency": {
+    "agency_name": {
+     "th": "สถาบันสารสนเทศทรัพยากรน้ำ (องค์การมหาชน)",
+     "en": "Hydro – Informatics Institute (Public Organization)",
+     "jp": ""
+    },
+    "agency_shortname": {
+     "th": "สสน.",
+     "en": "HII",
+     "jp": ""
+    }
+   },
+   "geocode": {
+    "warning_zone": "09",
+    "area_code": "5",
+    "area_name": {
+     "th": "ภาคใต้",
+     "en": "South"
+    },
+    "amphoe_name": {
+     "th": "ทุ่งสง",
+     "en": "Thung Song District"
+    },
+    "tumbon_name": {
+     "th": "ปากแพรก",
+     "en": "Pak Phraek"
+    },
+    "province_code": "80",
+    "province_name": {
+     "th": "นครศรีธรรมราช",
+     "en": "Nakhon Si Thammarat"
+    }
+   },
+   "station": {
+    "id": 795,
+    "tele_station_name": {
+     "en": "Nakhon Si Thammarat 1",
+     "th": "ทุ่งสง"
+    },
+    "tele_station_lat": 8.174942,
+    "tele_station_long": 99.67887,
+    "tele_station_oldcode": "NKO001",
+    "tele_station_type": "rainfall_24h",
+    "sub_basin_id": "2209"
+   },
+   "basin": {
+    "id": 0,
+    "basin_name": {}
+   }
+  },
+  {
+   "id": 312556186,
+   "rain_24h": 0,
+   "rain_1h": 0,
+   "rainfall_datetime": "2026-09-30 03:00",
+   "station_type": "rainfall_24h",
+   "agency": {
+    "agency_name": {
+     "th": "สถาบันสารสนเทศทรัพยากรน้ำ (องค์การมหาชน)",
+     "en": "Hydro – Informatics Institute (Public Organization)",
+     "jp": ""
+    },
+    "agency_shortname": {
+     "th": "สสน.",
+     "en": "HII",
+     "jp": ""
+    }
+   },
+   "geocode": {
+    "warning_zone": "09",
+    "area_code": "5",
+    "area_name": {
+     "th": "ภาคใต้",
+     "en": "South"
+    },
+    "amphoe_name": {
+     "th": "ปากพนัง",
+     "en": "Pak Phanang District"
+    },
+    "tumbon_name": {
+     "th": "ปากพนังฝั่งตะวันออก",
+     "en": "Pak Phanang Fang Tawan Ok"
+    },
+    "province_code": "80",
+    "province_name": {
+     "th": "นครศรีธรรมราช",
+     "en": "Nakhon Si Thammarat"
+    }
+   },
+   "station": {
+    "id": 796,
+    "tele_station_name": {
+     "en": "Pak Phanang",
+     "th": "อบต.ปากพนังฝั่งตะวันออก"
+    },
+    "tele_station_lat": 8.38821,
+    "tele_station_long": 100.23183,
+    "tele_station_oldcode": "PANG",
+    "tele_station_type": "rainfall_24h",
+    "sub_basin_id": "1919"
+   },
+   "basin": {
+    "id": 0,
+    "basin_name": {}
+   }
+  },
+  {
+   "id": 312556187,
+   "rain_24h": 0,
+   "rain_1h": 0,
+   "rainfall_datetime": "2026-09-30 03:00",
+   "station_type": "rainfall_24h",
+   "agency": {
+    "agency_name": {
+     "th": "สถาบันสารสนเทศทรัพยากรน้ำ (องค์การมหาชน)",
+     "en": "Hydro – Informatics Institute (Public Organization)",
+     "jp": ""
+    },
+    "agency_shortname": {
+     "th": "สสน.",
+     "en": "HII",
+     "jp": ""
+    }
+   },
+   "geocode": {
+    "warning_zone": "09",
+    "area_code": "5",
+    "area_name": {
+     "th": "ภาคใต้",
+     "en": "South"
+    },
+    "amphoe_name": {
+     "th": "บางขัน",
+     "en": "Bang Khan District"
+    },
+    "tumbon_name": {
+     "th": "บ้านลำนาว",
+     "en": "Ban Lamnao"
+    },
+    "province_code": "80",
+    "province_name": {
+     "th": "นครศรีธรรมราช",
+     "en": "Nakhon Si Thammarat"
+    }
+   },
+   "station": {
+    "id": 798,
+    "tele_station_name": {
+     "en": "Ban Lamnao",
+     "th": "อบต.บ้านลำนาว"
+    },
+    "tele_station_lat": 8.02919,
+    "tele_station_long": 99.47584,
+    "tele_station_oldcode": "BKHN",
+    "tele_station_type": "rainfall_24h",
+    "sub_basin_id": "2209"
+   },
+   "basin": {
+    "id": 0,
+    "basin_name": {}
+   }
+  },
+  {
+   "id": 312557220,
+   "rain_24h": 0,
+   "rain_1h": 0,
+   "rainfall_datetime": "2026-09-30 02:00",
+   "station_type": "rainfall_24h",
+   "agency": {
+    "agency_name": {
+     "th": "กรมทรัพยากรน้ำ",
+     "en": "Department of Water Resources",
+     "jp": ""
+    },
+    "agency_shortname": {
+     "th": "ทน.",
+     "en": "DWR",
+     "jp": ""
+    }
+   },
+   "geocode": {
+    "warning_zone": "09",
+    "area_code": "5",
+    "area_name": {
+     "th": "ภาคใต้",
+     "en": "South"
+    },
+    "amphoe_name": {
+     "th": "เมืองนครศรีธรรมราช",
+     "en": "Mueang Nakhon Si Thammarat District"
+    },
+    "tumbon_name": {
+     "th": "ท่างิ้ว",
+     "en": "Tha Ngio"
+    },
+    "province_code": "80",
+    "province_name": {
+     "th": "นครศรีธรรมราช",
+     "en": "Nakhon Si Thammarat"
+    }
+   },
+   "station": {
+    "id": 1819,
+    "tele_station_name": {
+     "th": "บ้านท่างาม"
+    },
+    "tele_station_lat": 8.442016,
+    "tele_station_long": 99.83365,
+    "tele_station_oldcode": "STN0747",
+    "tele_station_type": "rainfall_24h",
+    "sub_basin_id": "1919"
+   },
+   "basin": {
+    "id": 0,
+    "basin_name": {}
+   }
+  },
+  {
+   "id": 312557221,
+   "rain_24h": 0,
+   "rain_1h": 0,
+   "rainfall_datetime": "2026-09-30 02:00",
+   "station_type": "rainfall_24h",
+   "agency": {
+    "agency_name": {
+     "th": "กรมทรัพยากรน้ำ",
+     "en": "Department of Water Resources",
+     "jp": ""
+    },
+    "agency_shortname": {
+     "th": "ทน.",
+     "en": "DWR",
+     "jp": ""
+    }
+   },
+   "geocode": {
+    "warning_zone": "09",
+    "area_code": "5",
+    "area_name": {
+     "th": "ภาคใต้",
+     "en": "South"
+    },
+    "amphoe_name": {
+     "th": "พรหมคีรี",
+     "en": "Phrom Khiri District"
+    },
+    "tumbon_name": {
+     "th": "พรหมโลก",
+     "en": "Phrom Lok"
+    },
+    "province_code": "80",
+    "province_name": {
+     "th": "นครศรีธรรมราช",
+     "en": "Nakhon Si Thammarat"
+    }
+   },
+   "station": {
+    "id": 1820,
+    "tele_station_name": {
+     "th": "บ้านในทับ"
+    },
+    "tele_station_lat": 8.508941,
+    "tele_station_long": 99.816407,
+    "tele_station_oldcode": "STN0064",
+    "tele_station_type": "rainfall_24h",
+    "sub_basin_id": "1919"
+   },
+   "basin": {
+    "id": 0,
+    "basin_name": {}
+   }
+  },
+  {
+   "id": 312557223,
+   "rain_24h": 0,
+   "rain_1h": 0,
+   "rainfall_datetime": "2026-09-30 02:00",
+   "station_type": "rainfall_24h",
+   "agency": {
+    "agency_name": {
+     "th": "กรมทรัพยากรน้ำ",
+     "en": "Department of Water Resources",
+     "jp": ""
+    },
+    "agency_shortname": {
+     "th": "ทน.",
+     "en": "DWR",
+     "jp": ""
+    }
+   },
+   "geocode": {
+    "warning_zone": "09",
+    "area_code": "5",
+    "area_name": {
+     "th": "ภาคใต้",
+     "en": "South"
+    },
+    "amphoe_name": {
+     "th": "ลานสกา",
+     "en": "Lan Saka District"
+    },
+    "tumbon_name": {
+     "th": "เขาแก้ว",
+     "en": "Khao Kaeo"
+    },
+    "province_code": "80",
+    "province_name": {
+     "th": "นครศรีธรรมราช",
+     "en": "Nakhon Si Thammarat"
+    }
+   },
+   "station": {
+    "id": 1822,
+    "tele_station_name": {
+     "th": "บ้านคันเบ็ด"
+    },
+    "tele_station_lat": 8.366532,
+    "tele_station_long": 99.759174,
+    "tele_station_oldcode": "STN0079",
+    "tele_station_type": "rainfall_24h",
+    "sub_basin_id": "1919"
+   },
+   "basin": {
+    "id": 0,
+    "basin_name": {}
+   }
+  },
+  {
+   "id": 312557224,
+   "rain_24h": 0,
+   "rain_1h": 0,
+   "rainfall_datetime": "2026-09-30 02:00",
+   "station_type": "rainfall_24h",
+   "agency": {
+    "agency_name": {
+     "th": "กรมทรัพยากรน้ำ",
+     "en": "Department of Water Resources",
+     "jp": ""
+    },
+    "agency_shortname": {
+     "th": "ทน.",
+     "en": "DWR",
+     "jp": ""
+    }
+   },
+   "geocode": {
+    "warning_zone": "09",
+    "area_code": "5",
+    "area_name": {
+     "th": "ภาคใต้",
+     "en": "South"
+    },
+    "amphoe_name": {
+     "th": "ลานสกา",
+     "en": "Lan Saka District"
+    },
+    "tumbon_name": {
+     "th": "ลานสกา",
+     "en": "Lan Saka"
+    },
+    "province_code": "80",
+    "province_name": {
+     "th": "นครศรีธรรมราช",
+     "en": "Nakhon Si Thammarat"
+    }
+   },
+   "station": {
+    "id": 1823,
+    "tele_station_name": {
+     "th": "บ้านน้ำรอบ"
+    },
+    "tele_station_lat": 8.305842,
+    "tele_station_long": 99.785297,
+    "tele_station_oldcode": "STN0083",
+    "tele_station_type": "rainfall_24h",
+    "sub_basin_id": "1919"
+   },
+   "basin": {
+    "id": 0,
+    "basin_name": {}
+   }
+  },
+  {
+   "id": 312557225,
+   "rain_24h": 0,
+   "rain_1h": 0,
+   "rainfall_datetime": "2026-09-30 02:00",
+   "station_type": "rainfall_24h",
+   "agency": {
+    "agency_name": {
+     "th": "กรมทรัพยากรน้ำ",
+     "en": "Department of Water Resources",
+     "jp": ""
+    },
+    "agency_shortname": {
+     "th": "ทน.",
+     "en": "DWR",
+     "jp": ""
+    }
+   },
+   "geocode": {
+    "warning_zone": "09",
+    "area_code": "5",
+    "area_name": {
+     "th": "ภาคใต้",
+     "en": "South"
+    },
+    "amphoe_name": {
+     "th": "ลานสกา",
+     "en": "Lan Saka District"
+    },
+    "tumbon_name": {
+     "th": "กำโลน",
+     "en": "Kamlon"
+    },
+    "province_code": "80",
+    "province_name": {
+     "th": "นครศรีธรรมราช",
+     "en": "Nakhon Si Thammarat"
+    }
+   },
+   "station": {
+    "id": 1825,
+    "tele_station_name": {
+     "th": "บ้านคีรีวง"
+    },
+    "tele_station_lat": 8.434325,
+    "tele_station_long": 99.778012,
+    "tele_station_oldcode": "STN0057",
+    "tele_station_type": "rainfall_24h",
+    "sub_basin_id": "1919"
+   },
+   "basin": {
+    "id": 0,
+    "basin_name": {}
+   }
+  },
+  {
+   "id": 312557226,
+   "rain_24h": 0,
+   "rain_1h": 0,
+   "rainfall_datetime": "2026-09-30 02:00",
+   "station_type": "rainfall_24h",
+   "agency": {
+    "agency_name": {
+     "th": "กรมทรัพยากรน้ำ",
+     "en": "Department of Water Resources",
+     "jp": ""
+    },
+    "agency_shortname": {
+     "th": "ทน.",
+     "en": "DWR",
+     "jp": ""
+    }
+   },
+   "geocode": {
+    "warning_zone": "09",
+    "area_code": "5",
+    "area_name": {
+     "th": "ภาคใต้",
+     "en": "South"
+    },
+    "amphoe_name": {
+     "th": "ฉวาง",
+     "en": "Chawang District"
+    },
+    "tumbon_name": {
+     "th": "ละอาย",
+     "en": "La-Ai"
+    },
+    "province_code": "80",
+    "province_name": {
+     "th": "นครศรีธรรมราช",
+     "en": "Nakhon Si Thammarat"
+    }
+   },
+   "station": {
+    "id": 1826,
+    "tele_station_name": {
+     "th": "บ้านปลายระแนะ"
+    },
+    "tele_station_lat": 8.459962,
+    "tele_station_long": 99.629702,
+    "tele_station_oldcode": "STN1020",
+    "tele_station_type": "rainfall_24h",
+    "sub_basin_id": "1909"
+   },
+   "basin": {
+    "id": 0,
+    "basin_name": {}
+   }
+  },
+  {
+   "id": 312557227,
+   "rain_24h": 0,
+   "rain_1h": 0,
+   "rainfall_datetime": "2026-09-30 02:00",
+   "station_type": "rainfall_24h",
+   "agency": {
+    "agency_name": {
+     "th": "กรมทรัพยากรน้ำ",
+     "en": "Department of Water Resources",
+     "jp": ""
+    },
+    "agency_shortname": {
+     "th": "ทน.",
+     "en": "DWR",
+     "jp": ""
+    }
+   },
+   "geocode": {
+    "warning_zone": "09",
+    "area_code": "5",
+    "area_name": {
+     "th": "ภาคใต้",
+     "en": "South"
+    },
+    "amphoe_name": {
+     "th": "ฉวาง",
+     "en": "Chawang District"
+    },
+    "tumbon_name": {
+     "th": "ไม้เรียง",
+     "en": "Mai Riang"
+    },
+    "province_code": "80",
+    "province_name": {
+     "th": "นครศรีธรรมราช",
+     "en": "Nakhon Si Thammarat"
+    }
+   },
+   "station": {
+    "id": 1827,
+    "tele_station_name": {
+     "th": "บ้านควนนนท์"
+    },
+    "tele_station_lat": 8.473398,
+    "tele_station_long": 99.449671,
+    "tele_station_oldcode": "STN0750",
+    "tele_station_type": "rainfall_24h",
+    "sub_basin_id": "1911"
+   },
+   "basin": {
+    "id": 0,
+    "basin_name": {}
+   }
+  },
+  {
+   "id": 312557228,
+   "rain_24h": 0,
+   "rain_1h": 0,
+   "rainfall_datetime": "2026-09-30 02:00",
+   "station_type": "rainfall_24h",
+   "agency": {
+    "agency_name": {
+     "th": "กรมทรัพยากรน้ำ",
+     "en": "Department of Water Resources",
+     "jp": ""
+    },
+    "agency_shortname": {
+     "th": "ทน.",
+     "en": "DWR",
+     "jp": ""
+    }
+   },
+   "geocode": {
+    "warning_zone": "09",
+    "area_code": "5",
+    "area_name": {
+     "th": "ภาคใต้",
+     "en": "South"
+    },
+    "amphoe_name": {
+     "th": "ฉวาง",
+     "en": "Chawang District"
+    },
+    "tumbon_name": {
+     "th": "กะเปียด",
+     "en": "Kapiat"
+    },
+    "province_code": "80",
+    "province_name": {
+     "th": "นครศรีธรรมราช",
+     "en": "Nakhon Si Thammarat"
+    }
+   },
+   "station": {
+    "id": 1828,
+    "tele_station_name": {
+     "th": "บ้านคลองไชยใต้"
+    },
+    "tele_station_lat": 8.509848,
+    "tele_station_long": 99.459272,
+    "tele_station_oldcode": "STN0749",
+    "tele_station_type": "rainfall_24h",
+    "sub_basin_id": "1910"
+   },
+   "basin": {
+    "id": 0,
+    "basin_name": {}
+   }
+  },
+  {
+   "id": 312557229,
+   "rain_24h": 0,
+   "rain_1h": 0,
+   "rainfall_datetime": "2026-09-30 02:00",
+   "station_type": "rainfall_24h",
+   "agency": {
+    "agency_name": {
+     "th": "กรมทรัพยากรน้ำ",
+     "en": "Department of Water Resources",
+     "jp": ""
+    },
+    "agency_shortname": {
+     "th": "ทน.",
+     "en": "DWR",
+     "jp": ""
+    }
+   },
+   "geocode": {
+    "warning_zone": "09",
+    "area_code": "5",
+    "area_name": {
+     "th": "ภาคใต้",
+     "en": "South"
+    },
+    "amphoe_name": {
+     "th": "ฉวาง",
+     "en": "Chawang District"
+    },
+    "tumbon_name": {
+     "th": "ห้วยปริก",
+     "en": "Huai Prik"
+    },
+    "province_code": "80",
+    "province_name": {
+     "th": "นครศรีธรรมราช",
+     "en": "Nakhon Si Thammarat"
+    }
+   },
+   "station": {
+    "id": 1829,
+    "tele_station_name": {
+     "th": "บ้านทรายงาม"
+    },
+    "tele_station_lat": 8.583172,
+    "tele_station_long": 99.462567,
+    "tele_station_oldcode": "STN0059",
+    "tele_station_type": "rainfall_24h",
+    "sub_basin_id": "1910"
+   },
+   "basin": {
+    "id": 0,
+    "basin_name": {}
+   }
+  },
+  {
+   "id": 312557231,
+   "rain_24h": 0,
+   "rain_1h": 0,
+   "rainfall_datetime": "2026-09-30 02:00",
+   "station_type": "rainfall_24h",
+   "agency": {
+    "agency_name": {
+     "th": "กรมทรัพยากรน้ำ",
+     "en": "Department of Water Resources",
+     "jp": ""
+    },
+    "agency_shortname": {
+     "th": "ทน.",
+     "en": "DWR",
+     "jp": ""
+    }
+   },
+   "geocode": {
+    "warning_zone": "09",
+    "area_code": "5",
+    "area_name": {
+     "th": "ภาคใต้",
+     "en": "South"
+    },
+    "amphoe_name": {
+     "th": "พิปูน",
+     "en": "Phipun District"
+    },
+    "tumbon_name": {
+     "th": "เขาพระ",
+     "en": "Khao Phra"
+    },
+    "province_code": "80",
+    "province_name": {
+     "th": "นครศรีธรรมราช",
+     "en": "Nakhon Si Thammarat"
+    }
+   },
+   "station": {
+    "id": 1831,
+    "tele_station_name": {
+     "th": "บ้านเหนือคลองระแนะ"
+    },
+    "tele_station_lat": 8.589913,
+    "tele_station_long": 99.621682,
+    "tele_station_oldcode": "STN0751",
+    "tele_station_type": "rainfall_24h",
+    "sub_basin_id": "1910"
+   },
+   "basin": {
+    "id": 0,
+    "basin_name": {}
+   }
+  },
+  {
+   "id": 312557232,
+   "rain_24h": 0,
+   "rainfall_datetime": "2026-09-30 02:00",
+   "station_type": "rainfall_24h",
+   "agency": {
+    "agency_name": {
+     "th": "กรมทรัพยากรน้ำ",
+     "en": "Department of Water Resources",
+     "jp": ""
+    },
+    "agency_shortname": {
+     "th": "ทน.",
+     "en": "DWR",
+     "jp": ""
+    }
+   },
+   "geocode": {
+    "warning_zone": "09",
+    "area_code": "5",
+    "area_name": {
+     "th": "ภาคใต้",
+     "en": "South"
+    },
+    "amphoe_name": {
+     "th": "พิปูน",
+     "en": "Phipun District"
+    },
+    "tumbon_name": {
+     "th": "กะทูน",
+     "en": "Kathun"
+    },
+    "province_code": "80",
+    "province_name": {
+     "th": "นครศรีธรรมราช",
+     "en": "Nakhon Si Thammarat"
+    }
+   },
+   "station": {
+    "id": 1832,
+    "tele_station_name": {
+     "th": "บ้านห้วยกลาง"
+    },
+    "tele_station_lat": 8.592091,
+    "tele_station_long": 99.512297,
+    "tele_station_oldcode": "STN0582",
+    "tele_station_type": "rainfall_24h",
+    "sub_basin_id": "1910"
+   },
+   "basin": {
+    "id": 0,
+    "basin_name": {}
+   }
+  },
+  {
+   "id": 312557233,
+   "rain_24h": 0,
+   "rain_1h": 0,
+   "rainfall_datetime": "2026-09-30 02:00",
+   "station_type": "rainfall_24h",
+   "agency": {
+    "agency_name": {
+     "th": "กรมทรัพยากรน้ำ",
+     "en": "Department of Water Resources",
+     "jp": ""
+    },
+    "agency_shortname": {
+     "th": "ทน.",
+     "en": "DWR",
+     "jp": ""
+    }
+   },
+   "geocode": {
+    "warning_zone": "09",
+    "area_code": "5",
+    "area_name": {
+     "th": "ภาคใต้",
+     "en": "South"
+    },
+    "amphoe_name": {
+     "th": "พิปูน",
+     "en": "Phipun District"
+    },
+    "tumbon_name": {
+     "th": "เขาพระ",
+     "en": "Khao Phra"
+    },
+    "province_code": "80",
+    "province_name": {
+     "th": "นครศรีธรรมราช",
+     "en": "Nakhon Si Thammarat"
+    }
+   },
+   "station": {
+    "id": 1833,
+    "tele_station_name": {
+     "th": "บ้านจุฬาภรณ์พัฒนา"
+    },
+    "tele_station_lat": 8.594321,
+    "tele_station_long": 99.57307,
+    "tele_station_oldcode": "STN0062",
+    "tele_station_type": "rainfall_24h",
+    "sub_basin_id": "1910"
+   },
+   "basin": {
+    "id": 0,
+    "basin_name": {}
+   }
+  },
+  {
+   "id": 312557234,
+   "rain_24h": 0,
+   "rain_1h": 0,
+   "rainfall_datetime": "2026-09-30 02:00",
+   "station_type": "rainfall_24h",
+   "agency": {
+    "agency_name": {
+     "th": "กรมทรัพยากรน้ำ",
+     "en": "Department of Water Resources",
+     "jp": ""
+    },
+    "agency_shortname": {
+     "th": "ทน.",
+     "en": "DWR",
+     "jp": ""
+    }
+   },
+   "geocode": {
+    "warning_zone": "09",
+    "area_code": "5",
+    "area_name": {
+     "th": "ภาคใต้",
+     "en": "South"
+    },
+    "amphoe_name": {
+     "th": "พิปูน",
+     "en": "Phipun District"
+    },
+    "tumbon_name": {
+     "th": "ควนกลาง",
+     "en": "Khuan Klang"
+    },
+    "province_code": "80",
+    "province_name": {
+     "th": "นครศรีธรรมราช",
+     "en": "Nakhon Si Thammarat"
+    }
+   },
+   "station": {
+    "id": 1834,
+    "tele_station_name": {
+     "th": "บ้านนางเอื้อย"
+    },
+    "tele_station_lat": 8.55956,
+    "tele_station_long": 99.53627,
+    "tele_station_oldcode": "STN0503",
+    "tele_station_type": "rainfall_24h",
+    "sub_basin_id": "1910"
+   },
+   "basin": {
+    "id": 0,
+    "basin_name": {}
+   }
+  },
+  {
+   "id": 312557235,
+   "rain_24h": 0,
+   "rain_1h": 0,
+   "rainfall_datetime": "2026-09-30 02:00",
+   "station_type": "rainfall_24h",
+   "agency": {
+    "agency_name": {
+     "th": "กรมทรัพยากรน้ำ",
+     "en": "Department of Water Resources",
+     "jp": ""
+    },
+    "agency_shortname": {
+     "th": "ทน.",
+     "en": "DWR",
+     "jp": ""
+    }
+   },
+   "geocode": {
+    "warning_zone": "09",
+    "area_code": "5",
+    "area_name": {
+     "th": "ภาคใต้",
+     "en": "South"
+    },
+    "amphoe_name": {
+     "th": "พิปูน",
+     "en": "Phipun District"
+    },
+    "tumbon_name": {
+     "th": "เขาพระ",
+     "en": "Khao Phra"
+    },
+    "province_code": "80",
+    "province_name": {
+     "th": "นครศรีธรรมราช",
+     "en": "Nakhon Si Thammarat"
+    }
+   },
+   "station": {
+    "id": 1835,
+    "tele_station_name": {
+     "th": "บ้านใสเขือ"
+    },
+    "tele_station_lat": 8.620236,
+    "tele_station_long": 99.594835,
+    "tele_station_oldcode": "STN0214",
+    "tele_station_type": "rainfall_24h",
+    "sub_basin_id": "1910"
+   },
+   "basin": {
+    "id": 0,
+    "basin_name": {}
+   }
+  },
+  {
+   "id": 312557236,
+   "rain_24h": 0,
+   "rain_1h": 0,
+   "rainfall_datetime": "2026-09-30 02:00",
+   "station_type": "rainfall_24h",
+   "agency": {
+    "agency_name": {
+     "th": "กรมทรัพยากรน้ำ",
+     "en": "Department of Water Resources",
+     "jp": ""
+    },
+    "agency_shortname": {
+     "th": "ทน.",
+     "en": "DWR",
+     "jp": ""
+    }
+   },
+   "geocode": {
+    "warning_zone": "09",
+    "area_code": "5",
+    "area_name": {
+     "th": "ภาคใต้",
+     "en": "South"
+    },
+    "amphoe_name": {
+     "th": "พิปูน",
+     "en": "Phipun District"
+    },
+    "tumbon_name": {
+     "th": "ยางค้อม",
+     "en": "Yang Khom"
+    },
+    "province_code": "80",
+    "province_name": {
+     "th": "นครศรีธรรมราช",
+     "en": "Nakhon Si Thammarat"
+    }
+   },
+   "station": {
+    "id": 1836,
+    "tele_station_name": {
+     "th": "บ้านยางค้อม"
+    },
+    "tele_station_lat": 8.535879,
+    "tele_station_long": 99.610272,
+    "tele_station_oldcode": "STN0843",
+    "tele_station_type": "rainfall_24h",
+    "sub_basin_id": "1910"
+   },
+   "basin": {
+    "id": 0,
+    "basin_name": {}
+   }
+  },
+  {
+   "id": 312557237,
+   "rain_24h": 0,
+   "rainfall_datetime": "2026-09-30 02:00",
+   "station_type": "rainfall_24h",
+   "agency": {
+    "agency_name": {
+     "th": "กรมทรัพยากรน้ำ",
+     "en": "Department of Water Resources",
+     "jp": ""
+    },
+    "agency_shortname": {
+     "th": "ทน.",
+     "en": "DWR",
+     "jp": ""
+    }
+   },
+   "geocode": {
+    "warning_zone": "09",
+    "area_code": "5",
+    "area_name": {
+     "th": "ภาคใต้",
+     "en": "South"
+    },
+    "amphoe_name": {
+     "th": "ทุ่งสง",
+     "en": "Thung Song District"
+    },
+    "tumbon_name": {
+     "th": "นาไม้ไผ่",
+     "en": "Na Mai Phai"
+    },
+    "province_code": "80",
+    "province_name": {
+     "th": "นครศรีธรรมราช",
+     "en": "Nakhon Si Thammarat"
+    }
+   },
+   "station": {
+    "id": 1837,
+    "tele_station_name": {
+     "th": "บ้านหน้าเขา"
+    },
+    "tele_station_lat": 8.123834,
+    "tele_station_long": 99.549491,
+    "tele_station_oldcode": "STN0500",
+    "tele_station_type": "rainfall_24h",
+    "sub_basin_id": "2209"
+   },
+   "basin": {
+    "id": 0,
+    "basin_name": {}
+   }
+  },
+  {
+   "id": 312557238,
+   "rain_24h": 0,
+   "rain_1h": 0,
+   "rainfall_datetime": "2026-09-30 02:00",
+   "station_type": "rainfall_24h",
+   "agency": {
+    "agency_name": {
+     "th": "กรมทรัพยากรน้ำ",
+     "en": "Department of Water Resources",
+     "jp": ""
+    },
+    "agency_shortname": {
+     "th": "ทน.",
+     "en": "DWR",
+     "jp": ""
+    }
+   },
+   "geocode": {
+    "warning_zone": "09",
+    "area_code": "5",
+    "area_name": {
+     "th": "ภาคใต้",
+     "en": "South"
+    },
+    "amphoe_name": {
+     "th": "ทุ่งสง",
+     "en": "Thung Song District"
+    },
+    "tumbon_name": {
+     "th": "ถ้ำใหญ่",
+     "en": "Tham Yai"
+    },
+    "province_code": "80",
+    "province_name": {
+     "th": "นครศรีธรรมราช",
+     "en": "Nakhon Si Thammarat"
+    }
+   },
+   "station": {
+    "id": 1840,
+    "tele_station_name": {
+     "th": "บ้านไสใหญ่เหนือ"
+    },
+    "tele_station_lat": 8.17327,
+    "tele_station_long": 99.719523,
+    "tele_station_oldcode": "STN0753",
+    "tele_station_type": "rainfall_24h",
+    "sub_basin_id": "2209"
+   },
+   "basin": {
+    "id": 0,
+    "basin_name": {}
+   }
+  },
+  {
+   "id": 312557239,
+   "rain_24h": 0,
+   "rain_1h": 0,
+   "rainfall_datetime": "2026-09-30 02:00",
+   "station_type": "rainfall_24h",
+   "agency": {
+    "agency_name": {
+     "th": "กรมทรัพยากรน้ำ",
+     "en": "Department of Water Resources",
+     "jp": ""
+    },
+    "agency_shortname": {
+     "th": "ทน.",
+     "en": "DWR",
+     "jp": ""
+    }
+   },
+   "geocode": {
+    "warning_zone": "09",
+    "area_code": "5",
+    "area_name": {
+     "th": "ภาคใต้",
+     "en": "South"
+    },
+    "amphoe_name": {
+     "th": "ทุ่งสง",
+     "en": "Thung Song District"
+    },
+    "tumbon_name": {
+     "th": "เขาขาว",
+     "en": "Khao Khao"
+    },
+    "province_code": "80",
+    "province_name": {
+     "th": "นครศรีธรรมราช",
+     "en": "Nakhon Si Thammarat"
+    }
+   },
+   "station": {
+    "id": 1841,
+    "tele_station_name": {
+     "th": "บ้านหินราว"
+    },
+    "tele_station_lat": 8.181668,
+    "tele_station_long": 99.470944,
+    "tele_station_oldcode": "STN0501",
+    "tele_station_type": "rainfall_24h",
+    "sub_basin_id": "1909"
+   },
+   "basin": {
+    "id": 0,
+    "basin_name": {}
+   }
+  },
+  {
+   "id": 312557241,
+   "rain_24h": 0,
+   "rain_1h": 0,
+   "rainfall_datetime": "2026-09-30 02:00",
+   "station_type": "rainfall_24h",
+   "agency": {
+    "agency_name": {
+     "th": "กรมทรัพยากรน้ำ",
+     "en": "Department of Water Resources",
+     "jp": ""
+    },
+    "agency_shortname": {
+     "th": "ทน.",
+     "en": "DWR",
+     "jp": ""
+    }
+   },
+   "geocode": {
+    "warning_zone": "09",
+    "area_code": "5",
+    "area_name": {
+     "th": "ภาคใต้",
+     "en": "South"
+    },
+    "amphoe_name": {
+     "th": "ร่อนพิบูลย์",
+     "en": "Ron Phibun District"
+    },
+    "tumbon_name": {
+     "th": "ร่อนพิบูลย์",
+     "en": "Ron Phibun"
+    },
+    "province_code": "80",
+    "province_name": {
+     "th": "นครศรีธรรมราช",
+     "en": "Nakhon Si Thammarat"
+    }
+   },
+   "station": {
+    "id": 1843,
+    "tele_station_name": {
+     "th": "บ้านร่อนนา"
+    },
+    "tele_station_lat": 8.180739,
+    "tele_station_long": 99.83616,
+    "tele_station_oldcode": "STN0290",
+    "tele_station_type": "rainfall_24h",
+    "sub_basin_id": "1919"
+   },
+   "basin": {
+    "id": 0,
+    "basin_name": {}
+   }
+  },
+  {
+   "id": 312557242,
+   "rain_24h": 0,
+   "rain_1h": 0,
+   "rainfall_datetime": "2026-09-30 02:00",
+   "station_type": "rainfall_24h",
+   "agency": {
+    "agency_name": {
+     "th": "กรมทรัพยากรน้ำ",
+     "en": "Department of Water Resources",
+     "jp": ""
+    },
+    "agency_shortname": {
+     "th": "ทน.",
+     "en": "DWR",
+     "jp": ""
+    }
+   },
+   "geocode": {
+    "warning_zone": "09",
+    "area_code": "5",
+    "area_name": {
+     "th": "ภาคใต้",
+     "en": "South"
+    },
+    "amphoe_name": {
+     "th": "ร่อนพิบูลย์",
+     "en": "Ron Phibun District"
+    },
+    "tumbon_name": {
+     "th": "หินตก",
+     "en": "Hin Tok"
+    },
+    "province_code": "80",
+    "province_name": {
+     "th": "นครศรีธรรมราช",
+     "en": "Nakhon Si Thammarat"
+    }
+   },
+   "station": {
+    "id": 1844,
+    "tele_station_name": {
+     "th": "บ้านขุนพัง"
+    },
+    "tele_station_lat": 8.267771,
+    "tele_station_long": 99.822094,
+    "tele_station_oldcode": "STN0218",
+    "tele_station_type": "rainfall_24h",
+    "sub_basin_id": "1919"
+   },
+   "basin": {
+    "id": 0,
+    "basin_name": {}
+   }
+  },
+  {
+   "id": 312557243,
+   "rain_24h": 0,
+   "rain_1h": 0,
+   "rainfall_datetime": "2026-09-30 02:00",
+   "station_type": "rainfall_24h",
+   "agency": {
+    "agency_name": {
+     "th": "กรมทรัพยากรน้ำ",
+     "en": "Department of Water Resources",
+     "jp": ""
+    },
+    "agency_shortname": {
+     "th": "ทน.",
+     "en": "DWR",
+     "jp": ""
+    }
+   },
+   "geocode": {
+    "warning_zone": "09",
+    "area_code": "5",
+    "area_name": {
+     "th": "ภาคใต้",
+     "en": "South"
+    },
+    "amphoe_name": {
+     "th": "สิชล",
+     "en": "Sichon District"
+    },
+    "tumbon_name": {
+     "th": "ทุ่งปรัง",
+     "en": "Thung Prang"
+    },
+    "province_code": "80",
+    "province_name": {
+     "th": "นครศรีธรรมราช",
+     "en": "Nakhon Si Thammarat"
+    }
+   },
+   "station": {
+    "id": 1845,
+    "tele_station_name": {
+     "th": "บ้านเขาเหล็ก"
+    },
+    "tele_station_lat": 8.976837,
+    "tele_station_long": 99.848052,
+    "tele_station_oldcode": "STN0741",
+    "tele_station_type": "rainfall_24h",
+    "sub_basin_id": "1917"
+   },
+   "basin": {
+    "id": 0,
+    "basin_name": {}
+   }
+  },
+  {
+   "id": 312557244,
+   "rain_24h": 0,
+   "rain_1h": 0,
+   "rainfall_datetime": "2026-09-30 02:00",
+   "station_type": "rainfall_24h",
+   "agency": {
+    "agency_name": {
+     "th": "กรมทรัพยากรน้ำ",
+     "en": "Department of Water Resources",
+     "jp": ""
+    },
+    "agency_shortname": {
+     "th": "ทน.",
+     "en": "DWR",
+     "jp": ""
+    }
+   },
+   "geocode": {
+    "warning_zone": "09",
+    "area_code": "5",
+    "area_name": {
+     "th": "ภาคใต้",
+     "en": "South"
+    },
+    "amphoe_name": {
+     "th": "สิชล",
+     "en": "Sichon District"
+    },
+    "tumbon_name": {
+     "th": "เทพราช",
+     "en": "Theppharat"
+    },
+    "province_code": "80",
+    "province_name": {
+     "th": "นครศรีธรรมราช",
+     "en": "Nakhon Si Thammarat"
+    }
+   },
+   "station": {
+    "id": 1846,
+    "tele_station_name": {
+     "th": "บ้านน้ำฉา"
+    },
+    "tele_station_lat": 8.897553,
+    "tele_station_long": 99.831144,
+    "tele_station_oldcode": "STN0744",
+    "tele_station_type": "rainfall_24h",
+    "sub_basin_id": "1917"
+   },
+   "basin": {
+    "id": 0,
+    "basin_name": {}
+   }
+  },
+  {
+   "id": 312557246,
+   "rain_24h": 0,
+   "rain_1h": 0,
+   "rainfall_datetime": "2026-09-30 02:00",
+   "station_type": "rainfall_24h",
+   "agency": {
+    "agency_name": {
+     "th": "กรมทรัพยากรน้ำ",
+     "en": "Department of Water Resources",
+     "jp": ""
+    },
+    "agency_shortname": {
+     "th": "ทน.",
+     "en": "DWR",
+     "jp": ""
+    }
+   },
+   "geocode": {
+    "warning_zone": "09",
+    "area_code": "5",
+    "area_name": {
+     "th": "ภาคใต้",
+     "en": "South"
+    },
+    "amphoe_name": {
+     "th": "สิชล",
+     "en": "Sichon District"
+    },
+    "tumbon_name": {
+     "th": "ทุ่งใส",
+     "en": "Thung Sai"
+    },
+    "province_code": "80",
+    "province_name": {
+     "th": "นครศรีธรรมราช",
+     "en": "Nakhon Si Thammarat"
+    }
+   },
+   "station": {
+    "id": 1850,
+    "tele_station_name": {
+     "th": "บ้านห้วยทรายทอง"
+    },
+    "tele_station_lat": 9.053236,
+    "tele_station_long": 99.888573,
+    "tele_station_oldcode": "STN0745",
+    "tele_station_type": "rainfall_24h",
+    "sub_basin_id": "1917"
+   },
+   "basin": {
+    "id": 0,
+    "basin_name": {}
+   }
+  },
+  {
+   "id": 312557247,
+   "rain_24h": 0,
+   "rain_1h": 0,
+   "rainfall_datetime": "2026-09-30 02:00",
+   "station_type": "rainfall_24h",
+   "agency": {
+    "agency_name": {
+     "th": "กรมทรัพยากรน้ำ",
+     "en": "Department of Water Resources",
+     "jp": ""
+    },
+    "agency_shortname": {
+     "th": "ทน.",
+     "en": "DWR",
+     "jp": ""
+    }
+   },
+   "geocode": {
+    "warning_zone": "09",
+    "area_code": "5",
+    "area_name": {
+     "th": "ภาคใต้",
+     "en": "South"
+    },
+    "amphoe_name": {
+     "th": "สิชล",
+     "en": "Sichon District"
+    },
+    "tumbon_name": {
+     "th": "ทุ่งใส",
+     "en": "Thung Sai"
+    },
+    "province_code": "80",
+    "province_name": {
+     "th": "นครศรีธรรมราช",
+     "en": "Nakhon Si Thammarat"
+    }
+   },
+   "station": {
+    "id": 1851,
+    "tele_station_name": {
+     "th": "บ้านห้วยหินลับ"
+    },
+    "tele_station_lat": 9.079253,
+    "tele_station_long": 99.83205,
+    "tele_station_oldcode": "STN0746",
+    "tele_station_type": "rainfall_24h",
+    "sub_basin_id": "1917"
+   },
+   "basin": {
+    "id": 0,
+    "basin_name": {}
+   }
+  },
+  {
+   "id": 312557248,
+   "rain_24h": 0,
+   "rain_1h": 0,
+   "rainfall_datetime": "2026-09-30 02:00",
+   "station_type": "rainfall_24h",
+   "agency": {
+    "agency_name": {
+     "th": "กรมทรัพยากรน้ำ",
+     "en": "Department of Water Resources",
+     "jp": ""
+    },
+    "agency_shortname": {
+     "th": "ทน.",
+     "en": "DWR",
+     "jp": ""
+    }
+   },
+   "geocode": {
+    "warning_zone": "09",
+    "area_code": "5",
+    "area_name": {
+     "th": "ภาคใต้",
+     "en": "South"
+    },
+    "amphoe_name": {
+     "th": "ขนอม",
+     "en": "Khanom District"
+    },
+    "tumbon_name": {
+     "th": "ขนอม",
+     "en": "Khanom"
+    },
+    "province_code": "80",
+    "province_name": {
+     "th": "นครศรีธรรมราช",
+     "en": "Nakhon Si Thammarat"
+    }
+   },
+   "station": {
+    "id": 1852,
+    "tele_station_name": {
+     "th": "บ้านในเพลา"
+    },
+    "tele_station_lat": 9.125776,
+    "tele_station_long": 99.874655,
+    "tele_station_oldcode": "STN0742",
+    "tele_station_type": "rainfall_24h",
+    "sub_basin_id": "1917"
+   },
+   "basin": {
+    "id": 0,
+    "basin_name": {}
+   }
+  },
+  {
+   "id": 312557249,
+   "rain_24h": 0,
+   "rain_1h": 0,
+   "rainfall_datetime": "2026-09-30 02:00",
+   "station_type": "rainfall_24h",
+   "agency": {
+    "agency_name": {
+     "th": "กรมทรัพยากรน้ำ",
+     "en": "Department of Water Resources",
+     "jp": ""
+    },
+    "agency_shortname": {
+     "th": "ทน.",
+     "en": "DWR",
+     "jp": ""
+    }
+   },
+   "geocode": {
+    "warning_zone": "09",
+    "area_code": "5",
+    "area_name": {
+     "th": "ภาคใต้",
+     "en": "South"
+    },
+    "amphoe_name": {
+     "th": "บางขัน",
+     "en": "Bang Khan District"
+    },
+    "tumbon_name": {
+     "th": "บางขัน",
+     "en": "Bang Khan"
+    },
+    "province_code": "80",
+    "province_name": {
+     "th": "นครศรีธรรมราช",
+     "en": "Nakhon Si Thammarat"
+    }
+   },
+   "station": {
+    "id": 1855,
+    "tele_station_name": {
+     "th": "บ้านทุ่งอินทนิน"
+    },
+    "tele_station_lat": 8.077816,
+    "tele_station_long": 99.425652,
+    "tele_station_oldcode": "STN0818",
+    "tele_station_type": "rainfall_24h",
+    "sub_basin_id": "2209"
+   },
+   "basin": {
+    "id": 0,
+    "basin_name": {}
+   }
+  },
+  {
+   "id": 312557250,
+   "rain_24h": 0,
+   "rain_1h": 0,
+   "rainfall_datetime": "2026-09-30 02:00",
+   "station_type": "rainfall_24h",
+   "agency": {
+    "agency_name": {
+     "th": "กรมทรัพยากรน้ำ",
+     "en": "Department of Water Resources",
+     "jp": ""
+    },
+    "agency_shortname": {
+     "th": "ทน.",
+     "en": "DWR",
+     "jp": ""
+    }
+   },
+   "geocode": {
+    "warning_zone": "09",
+    "area_code": "5",
+    "area_name": {
+     "th": "ภาคใต้",
+     "en": "South"
+    },
+    "amphoe_name": {
+     "th": "บางขัน",
+     "en": "Bang Khan District"
+    },
+    "tumbon_name": {
+     "th": "บ้านลำนาว",
+     "en": "Ban Lamnao"
+    },
+    "province_code": "80",
+    "province_name": {
+     "th": "นครศรีธรรมราช",
+     "en": "Nakhon Si Thammarat"
+    }
+   },
+   "station": {
+    "id": 1856,
+    "tele_station_name": {
+     "th": "บ้านเคี่ยมงาม"
+    },
+    "tele_station_lat": 7.955905,
+    "tele_station_long": 99.441404,
+    "tele_station_oldcode": "STN0817",
+    "tele_station_type": "rainfall_24h",
+    "sub_basin_id": "2209"
+   },
+   "basin": {
+    "id": 0,
+    "basin_name": {}
+   }
+  },
+  {
+   "id": 312557251,
+   "rain_24h": 0,
+   "rain_1h": 0,
+   "rainfall_datetime": "2026-09-30 02:00",
+   "station_type": "rainfall_24h",
+   "agency": {
+    "agency_name": {
+     "th": "กรมทรัพยากรน้ำ",
+     "en": "Department of Water Resources",
+     "jp": ""
+    },
+    "agency_shortname": {
+     "th": "ทน.",
+     "en": "DWR",
+     "jp": ""
+    }
+   },
+   "geocode": {
+    "warning_zone": "09",
+    "area_code": "5",
+    "area_name": {
+     "th": "ภาคใต้",
+     "en": "South"
+    },
+    "amphoe_name": {
+     "th": "บางขัน",
+     "en": "Bang Khan District"
+    },
+    "tumbon_name": {
+     "th": "บ้านลำนาว",
+     "en": "Ban Lamnao"
+    },
+    "province_code": "80",
+    "province_name": {
+     "th": "นครศรีธรรมราช",
+     "en": "Nakhon Si Thammarat"
+    }
+   },
+   "station": {
+    "id": 1857,
+    "tele_station_name": {
+     "th": "บ้านควนหินราว"
+    },
+    "tele_station_lat": 8.024518,
+    "tele_station_long": 99.453365,
+    "tele_station_oldcode": "STN0816",
+    "tele_station_type": "rainfall_24h",
+    "sub_basin_id": "2209"
+   },
+   "basin": {
+    "id": 0,
+    "basin_name": {}
+   }
+  },
+  {
+   "id": 312557252,
+   "rain_24h": 0,
+   "rain_1h": 0,
+   "rainfall_datetime": "2026-09-30 02:00",
+   "station_type": "rainfall_24h",
+   "agency": {
+    "agency_name": {
+     "th": "กรมทรัพยากรน้ำ",
+     "en": "Department of Water Resources",
+     "jp": ""
+    },
+    "agency_shortname": {
+     "th": "ทน.",
+     "en": "DWR",
+     "jp": ""
+    }
+   },
+   "geocode": {
+    "warning_zone": "09",
+    "area_code": "5",
+    "area_name": {
+     "th": "ภาคใต้",
+     "en": "South"
+    },
+    "amphoe_name": {
+     "th": "บางขัน",
+     "en": "Bang Khan District"
+    },
+    "tumbon_name": {
+     "th": "บ้านนิคม",
+     "en": "Ban Nikhom"
+    },
+    "province_code": "80",
+    "province_name": {
+     "th": "นครศรีธรรมราช",
+     "en": "Nakhon Si Thammarat"
+    }
+   },
+   "station": {
+    "id": 1858,
+    "tele_station_name": {
+     "th": "บ้านช่องเหรียง"
+    },
+    "tele_station_lat": 7.954957,
+    "tele_station_long": 99.488375,
+    "tele_station_oldcode": "STN0219",
+    "tele_station_type": "rainfall_24h",
+    "sub_basin_id": "2209"
+   },
+   "basin": {
+    "id": 0,
+    "basin_name": {}
+   }
+  },
+  {
+   "id": 312557253,
+   "rain_24h": 0,
+   "rain_1h": 0,
+   "rainfall_datetime": "2026-09-30 02:00",
+   "station_type": "rainfall_24h",
+   "agency": {
+    "agency_name": {
+     "th": "กรมทรัพยากรน้ำ",
+     "en": "Department of Water Resources",
+     "jp": ""
+    },
+    "agency_shortname": {
+     "th": "ทน.",
+     "en": "DWR",
+     "jp": ""
+    }
+   },
+   "geocode": {
+    "warning_zone": "09",
+    "area_code": "5",
+    "area_name": {
+     "th": "ภาคใต้",
+     "en": "South"
+    },
+    "amphoe_name": {
+     "th": "จุฬาภรณ์",
+     "en": "Chulabhorn District"
+    },
+    "tumbon_name": {
+     "th": "ทุ่งโพธิ์",
+     "en": "Thung Pho"
+    },
+    "province_code": "80",
+    "province_name": {
+     "th": "นครศรีธรรมราช",
+     "en": "Nakhon Si Thammarat"
+    }
+   },
+   "station": {
+    "id": 1859,
+    "tele_station_name": {
+     "th": "บ้านเหนือคลอง"
+    },
+    "tele_station_lat": 8.076932,
+    "tele_station_long": 99.775356,
+    "tele_station_oldcode": "STN0291",
+    "tele_station_type": "rainfall_24h",
+    "sub_basin_id": "1919"
+   },
+   "basin": {
+    "id": 0,
+    "basin_name": {}
+   }
+  },
+  {
+   "id": 312557254,
+   "rain_24h": 0,
+   "rain_1h": 0,
+   "rainfall_datetime": "2026-09-30 02:00",
+   "station_type": "rainfall_24h",
+   "agency": {
+    "agency_name": {
+     "th": "กรมทรัพยากรน้ำ",
+     "en": "Department of Water Resources",
+     "jp": ""
+    },
+    "agency_shortname": {
+     "th": "ทน.",
+     "en": "DWR",
+     "jp": ""
+    }
+   },
+   "geocode": {
+    "warning_zone": "09",
+    "area_code": "5",
+    "area_name": {
+     "th": "ภาคใต้",
+     "en": "South"
+    },
+    "amphoe_name": {
+     "th": "นบพิตำ",
+     "en": "Nopphitam District"
+    },
+    "tumbon_name": {
+     "th": "นบพิตำ",
+     "en": "Nopphitam"
+    },
+    "province_code": "80",
+    "province_name": {
+     "th": "นครศรีธรรมราช",
+     "en": "Nakhon Si Thammarat"
+    }
+   },
+   "station": {
+    "id": 1860,
+    "tele_station_name": {
+     "th": "บ้านหัวโคก"
+    },
+    "tele_station_lat": 8.731602,
+    "tele_station_long": 99.74534,
+    "tele_station_oldcode": "STN0502",
+    "tele_station_type": "rainfall_24h",
+    "sub_basin_id": "1918"
+   },
+   "basin": {
+    "id": 0,
+    "basin_name": {}
+   }
+  },
+  {
+   "id": 312557259,
+   "rain_24h": 0,
+   "rain_1h": 0,
+   "rainfall_datetime": "2026-09-30 02:00",
+   "station_type": "rainfall_24h",
+   "agency": {
+    "agency_name": {
+     "th": "กรมทรัพยากรน้ำ",
+     "en": "Department of Water Resources",
+     "jp": ""
+    },
+    "agency_shortname": {
+     "th": "ทน.",
+     "en": "DWR",
+     "jp": ""
+    }
+   },
+   "geocode": {
+    "warning_zone": "09",
+    "area_code": "5",
+    "area_name": {
+     "th": "ภาคใต้",
+     "en": "South"
+    },
+    "amphoe_name": {
+     "th": "นบพิตำ",
+     "en": "Nopphitam District"
+    },
+    "tumbon_name": {
+     "th": "กรุงชิง",
+     "en": "Krung Ching"
+    },
+    "province_code": "80",
+    "province_name": {
+     "th": "นครศรีธรรมราช",
+     "en": "Nakhon Si Thammarat"
+    }
+   },
+   "station": {
+    "id": 1865,
+    "tele_station_name": {
+     "th": "บ้านพิตำ"
+    },
+    "tele_station_lat": 8.740273,
+    "tele_station_long": 99.653675,
+    "tele_station_oldcode": "STN0060",
+    "tele_station_type": "rainfall_24h",
+    "sub_basin_id": "1918"
+   },
+   "basin": {
+    "id": 0,
+    "basin_name": {}
+   }
+  },
+  {
+   "id": 312557262,
+   "rain_24h": 0,
+   "rain_1h": 0,
+   "rainfall_datetime": "2026-09-30 02:00",
+   "station_type": "rainfall_24h",
+   "agency": {
+    "agency_name": {
+     "th": "กรมทรัพยากรน้ำ",
+     "en": "Department of Water Resources",
+     "jp": ""
+    },
+    "agency_shortname": {
+     "th": "ทน.",
+     "en": "DWR",
+     "jp": ""
+    }
+   },
+   "geocode": {
+    "warning_zone": "09",
+    "area_code": "5",
+    "area_name": {
+     "th": "ภาคใต้",
+     "en": "South"
+    },
+    "amphoe_name": {
+     "th": "ช้างกลาง",
+     "en": "Chang Klang District"
+    },
+    "tumbon_name": {
+     "th": "ช้างกลาง",
+     "en": "Chang Klang"
+    },
+    "province_code": "80",
+    "province_name": {
+     "th": "นครศรีธรรมราช",
+     "en": "Nakhon Si Thammarat"
+    }
+   },
+   "station": {
+    "id": 1868,
+    "tele_station_name": {
+     "th": "บ้านหน้าเหมน"
+    },
+    "tele_station_lat": 8.32446,
+    "tele_station_long": 99.636249,
+    "tele_station_oldcode": "STN1019",
+    "tele_station_type": "rainfall_24h",
+    "sub_basin_id": "1909"
+   },
+   "basin": {
+    "id": 0,
+    "basin_name": {}
+   }
+  },
+  {
+   "id": 312557263,
+   "rain_24h": 0,
+   "rain_1h": 0,
+   "rainfall_datetime": "2026-09-30 02:00",
+   "station_type": "rainfall_24h",
+   "agency": {
+    "agency_name": {
+     "th": "กรมทรัพยากรน้ำ",
+     "en": "Department of Water Resources",
+     "jp": ""
+    },
+    "agency_shortname": {
+     "th": "ทน.",
+     "en": "DWR",
+     "jp": ""
+    }
+   },
+   "geocode": {
+    "warning_zone": "09",
+    "area_code": "5",
+    "area_name": {
+     "th": "ภาคใต้",
+     "en": "South"
+    },
+    "amphoe_name": {
+     "th": "ช้างกลาง",
+     "en": "Chang Klang District"
+    },
+    "tumbon_name": {
+     "th": "หลักช้าง",
+     "en": "Lak Chang"
+    },
+    "province_code": "80",
+    "province_name": {
+     "th": "นครศรีธรรมราช",
+     "en": "Nakhon Si Thammarat"
+    }
+   },
+   "station": {
+    "id": 1869,
+    "tele_station_name": {
+     "th": "บ้านจันดีเมืองใหม่"
+    },
+    "tele_station_lat": 8.378078,
+    "tele_station_long": 99.55225,
+    "tele_station_oldcode": "STN1021",
+    "tele_station_type": "rainfall_24h",
+    "sub_basin_id": "1909"
+   },
+   "basin": {
+    "id": 0,
+    "basin_name": {}
+   }
+  },
+  {
+   "id": 312549891,
+   "rain_24h": 0,
+   "rainfall_datetime": "2026-09-30 01:00",
+   "station_type": "rainfall_24h",
+   "agency": {
+    "agency_name": {
+     "th": "กรมอุตุนิยมวิทยา ",
+     "en": "Thai Meteorological Department",
+     "jp": ""
+    },
+    "agency_shortname": {
+     "th": "อต.",
+     "en": "TMD",
+     "jp": ""
+    }
+   },
+   "geocode": {
+    "warning_zone": "09",
+    "area_code": "5",
+    "area_name": {
+     "th": "ภาคใต้",
+     "en": "South"
+    },
+    "amphoe_name": {
+     "th": "เมืองนครศรีธรรมราช",
+     "en": "Mueang Nakhon Si Thammarat District"
+    },
+    "tumbon_name": {
+     "th": "ปากพูน",
+     "en": "Pak Phun"
+    },
+    "province_code": "80",
+    "province_name": {
+     "th": "นครศรีธรรมราช",
+     "en": "Nakhon Si Thammarat"
+    }
+   },
+   "station": {
+    "id": 3736,
+    "tele_station_name": {
+     "en": "NAKHONSI THAMMARAT",
+     "th": "นครศรีธรรมราช"
+    },
+    "tele_station_lat": 8.53778,
+    "tele_station_long": 99.94722,
+    "tele_station_oldcode": "48552",
+    "tele_station_type": "rainfall_24h",
+    "sub_basin_id": "1919"
+   },
+   "basin": {
+    "id": 0,
+    "basin_name": {}
+   }
+  },
+  {
+   "id": 312534394,
+   "rain_24h": 0,
+   "rainfall_datetime": "2026-09-29 22:00",
+   "station_type": "rainfall_24h",
+   "agency": {
+    "agency_name": {
+     "th": "กรมอุตุนิยมวิทยา ",
+     "en": "Thai Meteorological Department",
+     "jp": ""
+    },
+    "agency_shortname": {
+     "th": "อต.",
+     "en": "TMD",
+     "jp": ""
+    }
+   },
+   "geocode": {
+    "warning_zone": "09",
+    "area_code": "5",
+    "area_name": {
+     "th": "ภาคใต้",
+     "en": "South"
+    },
+    "amphoe_name": {
+     "th": "ฉวาง",
+     "en": "Chawang District"
+    },
+    "tumbon_name": {
+     "th": "ฉวาง",
+     "en": "Chawang"
+    },
+    "province_code": "80",
+    "province_name": {
+     "th": "นครศรีธรรมราช",
+     "en": "Nakhon Si Thammarat"
+    }
+   },
+   "station": {
+    "id": 3740,
+    "tele_station_name": {
+     "en": "CHAWANG",
+     "th": "ฉวาง"
+    },
+    "tele_station_lat": 8.42472,
+    "tele_station_long": 99.50667,
+    "tele_station_oldcode": "48557",
+    "tele_station_type": "rainfall_24h",
+    "sub_basin_id": "1910"
+   },
+   "basin": {
+    "id": 0,
+    "basin_name": {}
+   }
+  },
+  {
+   "id": 312556410,
+   "rain_24h": 0,
+   "rain_1h": 0,
+   "rainfall_datetime": "2026-09-30 03:00",
+   "station_type": "rainfall_24h",
+   "agency": {
+    "agency_name": {
+     "th": "สถาบันสารสนเทศทรัพยากรน้ำ (องค์การมหาชน)",
+     "en": "Hydro – Informatics Institute (Public Organization)",
+     "jp": ""
+    },
+    "agency_shortname": {
+     "th": "สสน.",
+     "en": "HII",
+     "jp": ""
+    }
+   },
+   "geocode": {
+    "warning_zone": "09",
+    "area_code": "5",
+    "area_name": {
+     "th": "ภาคใต้",
+     "en": "South"
+    },
+    "amphoe_name": {
+     "th": "ฉวาง",
+     "en": "Chawang District"
+    },
+    "tumbon_name": {
+     "th": "จันดี",
+     "en": "Chan Di"
+    },
+    "province_code": "80",
+    "province_name": {
+     "th": "นครศรีธรรมราช",
+     "en": "Nakhon Si Thammarat"
+    }
+   },
+   "station": {
+    "id": 13891,
+    "tele_station_name": {
+     "en": "Chandi",
+     "th": "ทต.จันดี"
+    },
+    "tele_station_lat": 8.38823,
+    "tele_station_long": 99.54064,
+    "tele_station_oldcode": "SWR024",
+    "tele_station_type": "rainfall_24h",
+    "sub_basin_id": "1909"
+   },
+   "basin": {
+    "id": 0,
+    "basin_name": {}
+   }
+  },
+  {
+   "id": 312556411,
+   "rain_24h": 0,
+   "rain_1h": 0,
+   "rainfall_datetime": "2026-09-30 03:00",
+   "station_type": "rainfall_24h",
+   "agency": {
+    "agency_name": {
+     "th": "สถาบันสารสนเทศทรัพยากรน้ำ (องค์การมหาชน)",
+     "en": "Hydro – Informatics Institute (Public Organization)",
+     "jp": ""
+    },
+    "agency_shortname": {
+     "th": "สสน.",
+     "en": "HII",
+     "jp": ""
+    }
+   },
+   "geocode": {
+    "warning_zone": "09",
+    "area_code": "5",
+    "area_name": {
+     "th": "ภาคใต้",
+     "en": "South"
+    },
+    "amphoe_name": {
+     "th": "ทุ่งสง",
+     "en": "Thung Song District"
+    },
+    "tumbon_name": {
+     "th": "นาหลวงเสน",
+     "en": "Na Luang Sen"
+    },
+    "province_code": "80",
+    "province_name": {
+     "th": "นครศรีธรรมราช",
+     "en": "Nakhon Si Thammarat"
+    }
+   },
+   "station": {
+    "id": 13892,
+    "tele_station_name": {
+     "en": "Na Luang Sen",
+     "th": "ฝายคลองท่าเลา"
+    },
+    "tele_station_lat": 8.232547,
+    "tele_station_long": 99.70778,
+    "tele_station_oldcode": "SWR025",
+    "tele_station_type": "rainfall_24h",
+    "sub_basin_id": "2209"
+   },
+   "basin": {
+    "id": 0,
+    "basin_name": {}
+   }
+  },
+  {
+   "id": 312556412,
+   "rain_24h": 0,
+   "rain_1h": 0,
+   "rainfall_datetime": "2026-09-30 03:00",
+   "station_type": "rainfall_24h",
+   "agency": {
+    "agency_name": {
+     "th": "สถาบันสารสนเทศทรัพยากรน้ำ (องค์การมหาชน)",
+     "en": "Hydro – Informatics Institute (Public Organization)",
+     "jp": ""
+    },
+    "agency_shortname": {
+     "th": "สสน.",
+     "en": "HII",
+     "jp": ""
+    }
+   },
+   "geocode": {
+    "warning_zone": "09",
+    "area_code": "5",
+    "area_name": {
+     "th": "ภาคใต้",
+     "en": "South"
+    },
+    "amphoe_name": {
+     "th": "ทุ่งสง",
+     "en": "Thung Song District"
+    },
+    "tumbon_name": {
+     "th": "กะปาง",
+     "en": "Kapang"
+    },
+    "province_code": "80",
+    "province_name": {
+     "th": "นครศรีธรรมราช",
+     "en": "Nakhon Si Thammarat"
+    }
+   },
+   "station": {
+    "id": 13893,
+    "tele_station_name": {
+     "en": "Ban Phun School",
+     "th": "รร.บ้านพูน"
+    },
+    "tele_station_lat": 8.03829,
+    "tele_station_long": 99.6431,
+    "tele_station_oldcode": "SWR026",
+    "tele_station_type": "rainfall_24h",
+    "sub_basin_id": "2209"
+   },
+   "basin": {
+    "id": 0,
+    "basin_name": {}
+   }
+  },
+  {
+   "id": 312559796,
+   "rain_24h": 0,
+   "rain_1h": 0,
+   "rainfall_datetime": "2026-09-30 04:00",
+   "station_type": "rainfall_24h",
+   "agency": {
+    "agency_name": {
+     "th": "มูลนิธิอาสาเพื่อนพึ่ง (ภาฯ) ยามยาก สภากาชาดไทย",
+     "en": "Friend in Need (of “Pa”) Volunteers Foundation",
+     "jp": ""
+    },
+    "agency_shortname": {
+     "th": "พพภ",
+     "en": "FOP",
+     "jp": ""
+    }
+   },
+   "geocode": {
+    "warning_zone": "09",
+    "area_code": "5",
+    "area_name": {
+     "th": "ภาคใต้",
+     "en": "South"
+    },
+    "amphoe_name": {
+     "th": "ทุ่งสง",
+     "en": "Thung Song District"
+    },
+    "tumbon_name": {
+     "th": "ถ้ำใหญ่",
+     "en": "Tham Yai"
+    },
+    "province_code": "80",
+    "province_name": {
+     "th": "นครศรีธรรมราช",
+     "en": "Nakhon Si Thammarat"
+    }
+   },
+   "station": {
+    "id": 740732,
+    "tele_station_name": {
+     "en": "Plio Waterfall",
+     "th": "น้ำตกปลิว"
+    },
+    "tele_station_lat": 8.16269,
+    "tele_station_long": 99.75916,
+    "tele_station_oldcode": "FOP031",
+    "tele_station_type": "rainfall_24h",
+    "sub_basin_id": "2209",
+    "sponsor_by": "มูลนิธิอาสาเพื่อนพึ่ง (ภาฯ) ยามยาก สภากาชาดไทย"
+   },
+   "basin": {
+    "id": 0,
+    "basin_name": {}
+   }
+  },
+  {
+   "id": 312559797,
+   "rain_24h": 0,
+   "rain_1h": 0,
+   "rainfall_datetime": "2026-09-30 04:00",
+   "station_type": "rainfall_24h",
+   "agency": {
+    "agency_name": {
+     "th": "มูลนิธิอาสาเพื่อนพึ่ง (ภาฯ) ยามยาก สภากาชาดไทย",
+     "en": "Friend in Need (of “Pa”) Volunteers Foundation",
+     "jp": ""
+    },
+    "agency_shortname": {
+     "th": "พพภ",
+     "en": "FOP",
+     "jp": ""
+    }
+   },
+   "geocode": {
+    "warning_zone": "09",
+    "area_code": "5",
+    "area_name": {
+     "th": "ภาคใต้",
+     "en": "South"
+    },
+    "amphoe_name": {
+     "th": "ทุ่งสง",
+     "en": "Thung Song District"
+    },
+    "tumbon_name": {
+     "th": "ที่วัง",
+     "en": "Thi Wang"
+    },
+    "province_code": "80",
+    "province_name": {
+     "th": "นครศรีธรรมราช",
+     "en": "Nakhon Si Thammarat"
+    }
+   },
+   "station": {
+    "id": 740733,
+    "tele_station_name": {
+     "en": "Rai Wong Thong Mek Di",
+     "th": "ไร่ วงศ์ ทอง เมฆ ดี"
+    },
+    "tele_station_lat": 8.090253,
+    "tele_station_long": 99.73887,
+    "tele_station_oldcode": "FOP032",
+    "tele_station_type": "rainfall_24h",
+    "sub_basin_id": "2209",
+    "sponsor_by": "มูลนิธิอาสาเพื่อนพึ่ง (ภาฯ) ยามยาก สภากาชาดไทย"
+   },
+   "basin": {
+    "id": 0,
+    "basin_name": {}
+   }
+  },
+  {
+   "id": 312559799,
+   "rain_24h": 0,
+   "rain_1h": 0,
+   "rainfall_datetime": "2026-09-30 04:00",
+   "station_type": "rainfall_24h",
+   "agency": {
+    "agency_name": {
+     "th": "มูลนิธิอาสาเพื่อนพึ่ง (ภาฯ) ยามยาก สภากาชาดไทย",
+     "en": "Friend in Need (of “Pa”) Volunteers Foundation",
+     "jp": ""
+    },
+    "agency_shortname": {
+     "th": "พพภ",
+     "en": "FOP",
+     "jp": ""
+    }
+   },
+   "geocode": {
+    "warning_zone": "09",
+    "area_code": "5",
+    "area_name": {
+     "th": "ภาคใต้",
+     "en": "South"
+    },
+    "amphoe_name": {
+     "th": "ทุ่งสง",
+     "en": "Thung Song District"
+    },
+    "tumbon_name": {
+     "th": "ถ้ำใหญ่",
+     "en": "Tham Yai"
+    },
+    "province_code": "80",
+    "province_name": {
+     "th": "นครศรีธรรมราช",
+     "en": "Nakhon Si Thammarat"
+    }
+   },
+   "station": {
+    "id": 740735,
+    "tele_station_name": {
+     "en": "Khlong Poek Weir",
+     "th": "ฝายคลองเปิก"
+    },
+    "tele_station_lat": 8.193899,
+    "tele_station_long": 99.73481,
+    "tele_station_oldcode": "FOP034",
+    "tele_station_type": "rainfall_24h",
+    "sub_basin_id": "2209",
+    "sponsor_by": "มูลนิธิอาสาเพื่อนพึ่ง (ภาฯ) ยามยาก สภากาชาดไทย"
+   },
+   "basin": {
+    "id": 0,
+    "basin_name": {}
+   }
+  },
+  {
+   "id": 312559855,
+   "rain_24h": 0,
+   "rain_1h": 0,
+   "rainfall_datetime": "2026-09-30 04:00",
+   "station_type": "rainfall_24h",
+   "agency": {
+    "agency_name": {
+     "th": "มูลนิธิอาสาเพื่อนพึ่ง (ภาฯ) ยามยาก สภากาชาดไทย",
+     "en": "Friend in Need (of “Pa”) Volunteers Foundation",
+     "jp": ""
+    },
+    "agency_shortname": {
+     "th": "พพภ",
+     "en": "FOP",
+     "jp": ""
+    }
+   },
+   "geocode": {
+    "warning_zone": "09",
+    "area_code": "5",
+    "area_name": {
+     "th": "ภาคใต้",
+     "en": "South"
+    },
+    "amphoe_name": {
+     "th": "ทุ่งสง",
+     "en": "Thung Song District"
+    },
+    "tumbon_name": {
+     "th": "น้ำตก",
+     "en": "Namtok"
+    },
+    "province_code": "80",
+    "province_name": {
+     "th": "นครศรีธรรมราช",
+     "en": "Nakhon Si Thammarat"
+    }
+   },
+   "station": {
+    "id": 855520,
+    "tele_station_name": {
+     "en": "National Park Protection Unit of Ko Po 4 (Ban Namtok)",
+     "th": "หน่วยพิทักษ์อุทยานแห่งชาติที่ ขป.๔ (บ้านน้ำตก)"
+    },
+    "tele_station_lat": 7.96328,
+    "tele_station_long": 99.76106,
+    "tele_station_oldcode": "MOU130",
+    "tele_station_type": "rainfall_24h",
+    "sub_basin_id": "1919",
+    "sponsor_by": "บริษัท ทรู คอร์ปอเรชั่น จำกัด (มหาชน)"
+   },
+   "basin": {
+    "id": 0,
+    "basin_name": {}
+   }
+  },
+  {
+   "id": 312557979,
+   "rain_24h": 0,
+   "rain_1h": 0,
+   "rainfall_datetime": "2026-09-30 02:00",
+   "station_type": "rainfall_24h",
+   "agency": {
+    "agency_name": {
+     "th": "กรมทรัพยากรน้ำ",
+     "en": "Department of Water Resources",
+     "jp": ""
+    },
+    "agency_shortname": {
+     "th": "ทน.",
+     "en": "DWR",
+     "jp": ""
+    }
+   },
+   "geocode": {
+    "warning_zone": "09",
+    "area_code": "5",
+    "area_name": {
+     "th": "ภาคใต้",
+     "en": "South"
+    },
+    "amphoe_name": {
+     "th": "ชะอวด",
+     "en": "Cha-uat District"
+    },
+    "tumbon_name": {
+     "th": "วังอ่าง",
+     "en": "Wang Ang"
+    },
+    "province_code": "80",
+    "province_name": {
+     "th": "นครศรีธรรมราช",
+     "en": "Nakhon Si Thammarat"
+    }
+   },
+   "station": {
+    "id": 1081005,
+    "tele_station_name": {
+     "th": "บ้านวังหอน"
+    },
+    "tele_station_lat": 7.891836,
+    "tele_station_long": 99.791607,
+    "tele_station_oldcode": "STN1716",
+    "tele_station_type": "rainfall_24h",
+    "sub_basin_id": "1919"
+   },
+   "basin": {
+    "id": 0,
+    "basin_name": {}
+   }
+  },
+  {
+   "id": 312557980,
+   "rain_24h": 0,
+   "rain_1h": 0,
+   "rainfall_datetime": "2026-09-30 02:00",
+   "station_type": "rainfall_24h",
+   "agency": {
+    "agency_name": {
+     "th": "กรมทรัพยากรน้ำ",
+     "en": "Department of Water Resources",
+     "jp": ""
+    },
+    "agency_shortname": {
+     "th": "ทน.",
+     "en": "DWR",
+     "jp": ""
+    }
+   },
+   "geocode": {
+    "warning_zone": "09",
+    "area_code": "5",
+    "area_name": {
+     "th": "ภาคใต้",
+     "en": "South"
+    },
+    "amphoe_name": {
+     "th": "ทุ่งสง",
+     "en": "Thung Song District"
+    },
+    "tumbon_name": {
+     "th": "กะปาง",
+     "en": "Kapang"
+    },
+    "province_code": "80",
+    "province_name": {
+     "th": "นครศรีธรรมราช",
+     "en": "Nakhon Si Thammarat"
+    }
+   },
+   "station": {
+    "id": 1081006,
+    "tele_station_name": {
+     "th": "บ้านคลองตูกเหนือ"
+    },
+    "tele_station_lat": 8.01801,
+    "tele_station_long": 99.723095,
+    "tele_station_oldcode": "STN1717",
+    "tele_station_type": "rainfall_24h",
+    "sub_basin_id": "2209"
+   },
+   "basin": {
+    "id": 0,
+    "basin_name": {}
+   }
+  },
+  {
+   "id": 312558042,
+   "rain_24h": 0,
+   "rain_1h": 0,
+   "rainfall_datetime": "2026-09-30 02:00",
+   "station_type": "rainfall_24h",
+   "agency": {
+    "agency_name": {
+     "th": "กรมทรัพยากรน้ำ",
+     "en": "Department of Water Resources",
+     "jp": ""
+    },
+    "agency_shortname": {
+     "th": "ทน.",
+     "en": "DWR",
+     "jp": ""
+    }
+   },
+   "geocode": {
+    "warning_zone": "09",
+    "area_code": "5",
+    "area_name": {
+     "th": "ภาคใต้",
+     "en": "South"
+    },
+    "amphoe_name": {
+     "th": "ท่าศาลา",
+     "en": "Tha Sala District"
+    },
+    "tumbon_name": {
+     "th": "ไทยบุรี",
+     "en": "Thai Buri"
+    },
+    "province_code": "80",
+    "province_name": {
+     "th": "นครศรีธรรมราช",
+     "en": "Nakhon Si Thammarat"
+    }
+   },
+   "station": {
+    "id": 1081085,
+    "tele_station_name": {
+     "th": "บ้านพระเลียบ"
+    },
+    "tele_station_lat": 8.68438,
+    "tele_station_long": 99.857601,
+    "tele_station_oldcode": "STN1796",
+    "tele_station_type": "rainfall_24h",
+    "sub_basin_id": "1919"
+   },
+   "basin": {
+    "id": 0,
+    "basin_name": {}
+   }
+  },
+  {
+   "id": 312558043,
+   "rain_24h": 0,
+   "rainfall_datetime": "2026-09-30 02:00",
+   "station_type": "rainfall_24h",
+   "agency": {
+    "agency_name": {
+     "th": "กรมทรัพยากรน้ำ",
+     "en": "Department of Water Resources",
+     "jp": ""
+    },
+    "agency_shortname": {
+     "th": "ทน.",
+     "en": "DWR",
+     "jp": ""
+    }
+   },
+   "geocode": {
+    "warning_zone": "09",
+    "area_code": "5",
+    "area_name": {
+     "th": "ภาคใต้",
+     "en": "South"
+    },
+    "amphoe_name": {
+     "th": "ชะอวด",
+     "en": "Cha-uat District"
+    },
+    "tumbon_name": {
+     "th": "เกาะขันธ์",
+     "en": "Ko Khan"
+    },
+    "province_code": "80",
+    "province_name": {
+     "th": "นครศรีธรรมราช",
+     "en": "Nakhon Si Thammarat"
+    }
+   },
+   "station": {
+    "id": 1081086,
+    "tele_station_name": {
+     "th": "บ้านไม้เสียบ"
+    },
+    "tele_station_lat": 7.901858,
+    "tele_station_long": 99.927705,
+    "tele_station_oldcode": "STN1797",
+    "tele_station_type": "rainfall_24h",
+    "sub_basin_id": "1919"
+   },
+   "basin": {
+    "id": 0,
+    "basin_name": {}
+   }
+  },
+  {
+   "id": 312556576,
+   "rain_24h": 0,
+   "rain_1h": 0,
+   "rainfall_datetime": "2026-09-30 03:00",
+   "station_type": "rainfall_24h",
+   "agency": {
+    "agency_name": {
+     "th": "สถาบันสารสนเทศทรัพยากรน้ำ (องค์การมหาชน)",
+     "en": "Hydro – Informatics Institute (Public Organization)",
+     "jp": ""
+    },
+    "agency_shortname": {
+     "th": "สสน.",
+     "en": "HII",
+     "jp": ""
+    }
+   },
+   "geocode": {
+    "warning_zone": "09",
+    "area_code": "5",
+    "area_name": {
+     "th": "ภาคใต้",
+     "en": "South"
+    },
+    "amphoe_name": {
+     "th": "ชะอวด",
+     "en": "Cha-uat District"
+    },
+    "tumbon_name": {
+     "th": "ชะอวด",
+     "en": "Cha-Uat"
+    },
+    "province_code": "80",
+    "province_name": {
+     "th": "นครศรีธรรมราช",
+     "en": "Nakhon Si Thammarat"
+    }
+   },
+   "station": {
+    "id": 1093079,
+    "tele_station_name": {
+     "en": "Khlong Cha Uat",
+     "th": "คลองชะอวด"
+    },
+    "tele_station_lat": 7.96636,
+    "tele_station_long": 99.99436,
+    "tele_station_oldcode": "CHAU01",
+    "tele_station_type": "rainfall_24h",
+    "sub_basin_id": "1919"
+   },
+   "basin": {
+    "id": 0,
+    "basin_name": {}
+   }
+  },
+  {
+   "id": 312556577,
+   "rain_24h": 0,
+   "rain_1h": 0,
+   "rainfall_datetime": "2026-09-30 03:00",
+   "station_type": "rainfall_24h",
+   "agency": {
+    "agency_name": {
+     "th": "สถาบันสารสนเทศทรัพยากรน้ำ (องค์การมหาชน)",
+     "en": "Hydro – Informatics Institute (Public Organization)",
+     "jp": ""
+    },
+    "agency_shortname": {
+     "th": "สสน.",
+     "en": "HII",
+     "jp": ""
+    }
+   },
+   "geocode": {
+    "warning_zone": "09",
+    "area_code": "5",
+    "area_name": {
+     "th": "ภาคใต้",
+     "en": "South"
+    },
+    "amphoe_name": {
+     "th": "ลานสกา",
+     "en": "Lan Saka District"
+    },
+    "tumbon_name": {
+     "th": "กำโลน",
+     "en": "Kamlon"
+    },
+    "province_code": "80",
+    "province_name": {
+     "th": "นครศรีธรรมราช",
+     "en": "Nakhon Si Thammarat"
+    }
+   },
+   "station": {
+    "id": 1094448,
+    "tele_station_name": {
+     "en": "Wat Khok Pho Sathit School",
+     "th": "โรงเรียนวัดโคกโพธิ์สถิตย์"
+    },
+    "tele_station_lat": 8.40118,
+    "tele_station_long": 99.802,
+    "tele_station_oldcode": "TADE01",
+    "tele_station_type": "rainfall_24h",
+    "sub_basin_id": "1919"
+   },
+   "basin": {
+    "id": 0,
+    "basin_name": {}
+   }
+  },
+  {
+   "id": 312554739,
+   "rain_24h": 0,
+   "rainfall_datetime": "2026-09-30 02:50",
+   "station_type": "rainfall_24h",
+   "agency": {
+    "agency_name": {
+     "th": "กรมป้องกันและบรรเทาสาธารณภัย",
+     "en": "Department of Disaster Prevention and Mitigation",
+     "jp": "防災・防災省"
+    },
+    "agency_shortname": {
+     "th": "ปภ.",
+     "en": "DISASTER",
+     "jp": ""
+    }
+   },
+   "geocode": {
+    "warning_zone": "09",
+    "area_code": "5",
+    "area_name": {
+     "th": "ภาคใต้",
+     "en": "South"
+    },
+    "amphoe_name": {
+     "th": "ขนอม",
+     "en": "Khanom District"
+    },
+    "tumbon_name": {
+     "th": "ท้องเนียน",
+     "en": "Thong Nian"
+    },
+    "province_code": "80",
+    "province_name": {
+     "th": "นครศรีธรรมราช",
+     "en": "Nakhon Si Thammarat"
+    }
+   },
+   "station": {
+    "id": 1100947,
+    "tele_station_name": {
+     "th": "ที่ทำการชุมชนบ้านปากน้ำ หมู่ 8"
+    },
+    "tele_station_lat": 9.229895,
+    "tele_station_long": 99.85684,
+    "tele_station_oldcode": "TH24",
+    "tele_station_type": "rainfall_24h",
+    "sub_basin_id": "1917"
+   },
+   "basin": {
+    "id": 0,
+    "basin_name": {}
+   }
+  },
+  {
+   "id": 312554743,
+   "rain_24h": 0,
+   "rainfall_datetime": "2026-09-30 02:50",
+   "station_type": "rainfall_24h",
+   "agency": {
+    "agency_name": {
+     "th": "กรมป้องกันและบรรเทาสาธารณภัย",
+     "en": "Department of Disaster Prevention and Mitigation",
+     "jp": "防災・防災省"
+    },
+    "agency_shortname": {
+     "th": "ปภ.",
+     "en": "DISASTER",
+     "jp": ""
+    }
+   },
+   "geocode": {
+    "warning_zone": "09",
+    "area_code": "5",
+    "area_name": {
+     "th": "ภาคใต้",
+     "en": "South"
+    },
+    "amphoe_name": {
+     "th": "ท่าศาลา",
+     "en": "Tha Sala District"
+    },
+    "tumbon_name": {
+     "th": "ท่าศาลา",
+     "en": "Tha Sala"
+    },
+    "province_code": "80",
+    "province_name": {
+     "th": "นครศรีธรรมราช",
+     "en": "Nakhon Si Thammarat"
+    }
+   },
+   "station": {
+    "id": 1100952,
+    "tele_station_name": {
+     "th": "ศูนย์ประสานงานทีมพัฒนาท่าศาลา"
+    },
+    "tele_station_lat": 8.65744,
+    "tele_station_long": 99.92822,
+    "tele_station_oldcode": "TC23",
+    "tele_station_type": "rainfall_24h",
+    "sub_basin_id": "1919"
+   },
+   "basin": {
+    "id": 0,
+    "basin_name": {}
+   }
+  },
+  {
+   "id": 312554747,
+   "rain_24h": 0,
+   "rainfall_datetime": "2026-09-30 02:50",
+   "station_type": "rainfall_24h",
+   "agency": {
+    "agency_name": {
+     "th": "กรมป้องกันและบรรเทาสาธารณภัย",
+     "en": "Department of Disaster Prevention and Mitigation",
+     "jp": "防災・防災省"
+    },
+    "agency_shortname": {
+     "th": "ปภ.",
+     "en": "DISASTER",
+     "jp": ""
+    }
+   },
+   "geocode": {
+    "warning_zone": "09",
+    "area_code": "5",
+    "area_name": {
+     "th": "ภาคใต้",
+     "en": "South"
+    },
+    "amphoe_name": {
+     "th": "หัวไทร",
+     "en": "Hua Sai District"
+    },
+    "tumbon_name": {
+     "th": "เกาะเพชร",
+     "en": "Ko Phet"
+    },
+    "province_code": "80",
+    "province_name": {
+     "th": "นครศรีธรรมราช",
+     "en": "Nakhon Si Thammarat"
+    }
+   },
+   "station": {
+    "id": 1100954,
+    "tele_station_name": {
+     "th": "สถานีอนามัยหน้าสตน หมู่ 2"
+    },
+    "tele_station_lat": 8.0751,
+    "tele_station_long": 100.3098,
+    "tele_station_oldcode": "TC18",
+    "tele_station_type": "rainfall_24h",
+    "sub_basin_id": "1919"
+   },
+   "basin": {
+    "id": 0,
+    "basin_name": {}
+   }
+  },
+  {
+   "id": 312559873,
+   "rain_24h": 0,
+   "rain_1h": 0,
+   "rainfall_datetime": "2026-09-30 04:00",
+   "station_type": "rainfall_24h",
+   "agency": {
+    "agency_name": {
+     "th": "มูลนิธิอาสาเพื่อนพึ่ง (ภาฯ) ยามยาก สภากาชาดไทย",
+     "en": "Friend in Need (of “Pa”) Volunteers Foundation",
+     "jp": ""
+    },
+    "agency_shortname": {
+     "th": "พพภ",
+     "en": "FOP",
+     "jp": ""
+    }
+   },
+   "geocode": {
+    "warning_zone": "09",
+    "area_code": "5",
+    "area_name": {
+     "th": "ภาคใต้",
+     "en": "South"
+    },
+    "amphoe_name": {
+     "th": "ทุ่งสง",
+     "en": "Thung Song District"
+    },
+    "tumbon_name": {
+     "th": "นาหลวงเสน",
+     "en": "Na Luang Sen"
+    },
+    "province_code": "80",
+    "province_name": {
+     "th": "นครศรีธรรมราช",
+     "en": "Nakhon Si Thammarat"
+    }
+   },
+   "station": {
+    "id": 1101568,
+    "tele_station_name": {
+     "en": "Ban Pradu",
+     "th": "บ้านประดู่"
+    },
+    "tele_station_lat": 8.212035,
+    "tele_station_long": 99.703316,
+    "tele_station_oldcode": "FOP057",
+    "tele_station_type": "rainfall_24h",
+    "sub_basin_id": "2209",
+    "sponsor_by": "มูลนิธิอาสาเพื่อนพึ่ง (ภาฯ) ยามยาก สภากาชาดไทย"
+   },
+   "basin": {
+    "id": 0,
+    "basin_name": {}
+   }
+  },
+  {
+   "id": 312559874,
+   "rain_24h": 0,
+   "rain_1h": 0,
+   "rainfall_datetime": "2026-09-30 04:00",
+   "station_type": "rainfall_24h",
+   "agency": {
+    "agency_name": {
+     "th": "มูลนิธิอาสาเพื่อนพึ่ง (ภาฯ) ยามยาก สภากาชาดไทย",
+     "en": "Friend in Need (of “Pa”) Volunteers Foundation",
+     "jp": ""
+    },
+    "agency_shortname": {
+     "th": "พพภ",
+     "en": "FOP",
+     "jp": ""
+    }
+   },
+   "geocode": {
+    "warning_zone": "09",
+    "area_code": "5",
+    "area_name": {
+     "th": "ภาคใต้",
+     "en": "South"
+    },
+    "amphoe_name": {
+     "th": "ทุ่งสง",
+     "en": "Thung Song District"
+    },
+    "tumbon_name": {
+     "th": "นาหลวงเสน",
+     "en": "Na Luang Sen"
+    },
+    "province_code": "80",
+    "province_name": {
+     "th": "นครศรีธรรมราช",
+     "en": "Nakhon Si Thammarat"
+    }
+   },
+   "station": {
+    "id": 1101569,
+    "tele_station_name": {
+     "en": "Ban Tai",
+     "th": "บ้านใต้"
+    },
+    "tele_station_lat": 8.178368,
+    "tele_station_long": 99.70351,
+    "tele_station_oldcode": "FOP058",
+    "tele_station_type": "rainfall_24h",
+    "sub_basin_id": "2209",
+    "sponsor_by": "มูลนิธิอาสาเพื่อนพึ่ง (ภาฯ) ยามยาก สภากาชาดไทย"
+   },
+   "basin": {
+    "id": 0,
+    "basin_name": {}
+   }
+  },
+  {
+   "id": 312556633,
+   "rain_24h": 0,
+   "rain_1h": 0,
+   "rainfall_datetime": "2026-09-30 03:00",
+   "station_type": "rainfall_24h",
+   "agency": {
+    "agency_name": {
+     "th": "สถาบันสารสนเทศทรัพยากรน้ำ (องค์การมหาชน)",
+     "en": "Hydro – Informatics Institute (Public Organization)",
+     "jp": ""
+    },
+    "agency_shortname": {
+     "th": "สสน.",
+     "en": "HII",
+     "jp": ""
+    }
+   },
+   "geocode": {
+    "warning_zone": "09",
+    "area_code": "5",
+    "area_name": {
+     "th": "ภาคใต้",
+     "en": "South"
+    },
+    "amphoe_name": {
+     "th": "ทุ่งสง",
+     "en": "Thung Song District"
+    },
+    "tumbon_name": {
+     "th": "ปากแพรก",
+     "en": "Pak Phraek"
+    },
+    "province_code": "80",
+    "province_name": {
+     "th": "นครศรีธรรมราช",
+     "en": "Nakhon Si Thammarat"
+    }
+   },
+   "station": {
+    "id": 1109512,
+    "tele_station_name": {
+     "en": "Khlong ThaPhae Bridge",
+     "th": "สะพานข้ามคลองท่าแพ"
+    },
+    "tele_station_lat": 8.166437,
+    "tele_station_long": 99.704285,
+    "tele_station_oldcode": "ONE023",
+    "tele_station_type": "rainfall_24h",
+    "sub_basin_id": "2209"
+   },
+   "basin": {
+    "id": 0,
+    "basin_name": {}
+   }
+  },
+  {
+   "id": 312554737,
+   "rain_24h": 0,
+   "rainfall_datetime": "2026-09-30 02:50",
+   "station_type": "rainfall_24h",
+   "agency": {
+    "agency_name": {
+     "th": "กรมป้องกันและบรรเทาสาธารณภัย",
+     "en": "Department of Disaster Prevention and Mitigation",
+     "jp": "防災・防災省"
+    },
+    "agency_shortname": {
+     "th": "ปภ.",
+     "en": "DISASTER",
+     "jp": ""
+    }
+   },
+   "geocode": {
+    "warning_zone": "09",
+    "area_code": "5",
+    "area_name": {
+     "th": "ภาคใต้",
+     "en": "South"
+    },
+    "amphoe_name": {
+     "th": "ขนอม",
+     "en": "Khanom District"
+    },
+    "tumbon_name": {
+     "th": "ขนอม",
+     "en": "Khanom"
+    },
+    "province_code": "80",
+    "province_name": {
+     "th": "นครศรีธรรมราช",
+     "en": "Nakhon Si Thammarat"
+    }
+   },
+   "station": {
+    "id": 1119571,
+    "tele_station_name": {
+     "th": "บ้านคอเขา ม.2"
+    },
+    "tele_station_lat": 9.1995,
+    "tele_station_long": 99.874932,
+    "tele_station_oldcode": "EJ02",
+    "tele_station_type": "rainfall_24h",
+    "sub_basin_id": "1917"
+   },
+   "basin": {
+    "id": 0,
+    "basin_name": {}
+   }
+  },
+  {
+   "id": 312554741,
+   "rain_24h": 0,
+   "rainfall_datetime": "2026-09-30 02:50",
+   "station_type": "rainfall_24h",
+   "agency": {
+    "agency_name": {
+     "th": "กรมป้องกันและบรรเทาสาธารณภัย",
+     "en": "Department of Disaster Prevention and Mitigation",
+     "jp": "防災・防災省"
+    },
+    "agency_shortname": {
+     "th": "ปภ.",
+     "en": "DISASTER",
+     "jp": ""
+    }
+   },
+   "geocode": {
+    "warning_zone": "09",
+    "area_code": "5",
+    "area_name": {
+     "th": "ภาคใต้",
+     "en": "South"
+    },
+    "amphoe_name": {
+     "th": "ท่าศาลา",
+     "en": "Tha Sala District"
+    },
+    "tumbon_name": {
+     "th": "ท่าศาลา",
+     "en": "Tha Sala"
+    },
+    "province_code": "80",
+    "province_name": {
+     "th": "นครศรีธรรมราช",
+     "en": "Nakhon Si Thammarat"
+    }
+   },
+   "station": {
+    "id": 1119572,
+    "tele_station_name": {
+     "th": "องค์การบริหารส่วนตำบลท่าศาลา"
+    },
+    "tele_station_lat": 8.663347,
+    "tele_station_long": 99.928204,
+    "tele_station_oldcode": "EJ07",
+    "tele_station_type": "rainfall_24h",
+    "sub_basin_id": "1919"
+   },
+   "basin": {
+    "id": 0,
+    "basin_name": {}
+   }
+  },
+  {
+   "id": 312554744,
+   "rain_24h": 0,
+   "rainfall_datetime": "2026-09-30 02:50",
+   "station_type": "rainfall_24h",
+   "agency": {
+    "agency_name": {
+     "th": "กรมป้องกันและบรรเทาสาธารณภัย",
+     "en": "Department of Disaster Prevention and Mitigation",
+     "jp": "防災・防災省"
+    },
+    "agency_shortname": {
+     "th": "ปภ.",
+     "en": "DISASTER",
+     "jp": ""
+    }
+   },
+   "geocode": {
+    "warning_zone": "09",
+    "area_code": "5",
+    "area_name": {
+     "th": "ภาคใต้",
+     "en": "South"
+    },
+    "amphoe_name": {
+     "th": "พรหมคีรี",
+     "en": "Phrom Khiri District"
+    },
+    "tumbon_name": {
+     "th": "พรหมโลก",
+     "en": "Phrom Lok"
+    },
+    "province_code": "80",
+    "province_name": {
+     "th": "นครศรีธรรมราช",
+     "en": "Nakhon Si Thammarat"
+    }
+   },
+   "station": {
+    "id": 1119573,
+    "tele_station_name": {
+     "th": "บ้านปลายอวน ม.5"
+    },
+    "tele_station_lat": 8.508926,
+    "tele_station_long": 99.80418,
+    "tele_station_oldcode": "EJ09",
+    "tele_station_type": "rainfall_24h",
+    "sub_basin_id": "1919"
+   },
+   "basin": {
+    "id": 0,
+    "basin_name": {}
+   }
+  },
+  {
+   "id": 312554745,
+   "rain_24h": 0,
+   "rainfall_datetime": "2026-09-30 02:50",
+   "station_type": "rainfall_24h",
+   "agency": {
+    "agency_name": {
+     "th": "กรมป้องกันและบรรเทาสาธารณภัย",
+     "en": "Department of Disaster Prevention and Mitigation",
+     "jp": "防災・防災省"
+    },
+    "agency_shortname": {
+     "th": "ปภ.",
+     "en": "DISASTER",
+     "jp": ""
+    }
+   },
+   "geocode": {
+    "warning_zone": "09",
+    "area_code": "5",
+    "area_name": {
+     "th": "ภาคใต้",
+     "en": "South"
+    },
+    "amphoe_name": {
+     "th": "ลานสกา",
+     "en": "Lan Saka District"
+    },
+    "tumbon_name": {
+     "th": "กำโลน",
+     "en": "Kamlon"
+    },
+    "province_code": "80",
+    "province_name": {
+     "th": "นครศรีธรรมราช",
+     "en": "Nakhon Si Thammarat"
+    }
+   },
+   "station": {
+    "id": 1119574,
+    "tele_station_name": {
+     "th": "องค์การบริหารส่วนตาบลกำโลน"
+    },
+    "tele_station_lat": 8.408102,
+    "tele_station_long": 99.794936,
+    "tele_station_oldcode": "EJ10",
+    "tele_station_type": "rainfall_24h",
+    "sub_basin_id": "1919"
+   },
+   "basin": {
+    "id": 0,
+    "basin_name": {}
+   }
+  },
+  {
+   "id": 312559893,
+   "rain_24h": 0,
+   "rain_1h": 0,
+   "rainfall_datetime": "2026-09-30 04:00",
+   "station_type": "rainfall_24h",
+   "agency": {
+    "agency_name": {
+     "th": "มูลนิธิอาสาเพื่อนพึ่ง (ภาฯ) ยามยาก สภากาชาดไทย",
+     "en": "Friend in Need (of “Pa”) Volunteers Foundation",
+     "jp": ""
+    },
+    "agency_shortname": {
+     "th": "พพภ",
+     "en": "FOP",
+     "jp": ""
+    }
+   },
+   "geocode": {
+    "warning_zone": "09",
+    "area_code": "5",
+    "area_name": {
+     "th": "ภาคใต้",
+     "en": "South"
+    },
+    "amphoe_name": {
+     "th": "ร่อนพิบูลย์",
+     "en": "Ron Phibun District"
+    },
+    "tumbon_name": {
+     "th": "หินตก",
+     "en": "Hin Tok"
+    },
+    "province_code": "80",
+    "province_name": {
+     "th": "นครศรีธรรมราช",
+     "en": "Nakhon Si Thammarat"
+    }
+   },
+   "station": {
+    "id": 1120555,
+    "tele_station_name": {
+     "en": "Watershed Management and Community Development Unit in the Pak Phanang Conservation Forest Area",
+     "th": "หน่วยจัดการต้นน้ำและพัฒนาชุมชนในพื้นที่ป่าอนุรักษ์ปากพนัง"
+    },
+    "tele_station_lat": 8.2542,
+    "tele_station_long": 99.803406,
+    "tele_station_oldcode": "MOU488",
+    "tele_station_type": "rainfall_24h",
+    "sub_basin_id": "1919",
+    "sponsor_by": "มูลนิธิอาสาเพื่อนพึ่ง (ภาฯ) ยามยาก สภากาชาดไทย"
+   },
+   "basin": {
+    "id": 0,
+    "basin_name": {}
+   }
+  },
+  {
+   "id": 312559894,
+   "rain_24h": 0,
+   "rain_1h": 0,
+   "rainfall_datetime": "2026-09-30 04:00",
+   "station_type": "rainfall_24h",
+   "agency": {
+    "agency_name": {
+     "th": "มูลนิธิอาสาเพื่อนพึ่ง (ภาฯ) ยามยาก สภากาชาดไทย",
+     "en": "Friend in Need (of “Pa”) Volunteers Foundation",
+     "jp": ""
+    },
+    "agency_shortname": {
+     "th": "พพภ",
+     "en": "FOP",
+     "jp": ""
+    }
+   },
+   "geocode": {
+    "warning_zone": "09",
+    "area_code": "5",
+    "area_name": {
+     "th": "ภาคใต้",
+     "en": "South"
+    },
+    "amphoe_name": {
+     "th": "ลานสกา",
+     "en": "Lan Saka District"
+    },
+    "tumbon_name": {
+     "th": "เขาแก้ว",
+     "en": "Khao Kaeo"
+    },
+    "province_code": "80",
+    "province_name": {
+     "th": "นครศรีธรรมราช",
+     "en": "Nakhon Si Thammarat"
+    }
+   },
+   "station": {
+    "id": 1120556,
+    "tele_station_name": {
+     "en": "National Park Protection Unit of To Yo (Khao Thong)",
+     "th": "หน่วยพิทักษ์อุทยานแห่งชาติ ตย. ๔ (เขาทง)"
+    },
+    "tele_station_lat": 8.33562,
+    "tele_station_long": 99.70955,
+    "tele_station_oldcode": "MOU489",
+    "tele_station_type": "rainfall_24h",
+    "sub_basin_id": "1919",
+    "sponsor_by": "มูลนิธิอาสาเพื่อนพึ่ง (ภาฯ) ยามยาก สภากาชาดไทย"
+   },
+   "basin": {
+    "id": 0,
+    "basin_name": {}
+   }
+  },
+  {
+   "id": 312559895,
+   "rain_24h": 0,
+   "rain_1h": 0,
+   "rainfall_datetime": "2026-09-30 04:00",
+   "station_type": "rainfall_24h",
+   "agency": {
+    "agency_name": {
+     "th": "มูลนิธิอาสาเพื่อนพึ่ง (ภาฯ) ยามยาก สภากาชาดไทย",
+     "en": "Friend in Need (of “Pa”) Volunteers Foundation",
+     "jp": ""
+    },
+    "agency_shortname": {
+     "th": "พพภ",
+     "en": "FOP",
+     "jp": ""
+    }
+   },
+   "geocode": {
+    "warning_zone": "09",
+    "area_code": "5",
+    "area_name": {
+     "th": "ภาคใต้",
+     "en": "South"
+    },
+    "amphoe_name": {
+     "th": "ลานสกา",
+     "en": "Lan Saka District"
+    },
+    "tumbon_name": {
+     "th": "กำโลน",
+     "en": "Kamlon"
+    },
+    "province_code": "80",
+    "province_name": {
+     "th": "นครศรีธรรมราช",
+     "en": "Nakhon Si Thammarat"
+    }
+   },
+   "station": {
+    "id": 1120557,
+    "tele_station_name": {
+     "en": "Ban Khiri Wong (Khlong Tha Di) Bridge",
+     "th": "สะพานบ้านคีรีวง คลองท่าดี"
+    },
+    "tele_station_lat": 8.432906,
+    "tele_station_long": 99.782646,
+    "tele_station_oldcode": "MOU494",
+    "tele_station_type": "rainfall_24h",
+    "sub_basin_id": "1919",
+    "sponsor_by": "มูลนิธิอาสาเพื่อนพึ่ง (ภาฯ) ยามยาก สภากาชาดไทย"
+   },
+   "basin": {
+    "id": 0,
+    "basin_name": {}
+   }
+  },
+  {
+   "id": 312558159,
+   "rain_24h": 0,
+   "rain_1h": 0,
+   "rainfall_datetime": "2026-09-30 02:00",
+   "station_type": "rainfall_24h",
+   "agency": {
+    "agency_name": {
+     "th": "กรมทรัพยากรน้ำ",
+     "en": "Department of Water Resources",
+     "jp": ""
+    },
+    "agency_shortname": {
+     "th": "ทน.",
+     "en": "DWR",
+     "jp": ""
+    }
+   },
+   "geocode": {
+    "warning_zone": "09",
+    "area_code": "5",
+    "area_name": {
+     "th": "ภาคใต้",
+     "en": "South"
+    },
+    "amphoe_name": {
+     "th": "ชะอวด",
+     "en": "Cha-uat District"
+    },
+    "tumbon_name": {
+     "th": "ควนหนองหงษ์",
+     "en": "Khuan Nong Hong"
+    },
+    "province_code": "80",
+    "province_name": {
+     "th": "นครศรีธรรมราช",
+     "en": "Nakhon Si Thammarat"
+    }
+   },
+   "station": {
+    "id": 1123768,
+    "tele_station_name": {
+     "th": "บ้านท่าข้าม"
+    },
+    "tele_station_lat": 8.009161,
+    "tele_station_long": 99.812076,
+    "tele_station_oldcode": "STN1930",
+    "tele_station_type": "rainfall_24h",
+    "sub_basin_id": "1919"
+   },
+   "basin": {
+    "id": 0,
+    "basin_name": {}
+   }
+  },
+  {
+   "id": 312558160,
+   "rain_24h": 0,
+   "rain_1h": 0,
+   "rainfall_datetime": "2026-09-30 02:00",
+   "station_type": "rainfall_24h",
+   "agency": {
+    "agency_name": {
+     "th": "กรมทรัพยากรน้ำ",
+     "en": "Department of Water Resources",
+     "jp": ""
+    },
+    "agency_shortname": {
+     "th": "ทน.",
+     "en": "DWR",
+     "jp": ""
+    }
+   },
+   "geocode": {
+    "warning_zone": "09",
+    "area_code": "5",
+    "area_name": {
+     "th": "ภาคใต้",
+     "en": "South"
+    },
+    "amphoe_name": {
+     "th": "ฉวาง",
+     "en": "Chawang District"
+    },
+    "tumbon_name": {
+     "th": "นาแว",
+     "en": "Na Wae"
+    },
+    "province_code": "80",
+    "province_name": {
+     "th": "นครศรีธรรมราช",
+     "en": "Nakhon Si Thammarat"
+    }
+   },
+   "station": {
+    "id": 1123769,
+    "tele_station_name": {
+     "th": "บ้านทุ่งกระจูด"
+    },
+    "tele_station_lat": 8.468075,
+    "tele_station_long": 99.532318,
+    "tele_station_oldcode": "STN1931",
+    "tele_station_type": "rainfall_24h",
+    "sub_basin_id": "1910"
+   },
+   "basin": {
+    "id": 0,
+    "basin_name": {}
+   }
+  },
+  {
+   "id": 312558297,
+   "rain_24h": 0,
+   "rain_1h": 0,
+   "rainfall_datetime": "2026-09-30 02:00",
+   "station_type": "rainfall_24h",
+   "agency": {
+    "agency_name": {
+     "th": "กรมทรัพยากรน้ำ",
+     "en": "Department of Water Resources",
+     "jp": ""
+    },
+    "agency_shortname": {
+     "th": "ทน.",
+     "en": "DWR",
+     "jp": ""
+    }
+   },
+   "geocode": {
+    "warning_zone": "09",
+    "area_code": "5",
+    "area_name": {
+     "th": "ภาคใต้",
+     "en": "South"
+    },
+    "amphoe_name": {
+     "th": "ฉวาง",
+     "en": "Chawang District"
+    },
+    "tumbon_name": {
+     "th": "นาแว",
+     "en": "Na Wae"
+    },
+    "province_code": "80",
+    "province_name": {
+     "th": "นครศรีธรรมราช",
+     "en": "Nakhon Si Thammarat"
+    }
+   },
+   "station": {
+    "id": 1123928,
+    "tele_station_name": {
+     "th": "บ้านไสโคกเกาะ"
+    },
+    "tele_station_lat": 8.469038,
+    "tele_station_long": 99.495281,
+    "tele_station_oldcode": "STN2091",
+    "tele_station_type": "rainfall_24h",
+    "sub_basin_id": "1910"
+   },
+   "basin": {
+    "id": 0,
+    "basin_name": {}
+   }
+  },
+  {
+   "id": 312558299,
+   "rain_24h": 0,
+   "rain_1h": 0,
+   "rainfall_datetime": "2026-09-30 02:00",
+   "station_type": "rainfall_24h",
+   "agency": {
+    "agency_name": {
+     "th": "กรมทรัพยากรน้ำ",
+     "en": "Department of Water Resources",
+     "jp": ""
+    },
+    "agency_shortname": {
+     "th": "ทน.",
+     "en": "DWR",
+     "jp": ""
+    }
+   },
+   "geocode": {
+    "warning_zone": "09",
+    "area_code": "5",
+    "area_name": {
+     "th": "ภาคใต้",
+     "en": "South"
+    },
+    "amphoe_name": {
+     "th": "ท่าศาลา",
+     "en": "Tha Sala District"
+    },
+    "tumbon_name": {
+     "th": "โมคลาน",
+     "en": "Mo Khlan"
+    },
+    "province_code": "80",
+    "province_name": {
+     "th": "นครศรีธรรมราช",
+     "en": "Nakhon Si Thammarat"
+    }
+   },
+   "station": {
+    "id": 1123930,
+    "tele_station_name": {
+     "th": "บ้านต้นเลียบ"
+    },
+    "tele_station_lat": 8.604779,
+    "tele_station_long": 99.862646,
+    "tele_station_oldcode": "STN2093",
+    "tele_station_type": "rainfall_24h",
+    "sub_basin_id": "1919"
+   },
+   "basin": {
+    "id": 0,
+    "basin_name": {}
+   }
+  },
+  {
+   "id": 312558300,
+   "rain_24h": 0,
+   "rainfall_datetime": "2026-09-30 02:00",
+   "station_type": "rainfall_24h",
+   "agency": {
+    "agency_name": {
+     "th": "กรมทรัพยากรน้ำ",
+     "en": "Department of Water Resources",
+     "jp": ""
+    },
+    "agency_shortname": {
+     "th": "ทน.",
+     "en": "DWR",
+     "jp": ""
+    }
+   },
+   "geocode": {
+    "warning_zone": "09",
+    "area_code": "5",
+    "area_name": {
+     "th": "ภาคใต้",
+     "en": "South"
+    },
+    "amphoe_name": {
+     "th": "ทุ่งสง",
+     "en": "Thung Song District"
+    },
+    "tumbon_name": {
+     "th": "ชะมาย",
+     "en": "Chamai"
+    },
+    "province_code": "80",
+    "province_name": {
+     "th": "นครศรีธรรมราช",
+     "en": "Nakhon Si Thammarat"
+    }
+   },
+   "station": {
+    "id": 1123931,
+    "tele_station_name": {
+     "th": "บ้านนานอก"
+    },
+    "tele_station_lat": 8.155845,
+    "tele_station_long": 99.680396,
+    "tele_station_oldcode": "STN2094",
+    "tele_station_type": "rainfall_24h",
+    "sub_basin_id": "2209"
+   },
+   "basin": {
+    "id": 0,
+    "basin_name": {}
+   }
+  },
+  {
+   "id": 312558301,
+   "rain_24h": 0,
+   "rain_1h": 0,
+   "rainfall_datetime": "2026-09-30 02:00",
+   "station_type": "rainfall_24h",
+   "agency": {
+    "agency_name": {
+     "th": "กรมทรัพยากรน้ำ",
+     "en": "Department of Water Resources",
+     "jp": ""
+    },
+    "agency_shortname": {
+     "th": "ทน.",
+     "en": "DWR",
+     "jp": ""
+    }
+   },
+   "geocode": {
+    "warning_zone": "09",
+    "area_code": "5",
+    "area_name": {
+     "th": "ภาคใต้",
+     "en": "South"
+    },
+    "amphoe_name": {
+     "th": "ทุ่งสง",
+     "en": "Thung Song District"
+    },
+    "tumbon_name": {
+     "th": "ชะมาย",
+     "en": "Chamai"
+    },
+    "province_code": "80",
+    "province_name": {
+     "th": "นครศรีธรรมราช",
+     "en": "Nakhon Si Thammarat"
+    }
+   },
+   "station": {
+    "id": 1123932,
+    "tele_station_name": {
+     "th": "บ้านวังหีบ"
+    },
+    "tele_station_lat": 8.194613,
+    "tele_station_long": 99.657666,
+    "tele_station_oldcode": "STN2095",
+    "tele_station_type": "rainfall_24h",
+    "sub_basin_id": "2209"
+   },
+   "basin": {
+    "id": 0,
+    "basin_name": {}
+   }
+  },
+  {
+   "id": 312558302,
+   "rain_24h": 0,
+   "rain_1h": 0,
+   "rainfall_datetime": "2026-09-30 02:00",
+   "station_type": "rainfall_24h",
+   "agency": {
+    "agency_name": {
+     "th": "กรมทรัพยากรน้ำ",
+     "en": "Department of Water Resources",
+     "jp": ""
+    },
+    "agency_shortname": {
+     "th": "ทน.",
+     "en": "DWR",
+     "jp": ""
+    }
+   },
+   "geocode": {
+    "warning_zone": "09",
+    "area_code": "5",
+    "area_name": {
+     "th": "ภาคใต้",
+     "en": "South"
+    },
+    "amphoe_name": {
+     "th": "ทุ่งสง",
+     "en": "Thung Song District"
+    },
+    "tumbon_name": {
+     "th": "นาหลวงเสน",
+     "en": "Na Luang Sen"
+    },
+    "province_code": "80",
+    "province_name": {
+     "th": "นครศรีธรรมราช",
+     "en": "Nakhon Si Thammarat"
+    }
+   },
+   "station": {
+    "id": 1123933,
+    "tele_station_name": {
+     "th": "บ้านท่าเลา"
+    },
+    "tele_station_lat": 8.195129,
+    "tele_station_long": 99.700416,
+    "tele_station_oldcode": "STN2096",
+    "tele_station_type": "rainfall_24h",
+    "sub_basin_id": "2209"
+   },
+   "basin": {
+    "id": 0,
+    "basin_name": {}
+   }
+  },
+  {
+   "id": 312558304,
+   "rain_24h": 0,
+   "rain_1h": 0,
+   "rainfall_datetime": "2026-09-30 02:00",
+   "station_type": "rainfall_24h",
+   "agency": {
+    "agency_name": {
+     "th": "กรมทรัพยากรน้ำ",
+     "en": "Department of Water Resources",
+     "jp": ""
+    },
+    "agency_shortname": {
+     "th": "ทน.",
+     "en": "DWR",
+     "jp": ""
+    }
+   },
+   "geocode": {
+    "warning_zone": "09",
+    "area_code": "5",
+    "area_name": {
+     "th": "ภาคใต้",
+     "en": "South"
+    },
+    "amphoe_name": {
+     "th": "นาบอน",
+     "en": "Na Bon District"
+    },
+    "tumbon_name": {
+     "th": "แก้วแสน",
+     "en": "Kaeo Saen"
+    },
+    "province_code": "80",
+    "province_name": {
+     "th": "นครศรีธรรมราช",
+     "en": "Nakhon Si Thammarat"
+    }
+   },
+   "station": {
+    "id": 1123937,
+    "tele_station_name": {
+     "th": "บ้านแก้วแสน"
+    },
+    "tele_station_lat": 8.26008,
+    "tele_station_long": 99.549406,
+    "tele_station_oldcode": "STN2100",
+    "tele_station_type": "rainfall_24h",
+    "sub_basin_id": "1909"
+   },
+   "basin": {
+    "id": 0,
+    "basin_name": {}
+   }
+  },
+  {
+   "id": 312558305,
+   "rain_24h": 0,
+   "rain_1h": 0,
+   "rainfall_datetime": "2026-09-30 02:00",
+   "station_type": "rainfall_24h",
+   "agency": {
+    "agency_name": {
+     "th": "กรมทรัพยากรน้ำ",
+     "en": "Department of Water Resources",
+     "jp": ""
+    },
+    "agency_shortname": {
+     "th": "ทน.",
+     "en": "DWR",
+     "jp": ""
+    }
+   },
+   "geocode": {
+    "warning_zone": "09",
+    "area_code": "5",
+    "area_name": {
+     "th": "ภาคใต้",
+     "en": "South"
+    },
+    "amphoe_name": {
+     "th": "บางขัน",
+     "en": "Bang Khan District"
+    },
+    "tumbon_name": {
+     "th": "บ้านลำนาว",
+     "en": "Ban Lamnao"
+    },
+    "province_code": "80",
+    "province_name": {
+     "th": "นครศรีธรรมราช",
+     "en": "Nakhon Si Thammarat"
+    }
+   },
+   "station": {
+    "id": 1123938,
+    "tele_station_name": {
+     "th": "บ้านบางจันสี"
+    },
+    "tele_station_lat": 8.019672,
+    "tele_station_long": 99.483724,
+    "tele_station_oldcode": "STN2101",
+    "tele_station_type": "rainfall_24h",
+    "sub_basin_id": "2209"
+   },
+   "basin": {
+    "id": 0,
+    "basin_name": {}
+   }
+  },
+  {
+   "id": 312558307,
+   "rain_24h": 0,
+   "rain_1h": 0,
+   "rainfall_datetime": "2026-09-30 02:00",
+   "station_type": "rainfall_24h",
+   "agency": {
+    "agency_name": {
+     "th": "กรมทรัพยากรน้ำ",
+     "en": "Department of Water Resources",
+     "jp": ""
+    },
+    "agency_shortname": {
+     "th": "ทน.",
+     "en": "DWR",
+     "jp": ""
+    }
+   },
+   "geocode": {
+    "warning_zone": "09",
+    "area_code": "5",
+    "area_name": {
+     "th": "ภาคใต้",
+     "en": "South"
+    },
+    "amphoe_name": {
+     "th": "เมืองนครศรีธรรมราช",
+     "en": "Mueang Nakhon Si Thammarat District"
+    },
+    "tumbon_name": {
+     "th": "ไชยมนตรี",
+     "en": "Chai Montri"
+    },
+    "province_code": "80",
+    "province_name": {
+     "th": "นครศรีธรรมราช",
+     "en": "Nakhon Si Thammarat"
+    }
+   },
+   "station": {
+    "id": 1123940,
+    "tele_station_name": {
+     "th": "บ้านหนองบัว"
+    },
+    "tele_station_lat": 8.393417,
+    "tele_station_long": 99.900883,
+    "tele_station_oldcode": "STN2103",
+    "tele_station_type": "rainfall_24h",
+    "sub_basin_id": "1919"
+   },
+   "basin": {
+    "id": 0,
+    "basin_name": {}
+   }
+  },
+  {
+   "id": 312558308,
+   "rain_24h": 0,
+   "rain_1h": 0,
+   "rainfall_datetime": "2026-09-30 02:00",
+   "station_type": "rainfall_24h",
+   "agency": {
+    "agency_name": {
+     "th": "กรมทรัพยากรน้ำ",
+     "en": "Department of Water Resources",
+     "jp": ""
+    },
+    "agency_shortname": {
+     "th": "ทน.",
+     "en": "DWR",
+     "jp": ""
+    }
+   },
+   "geocode": {
+    "warning_zone": "09",
+    "area_code": "5",
+    "area_name": {
+     "th": "ภาคใต้",
+     "en": "South"
+    },
+    "amphoe_name": {
+     "th": "เมืองนครศรีธรรมราช",
+     "en": "Mueang Nakhon Si Thammarat District"
+    },
+    "tumbon_name": {
+     "th": "ท่าซัก",
+     "en": "Tha Sak"
+    },
+    "province_code": "80",
+    "province_name": {
+     "th": "นครศรีธรรมราช",
+     "en": "Nakhon Si Thammarat"
+    }
+   },
+   "station": {
+    "id": 1123941,
+    "tele_station_name": {
+     "th": "บ้านตากแดด"
+    },
+    "tele_station_lat": 8.450014,
+    "tele_station_long": 99.981058,
+    "tele_station_oldcode": "STN2104",
+    "tele_station_type": "rainfall_24h",
+    "sub_basin_id": "1919"
+   },
+   "basin": {
+    "id": 0,
+    "basin_name": {}
+   }
+  },
+  {
+   "id": 312558309,
+   "rain_24h": 0,
+   "rain_1h": 0,
+   "rainfall_datetime": "2026-09-30 02:00",
+   "station_type": "rainfall_24h",
+   "agency": {
+    "agency_name": {
+     "th": "กรมทรัพยากรน้ำ",
+     "en": "Department of Water Resources",
+     "jp": ""
+    },
+    "agency_shortname": {
+     "th": "ทน.",
+     "en": "DWR",
+     "jp": ""
+    }
+   },
+   "geocode": {
+    "warning_zone": "09",
+    "area_code": "5",
+    "area_name": {
+     "th": "ภาคใต้",
+     "en": "South"
+    },
+    "amphoe_name": {
+     "th": "ร่อนพิบูลย์",
+     "en": "Ron Phibun District"
+    },
+    "tumbon_name": {
+     "th": "เสาธง",
+     "en": "Sao Thong"
+    },
+    "province_code": "80",
+    "province_name": {
+     "th": "นครศรีธรรมราช",
+     "en": "Nakhon Si Thammarat"
+    }
+   },
+   "station": {
+    "id": 1123942,
+    "tele_station_name": {
+     "th": "บ้านท่าเจริญ"
+    },
+    "tele_station_lat": 8.283073,
+    "tele_station_long": 99.902437,
+    "tele_station_oldcode": "STN2105",
+    "tele_station_type": "rainfall_24h",
+    "sub_basin_id": "1919"
+   },
+   "basin": {
+    "id": 0,
+    "basin_name": {}
+   }
+  },
+  {
+   "id": 312558310,
+   "rain_24h": 0,
+   "rain_1h": 0,
+   "rainfall_datetime": "2026-09-30 02:00",
+   "station_type": "rainfall_24h",
+   "agency": {
+    "agency_name": {
+     "th": "กรมทรัพยากรน้ำ",
+     "en": "Department of Water Resources",
+     "jp": ""
+    },
+    "agency_shortname": {
+     "th": "ทน.",
+     "en": "DWR",
+     "jp": ""
+    }
+   },
+   "geocode": {
+    "warning_zone": "09",
+    "area_code": "5",
+    "area_name": {
+     "th": "ภาคใต้",
+     "en": "South"
+    },
+    "amphoe_name": {
+     "th": "สิชล",
+     "en": "Sichon District"
+    },
+    "tumbon_name": {
+     "th": "เทพราช",
+     "en": "Theppharat"
+    },
+    "province_code": "80",
+    "province_name": {
+     "th": "นครศรีธรรมราช",
+     "en": "Nakhon Si Thammarat"
+    }
+   },
+   "station": {
+    "id": 1123943,
+    "tele_station_name": {
+     "th": "บ้านต้นเนียง"
+    },
+    "tele_station_lat": 8.877372,
+    "tele_station_long": 99.834736,
+    "tele_station_oldcode": "STN2106",
+    "tele_station_type": "rainfall_24h",
+    "sub_basin_id": "1917"
+   },
+   "basin": {
+    "id": 0,
+    "basin_name": {}
+   }
+  },
+  {
+   "id": 312558311,
+   "rain_24h": 0,
+   "rainfall_datetime": "2026-09-30 02:00",
+   "station_type": "rainfall_24h",
+   "agency": {
+    "agency_name": {
+     "th": "กรมทรัพยากรน้ำ",
+     "en": "Department of Water Resources",
+     "jp": ""
+    },
+    "agency_shortname": {
+     "th": "ทน.",
+     "en": "DWR",
+     "jp": ""
+    }
+   },
+   "geocode": {
+    "warning_zone": "09",
+    "area_code": "5",
+    "area_name": {
+     "th": "ภาคใต้",
+     "en": "South"
+    },
+    "amphoe_name": {
+     "th": "สิชล",
+     "en": "Sichon District"
+    },
+    "tumbon_name": {
+     "th": "เปลี่ยน",
+     "en": "Plian"
+    },
+    "province_code": "80",
+    "province_name": {
+     "th": "นครศรีธรรมราช",
+     "en": "Nakhon Si Thammarat"
+    }
+   },
+   "station": {
+    "id": 1123944,
+    "tele_station_name": {
+     "th": "บ้านไสเหรียง"
+    },
+    "tele_station_lat": 8.844026,
+    "tele_station_long": 99.862604,
+    "tele_station_oldcode": "STN2107",
+    "tele_station_type": "rainfall_24h",
+    "sub_basin_id": "1917"
+   },
+   "basin": {
+    "id": 0,
+    "basin_name": {}
+   }
+  },
+  {
+   "id": 312558312,
+   "rain_24h": 0,
+   "rain_1h": 0,
+   "rainfall_datetime": "2026-09-30 02:00",
+   "station_type": "rainfall_24h",
+   "agency": {
+    "agency_name": {
+     "th": "กรมทรัพยากรน้ำ",
+     "en": "Department of Water Resources",
+     "jp": ""
+    },
+    "agency_shortname": {
+     "th": "ทน.",
+     "en": "DWR",
+     "jp": ""
+    }
+   },
+   "geocode": {
+    "warning_zone": "09",
+    "area_code": "5",
+    "area_name": {
+     "th": "ภาคใต้",
+     "en": "South"
+    },
+    "amphoe_name": {
+     "th": "สิชล",
+     "en": "Sichon District"
+    },
+    "tumbon_name": {
+     "th": "สี่ขีด",
+     "en": "Si Khit"
+    },
+    "province_code": "80",
+    "province_name": {
+     "th": "นครศรีธรรมราช",
+     "en": "Nakhon Si Thammarat"
+    }
+   },
+   "station": {
+    "id": 1123945,
+    "tele_station_name": {
+     "th": "บ้านสระสี่มุม"
+    },
+    "tele_station_lat": 9.028814,
+    "tele_station_long": 99.847819,
+    "tele_station_oldcode": "STN2108",
+    "tele_station_type": "rainfall_24h",
+    "sub_basin_id": "1917"
+   },
+   "basin": {
+    "id": 0,
+    "basin_name": {}
+   }
+  },
+  {
+   "id": 312559978,
+   "rain_24h": 0,
+   "rain_1h": 0,
+   "rainfall_datetime": "2026-09-30 04:00",
+   "station_type": "rainfall_24h",
+   "agency": {
+    "agency_name": {
+     "th": "มูลนิธิอาสาเพื่อนพึ่ง (ภาฯ) ยามยาก สภากาชาดไทย",
+     "en": "Friend in Need (of “Pa”) Volunteers Foundation",
+     "jp": ""
+    },
+    "agency_shortname": {
+     "th": "พพภ",
+     "en": "FOP",
+     "jp": ""
+    }
+   },
+   "geocode": {
+    "warning_zone": "09",
+    "area_code": "5",
+    "area_name": {
+     "th": "ภาคใต้",
+     "en": "South"
+    },
+    "amphoe_name": {
+     "th": "ทุ่งสง",
+     "en": "Thung Song District"
+    },
+    "tumbon_name": {
+     "th": "ถ้ำใหญ่",
+     "en": "Tham Yai"
+    },
+    "province_code": "80",
+    "province_name": {
+     "th": "นครศรีธรรมราช",
+     "en": "Nakhon Si Thammarat"
+    }
+   },
+   "station": {
+    "id": 1129758,
+    "tele_station_name": {
+     "en": "Tha Lone Canal Weir",
+     "th": "ฝายคลองท่าโลน"
+    },
+    "tele_station_lat": 8.218343,
+    "tele_station_long": 99.71981,
+    "tele_station_oldcode": "FOP072",
+    "tele_station_type": "rainfall_24h",
+    "sub_basin_id": "2209",
+    "sponsor_by": "มูลนิธิอาสาเพื่อนพึ่ง (ภาฯ) ยามยาก สภากาชาดไทย"
+   },
+   "basin": {
+    "id": 0,
+    "basin_name": {}
+   }
+  },
+  {
+   "id": 312559979,
+   "rain_24h": 0,
+   "rain_1h": 0,
+   "rainfall_datetime": "2026-09-30 04:00",
+   "station_type": "rainfall_24h",
+   "agency": {
+    "agency_name": {
+     "th": "มูลนิธิอาสาเพื่อนพึ่ง (ภาฯ) ยามยาก สภากาชาดไทย",
+     "en": "Friend in Need (of “Pa”) Volunteers Foundation",
+     "jp": ""
+    },
+    "agency_shortname": {
+     "th": "พพภ",
+     "en": "FOP",
+     "jp": ""
+    }
+   },
+   "geocode": {
+    "warning_zone": "09",
+    "area_code": "5",
+    "area_name": {
+     "th": "ภาคใต้",
+     "en": "South"
+    },
+    "amphoe_name": {
+     "th": "ลานสกา",
+     "en": "Lan Saka District"
+    },
+    "tumbon_name": {
+     "th": "กำโลน",
+     "en": "Kamlon"
+    },
+    "province_code": "80",
+    "province_name": {
+     "th": "นครศรีธรรมราช",
+     "en": "Nakhon Si Thammarat"
+    }
+   },
+   "station": {
+    "id": 1130124,
+    "tele_station_name": {
+     "en": "Khlong Pong Bridge (Kiriwong)",
+     "th": "สะพานคลองปง (คีรีวง)"
+    },
+    "tele_station_lat": 8.43379,
+    "tele_station_long": 99.78328,
+    "tele_station_oldcode": "MOU493",
+    "tele_station_type": "rainfall_24h",
+    "sub_basin_id": "1919",
+    "sponsor_by": "สำนักงานคณะกรรมการกิจการกระจายเสียง กิจการโทรทัศน์และกิจการโทรคมนาคมแห่งชาติ"
+   },
+   "basin": {
+    "id": 0,
+    "basin_name": {}
+   }
+  },
+  {
+   "id": 312554746,
+   "rain_24h": 0,
+   "rainfall_datetime": "2026-09-30 02:50",
+   "station_type": "rainfall_24h",
+   "agency": {
+    "agency_name": {
+     "th": "กรมป้องกันและบรรเทาสาธารณภัย",
+     "en": "Department of Disaster Prevention and Mitigation",
+     "jp": "防災・防災省"
+    },
+    "agency_shortname": {
+     "th": "ปภ.",
+     "en": "DISASTER",
+     "jp": ""
+    }
+   },
+   "geocode": {
+    "warning_zone": "09",
+    "area_code": "5",
+    "area_name": {
+     "th": "ภาคใต้",
+     "en": "South"
+    },
+    "amphoe_name": {
+     "th": "หัวไทร",
+     "en": "Hua Sai District"
+    },
+    "tumbon_name": {
+     "th": "หน้าสตน",
+     "en": "Na Saton"
+    },
+    "province_code": "80",
+    "province_name": {
+     "th": "นครศรีธรรมราช",
+     "en": "Nakhon Si Thammarat"
+    }
+   },
+   "station": {
+    "id": 1137126,
+    "tele_station_name": {
+     "th": "ที่ทำการผู้ใหญ่บ้าน หมู่ 6"
+    },
+    "tele_station_lat": 7.977847,
+    "tele_station_long": 100.326074,
+    "tele_station_oldcode": "TC17",
+    "tele_station_type": "rainfall_24h",
+    "sub_basin_id": "1919"
+   },
+   "basin": {
+    "id": 0,
+    "basin_name": {}
+   }
+  },
+  {
+   "id": 312559608,
+   "rain_24h": 0,
+   "rain_1h": 0,
+   "rainfall_datetime": "2026-09-30 03:00",
+   "station_type": "rainfall_24h",
+   "agency": {
+    "agency_name": {
+     "th": "กรมชลประทาน ",
+     "en": "Royal Irrigation Department",
+     "jp": ""
+    },
+    "agency_shortname": {
+     "th": "ชป.",
+     "en": "RID",
+     "jp": ""
+    }
+   },
+   "geocode": {
+    "warning_zone": "09",
+    "area_code": "5",
+    "area_name": {
+     "th": "ภาคใต้",
+     "en": "South"
+    },
+    "amphoe_name": {
+     "th": "ทุ่งสง",
+     "en": "Thung Song District"
+    },
+    "tumbon_name": {
+     "th": "กะปาง",
+     "en": "Kapang"
+    },
+    "province_code": "80",
+    "province_name": {
+     "th": "นครศรีธรรมราช",
+     "en": "Nakhon Si Thammarat"
+    }
+   },
+   "station": {
+    "id": 1316998,
+    "tele_station_name": {
+     "th": "บ้านวังปราง"
+    },
+    "tele_station_lat": 8.025506,
+    "tele_station_long": 99.631517,
+    "tele_station_oldcode": "ridtele_TTr3",
+    "tele_station_type": "rainfall_24h",
+    "sub_basin_id": "2209"
+   },
+   "basin": {
+    "id": 0,
+    "basin_name": {}
+   }
+  },
+  {
+   "id": 312559609,
+   "rain_24h": 0,
+   "rain_1h": 0,
+   "rainfall_datetime": "2026-09-30 03:00",
+   "station_type": "rainfall_24h",
+   "agency": {
+    "agency_name": {
+     "th": "กรมชลประทาน ",
+     "en": "Royal Irrigation Department",
+     "jp": ""
+    },
+    "agency_shortname": {
+     "th": "ชป.",
+     "en": "RID",
+     "jp": ""
+    }
+   },
+   "geocode": {
+    "warning_zone": "09",
+    "area_code": "5",
+    "area_name": {
+     "th": "ภาคใต้",
+     "en": "South"
+    },
+    "amphoe_name": {
+     "th": "ทุ่งสง",
+     "en": "Thung Song District"
+    },
+    "tumbon_name": {
+     "th": "เขาโร",
+     "en": "Khao Ro"
+    },
+    "province_code": "80",
+    "province_name": {
+     "th": "นครศรีธรรมราช",
+     "en": "Nakhon Si Thammarat"
+    }
+   },
+   "station": {
+    "id": 1316999,
+    "tele_station_name": {
+     "th": "บ้านปากมูด"
+    },
+    "tele_station_lat": 7.978436,
+    "tele_station_long": 99.604113,
+    "tele_station_oldcode": "ridtele_TTr4",
+    "tele_station_type": "rainfall_24h",
+    "sub_basin_id": "2209"
+   },
+   "basin": {
+    "id": 0,
+    "basin_name": {}
+   }
+  },
+  {
+   "id": 312559610,
+   "rain_24h": 0,
+   "rain_1h": 0,
+   "rainfall_datetime": "2026-09-30 03:00",
+   "station_type": "rainfall_24h",
+   "agency": {
+    "agency_name": {
+     "th": "กรมชลประทาน ",
+     "en": "Royal Irrigation Department",
+     "jp": ""
+    },
+    "agency_shortname": {
+     "th": "ชป.",
+     "en": "RID",
+     "jp": ""
+    }
+   },
+   "geocode": {
+    "warning_zone": "09",
+    "area_code": "5",
+    "area_name": {
+     "th": "ภาคใต้",
+     "en": "South"
+    },
+    "amphoe_name": {
+     "th": "บางขัน",
+     "en": "Bang Khan District"
+    },
+    "tumbon_name": {
+     "th": "วังหิน",
+     "en": "Wang Hin"
+    },
+    "province_code": "80",
+    "province_name": {
+     "th": "นครศรีธรรมราช",
+     "en": "Nakhon Si Thammarat"
+    }
+   },
+   "station": {
+    "id": 1317001,
+    "tele_station_name": {
+     "th": "บ้านนิคม"
+    },
+    "tele_station_lat": 7.949661,
+    "tele_station_long": 99.529428,
+    "tele_station_oldcode": "ridtele_TTr6",
+    "tele_station_type": "rainfall_24h",
+    "sub_basin_id": "2209"
+   },
+   "basin": {
+    "id": 0,
+    "basin_name": {}
+   }
+  },
+  {
+   "id": 312559620,
+   "rain_24h": 0,
+   "rain_1h": 0,
+   "rainfall_datetime": "2026-09-30 03:00",
+   "station_type": "rainfall_24h",
+   "agency": {
+    "agency_name": {
+     "th": "กรมชลประทาน ",
+     "en": "Royal Irrigation Department",
+     "jp": ""
+    },
+    "agency_shortname": {
+     "th": "ชป.",
+     "en": "RID",
+     "jp": ""
+    }
+   },
+   "geocode": {
+    "warning_zone": "09",
+    "area_code": "5",
+    "area_name": {
+     "th": "ภาคใต้",
+     "en": "South"
+    },
+    "amphoe_name": {
+     "th": "เมืองนครศรีธรรมราช",
+     "en": "Mueang Nakhon Si Thammarat District"
+    },
+    "tumbon_name": {
+     "th": "นาทราย",
+     "en": "Na Sai"
+    },
+    "province_code": "80",
+    "province_name": {
+     "th": "นครศรีธรรมราช",
+     "en": "Nakhon Si Thammarat"
+    }
+   },
+   "station": {
+    "id": 1317030,
+    "tele_station_name": {
+     "th": "คลองวัดหญ้า"
+    },
+    "tele_station_lat": 8.476777,
+    "tele_station_long": 99.924205,
+    "tele_station_oldcode": "ridtele_TNA.02",
+    "tele_station_type": "rainfall_24h",
+    "sub_basin_id": "1919"
+   },
+   "basin": {
+    "id": 0,
+    "basin_name": {}
+   }
+  },
+  {
+   "id": 312559621,
+   "rain_24h": 0,
+   "rain_1h": 0,
+   "rainfall_datetime": "2026-09-30 03:00",
+   "station_type": "rainfall_24h",
+   "agency": {
+    "agency_name": {
+     "th": "กรมชลประทาน ",
+     "en": "Royal Irrigation Department",
+     "jp": ""
+    },
+    "agency_shortname": {
+     "th": "ชป.",
+     "en": "RID",
+     "jp": ""
+    }
+   },
+   "geocode": {
+    "warning_zone": "09",
+    "area_code": "5",
+    "area_name": {
+     "th": "ภาคใต้",
+     "en": "South"
+    },
+    "amphoe_name": {
+     "th": "พรหมคีรี",
+     "en": "Phrom Khiri District"
+    },
+    "tumbon_name": {
+     "th": "พรหมโลก",
+     "en": "Phrom Lok"
+    },
+    "province_code": "80",
+    "province_name": {
+     "th": "นครศรีธรรมราช",
+     "en": "Nakhon Si Thammarat"
+    }
+   },
+   "station": {
+    "id": 1317032,
+    "tele_station_name": {
+     "th": "คลองนอกท่า"
+    },
+    "tele_station_lat": 8.530108,
+    "tele_station_long": 99.819844,
+    "tele_station_oldcode": "ridtele_TNA.04",
+    "tele_station_type": "rainfall_24h",
+    "sub_basin_id": "1919"
+   },
+   "basin": {
+    "id": 0,
+    "basin_name": {}
+   }
+  },
+  {
+   "id": 312559622,
+   "rain_24h": 0,
+   "rain_1h": 0,
+   "rainfall_datetime": "2026-09-30 03:00",
+   "station_type": "rainfall_24h",
+   "agency": {
+    "agency_name": {
+     "th": "กรมชลประทาน ",
+     "en": "Royal Irrigation Department",
+     "jp": ""
+    },
+    "agency_shortname": {
+     "th": "ชป.",
+     "en": "RID",
+     "jp": ""
+    }
+   },
+   "geocode": {
+    "warning_zone": "09",
+    "area_code": "5",
+    "area_name": {
+     "th": "ภาคใต้",
+     "en": "South"
+    },
+    "amphoe_name": {
+     "th": "เมืองนครศรีธรรมราช",
+     "en": "Mueang Nakhon Si Thammarat District"
+    },
+    "tumbon_name": {
+     "th": "กำแพงเซา",
+     "en": "Kamphaeng Sao"
+    },
+    "province_code": "80",
+    "province_name": {
+     "th": "นครศรีธรรมราช",
+     "en": "Nakhon Si Thammarat"
+    }
+   },
+   "station": {
+    "id": 1317035,
+    "tele_station_name": {
+     "th": "ฝายท่าดี"
+    },
+    "tele_station_lat": 8.391047,
+    "tele_station_long": 99.864547,
+    "tele_station_oldcode": "ridtele_TNB.07",
+    "tele_station_type": "rainfall_24h",
+    "sub_basin_id": "1919"
+   },
+   "basin": {
+    "id": 0,
+    "basin_name": {}
+   }
+  },
+  {
+   "id": 312559623,
+   "rain_24h": 0,
+   "rain_1h": 0,
+   "rainfall_datetime": "2026-09-30 03:00",
+   "station_type": "rainfall_24h",
+   "agency": {
+    "agency_name": {
+     "th": "กรมชลประทาน ",
+     "en": "Royal Irrigation Department",
+     "jp": ""
+    },
+    "agency_shortname": {
+     "th": "ชป.",
+     "en": "RID",
+     "jp": ""
+    }
+   },
+   "geocode": {
+    "warning_zone": "09",
+    "area_code": "5",
+    "area_name": {
+     "th": "ภาคใต้",
+     "en": "South"
+    },
+    "amphoe_name": {
+     "th": "เมืองนครศรีธรรมราช",
+     "en": "Mueang Nakhon Si Thammarat District"
+    },
+    "tumbon_name": {
+     "th": "ท่าไร่",
+     "en": "Tha Rai"
+    },
+    "province_code": "80",
+    "province_name": {
+     "th": "นครศรีธรรมราช",
+     "en": "Nakhon Si Thammarat"
+    }
+   },
+   "station": {
+    "id": 1317037,
+    "tele_station_name": {
+     "th": "บ้านโคกข่อย"
+    },
+    "tele_station_lat": 8.435594,
+    "tele_station_long": 100.014428,
+    "tele_station_oldcode": "ridtele_TNB.09",
+    "tele_station_type": "rainfall_24h",
+    "sub_basin_id": "1919"
+   },
+   "basin": {
+    "id": 0,
+    "basin_name": {}
+   }
+  },
+  {
+   "id": 312559624,
+   "rain_24h": 0,
+   "rain_1h": 0,
+   "rainfall_datetime": "2026-09-30 03:00",
+   "station_type": "rainfall_24h",
+   "agency": {
+    "agency_name": {
+     "th": "กรมชลประทาน ",
+     "en": "Royal Irrigation Department",
+     "jp": ""
+    },
+    "agency_shortname": {
+     "th": "ชป.",
+     "en": "RID",
+     "jp": ""
+    }
+   },
+   "geocode": {
+    "warning_zone": "09",
+    "area_code": "5",
+    "area_name": {
+     "th": "ภาคใต้",
+     "en": "South"
+    },
+    "amphoe_name": {
+     "th": "เมืองนครศรีธรรมราช",
+     "en": "Mueang Nakhon Si Thammarat District"
+    },
+    "tumbon_name": {
+     "th": "ท่าซัก",
+     "en": "Tha Sak"
+    },
+    "province_code": "80",
+    "province_name": {
+     "th": "นครศรีธรรมราช",
+     "en": "Nakhon Si Thammarat"
+    }
+   },
+   "station": {
+    "id": 1317038,
+    "tele_station_name": {
+     "th": "บ้านปากพญา"
+    },
+    "tele_station_lat": 8.483189,
+    "tele_station_long": 100.015408,
+    "tele_station_oldcode": "ridtele_TNB.12",
+    "tele_station_type": "rainfall_24h",
+    "sub_basin_id": "1919"
+   },
+   "basin": {
+    "id": 0,
+    "basin_name": {}
+   }
+  },
+  {
+   "id": 312559625,
+   "rain_24h": 0,
+   "rain_1h": 0,
+   "rainfall_datetime": "2026-09-30 03:00",
+   "station_type": "rainfall_24h",
+   "agency": {
+    "agency_name": {
+     "th": "กรมชลประทาน ",
+     "en": "Royal Irrigation Department",
+     "jp": ""
+    },
+    "agency_shortname": {
+     "th": "ชป.",
+     "en": "RID",
+     "jp": ""
+    }
+   },
+   "geocode": {
+    "warning_zone": "09",
+    "area_code": "5",
+    "area_name": {
+     "th": "ภาคใต้",
+     "en": "South"
+    },
+    "amphoe_name": {
+     "th": "ปากพนัง",
+     "en": "Pak Phanang District"
+    },
+    "tumbon_name": {
+     "th": "หูล่อง",
+     "en": "Hu Long"
+    },
+    "province_code": "80",
+    "province_name": {
+     "th": "นครศรีธรรมราช",
+     "en": "Nakhon Si Thammarat"
+    }
+   },
+   "station": {
+    "id": 1317045,
+    "tele_station_name": {
+     "th": "ปตร.อุทกวิภาชประสิทธิ"
+    },
+    "tele_station_lat": 8.321786,
+    "tele_station_long": 100.206081,
+    "tele_station_oldcode": "ridtele_TPN01",
+    "tele_station_type": "rainfall_24h",
+    "sub_basin_id": "1919"
+   },
+   "basin": {
+    "id": 0,
+    "basin_name": {}
+   }
+  },
+  {
+   "id": 312559626,
+   "rain_24h": 0,
+   "rain_1h": 0,
+   "rainfall_datetime": "2026-09-30 03:00",
+   "station_type": "rainfall_24h",
+   "agency": {
+    "agency_name": {
+     "th": "กรมชลประทาน ",
+     "en": "Royal Irrigation Department",
+     "jp": ""
+    },
+    "agency_shortname": {
+     "th": "ชป.",
+     "en": "RID",
+     "jp": ""
+    }
+   },
+   "geocode": {
+    "warning_zone": "09",
+    "area_code": "5",
+    "area_name": {
+     "th": "ภาคใต้",
+     "en": "South"
+    },
+    "amphoe_name": {
+     "th": "ปากพนัง",
+     "en": "Pak Phanang District"
+    },
+    "tumbon_name": {
+     "th": "หูล่อง",
+     "en": "Hu Long"
+    },
+    "province_code": "80",
+    "province_name": {
+     "th": "นครศรีธรรมราช",
+     "en": "Nakhon Si Thammarat"
+    }
+   },
+   "station": {
+    "id": 1317046,
+    "tele_station_name": {
+     "th": "บ้านสองพี่น้อง"
+    },
+    "tele_station_lat": 8.301503,
+    "tele_station_long": 100.193082,
+    "tele_station_oldcode": "ridtele_TPN02",
+    "tele_station_type": "rainfall_24h",
+    "sub_basin_id": "1919"
+   },
+   "basin": {
+    "id": 0,
+    "basin_name": {}
+   }
+  },
+  {
+   "id": 312559629,
+   "rain_24h": 0,
+   "rain_1h": 0,
+   "rainfall_datetime": "2026-09-30 03:00",
+   "station_type": "rainfall_24h",
+   "agency": {
+    "agency_name": {
+     "th": "กรมชลประทาน ",
+     "en": "Royal Irrigation Department",
+     "jp": ""
+    },
+    "agency_shortname": {
+     "th": "ชป.",
+     "en": "RID",
+     "jp": ""
+    }
+   },
+   "geocode": {
+    "warning_zone": "09",
+    "area_code": "5",
+    "area_name": {
+     "th": "ภาคใต้",
+     "en": "South"
+    },
+    "amphoe_name": {
+     "th": "ลานสกา",
+     "en": "Lan Saka District"
+    },
+    "tumbon_name": {
+     "th": "ขุนทะเล",
+     "en": "Khun Thale"
+    },
+    "province_code": "80",
+    "province_name": {
+     "th": "นครศรีธรรมราช",
+     "en": "Nakhon Si Thammarat"
+    }
+   },
+   "station": {
+    "id": 1317052,
+    "tele_station_name": {
+     "th": "ฝายเสาธง"
+    },
+    "tele_station_lat": 8.340558,
+    "tele_station_long": 99.828936,
+    "tele_station_oldcode": "ridtele_TPN08",
+    "tele_station_type": "rainfall_24h",
+    "sub_basin_id": "1919"
+   },
+   "basin": {
+    "id": 0,
+    "basin_name": {}
+   }
+  },
+  {
+   "id": 312556842,
+   "rain_24h": 0,
+   "rain_1h": 0,
+   "rainfall_datetime": "2026-09-30 03:00",
+   "station_type": "rainfall_24h",
+   "agency": {
+    "agency_name": {
+     "th": "สถาบันสารสนเทศทรัพยากรน้ำ (องค์การมหาชน)",
+     "en": "Hydro – Informatics Institute (Public Organization)",
+     "jp": ""
+    },
+    "agency_shortname": {
+     "th": "สสน.",
+     "en": "HII",
+     "jp": ""
+    }
+   },
+   "geocode": {
+    "warning_zone": "09",
+    "area_code": "5",
+    "area_name": {
+     "th": "ภาคใต้",
+     "en": "South"
+    },
+    "amphoe_name": {
+     "th": "เมืองนครศรีธรรมราช",
+     "en": "Mueang Nakhon Si Thammarat District"
+    },
+    "tumbon_name": {
+     "th": "ท่าไร่",
+     "en": "Tha Rai"
+    },
+    "province_code": "80",
+    "province_name": {
+     "th": "นครศรีธรรมราช",
+     "en": "Nakhon Si Thammarat"
+    }
+   },
+   "station": {
+    "id": 1373691,
+    "tele_station_name": {
+     "en": "Nang Phraya Bridge-Bang Luang Pak Nakhon Community",
+     "th": "สะพานนางพระยา-บางหลวง ชุมชนปากนคร"
+    },
+    "tele_station_lat": 8.438141,
+    "tele_station_long": 100.0304,
+    "tele_station_oldcode": "PTTEP3",
+    "tele_station_type": "rainfall_24h",
+    "sub_basin_id": "1919",
+    "sponsor_by": "บริษัท ปตท.สำรวจและผลิตปิโตรเลียม จำกัด (มหาชน)"
+   },
+   "basin": {
+    "id": 0,
+    "basin_name": {}
+   }
+  },
+  {
+   "id": 312555417,
+   "rain_24h": 0,
+   "rain_1h": 0,
+   "rainfall_datetime": "2026-09-30 02:00",
+   "station_type": "rainfall_24h",
+   "agency": {
+    "agency_name": {
+     "th": "การไฟฟ้าฝ่ายผลิตแห่งประเทศไทย",
+     "en": "Electricity Generating Authority of Thailand",
+     "jp": ""
+    },
+    "agency_shortname": {
+     "th": "กฟผ.",
+     "en": "EGAT",
+     "jp": ""
+    }
+   },
+   "geocode": {
+    "warning_zone": "09",
+    "area_code": "5",
+    "area_name": {
+     "th": "ภาคใต้",
+     "en": "South"
+    },
+    "amphoe_name": {
+     "th": "ทุ่งใหญ่",
+     "en": "Thung Yai District"
+    },
+    "tumbon_name": {
+     "th": "ท่ายาง",
+     "en": "Tha Yang"
+    },
+    "province_code": "80",
+    "province_name": {
+     "th": "นครศรีธรรมราช",
+     "en": "Nakhon Si Thammarat"
+    }
+   },
+   "station": {
+    "id": 1422370,
+    "tele_station_name": {
+     "th": "วัดท่ายาง จ.นครศรีธรรมราช"
+    },
+    "tele_station_lat": 8.302045,
+    "tele_station_long": 99.368239,
+    "tele_station_oldcode": "RPBD10",
+    "tele_station_type": "rainfall_24h",
+    "sub_basin_id": "1911"
+   },
+   "basin": {
+    "id": 0,
+    "basin_name": {}
+   }
+  },
+  {
+   "id": 312558402,
+   "rain_24h": 0,
+   "rain_1h": 0,
+   "rainfall_datetime": "2026-09-30 02:00",
+   "station_type": "rainfall_24h",
+   "agency": {
+    "agency_name": {
+     "th": "กรมทรัพยากรน้ำ",
+     "en": "Department of Water Resources",
+     "jp": ""
+    },
+    "agency_shortname": {
+     "th": "ทน.",
+     "en": "DWR",
+     "jp": ""
+    }
+   },
+   "geocode": {
+    "warning_zone": "09",
+    "area_code": "5",
+    "area_name": {
+     "th": "ภาคใต้",
+     "en": "South"
+    },
+    "amphoe_name": {
+     "th": "สิชล",
+     "en": "Sichon District"
+    },
+    "tumbon_name": {
+     "th": "ทุ่งใส",
+     "en": "Thung Sai"
+    },
+    "province_code": "80",
+    "province_name": {
+     "th": "นครศรีธรรมราช",
+     "en": "Nakhon Si Thammarat"
+    }
+   },
+   "station": {
+    "id": 1459080,
+    "tele_station_name": {
+     "th": "บ้านคลองตีนเป็ด"
+    },
+    "tele_station_lat": 9.075341,
+    "tele_station_long": 99.814225,
+    "tele_station_oldcode": "STN2215",
+    "tele_station_type": "rainfall_24h",
+    "sub_basin_id": "1917"
+   },
+   "basin": {
+    "id": 0,
+    "basin_name": {}
+   }
+  },
+  {
+   "id": 312558403,
+   "rain_24h": 0,
+   "rainfall_datetime": "2026-09-30 02:00",
+   "station_type": "rainfall_24h",
+   "agency": {
+    "agency_name": {
+     "th": "กรมทรัพยากรน้ำ",
+     "en": "Department of Water Resources",
+     "jp": ""
+    },
+    "agency_shortname": {
+     "th": "ทน.",
+     "en": "DWR",
+     "jp": ""
+    }
+   },
+   "geocode": {
+    "warning_zone": "09",
+    "area_code": "5",
+    "area_name": {
+     "th": "ภาคใต้",
+     "en": "South"
+    },
+    "amphoe_name": {
+     "th": "สิชล",
+     "en": "Sichon District"
+    },
+    "tumbon_name": {
+     "th": "เปลี่ยน",
+     "en": "Plian"
+    },
+    "province_code": "80",
+    "province_name": {
+     "th": "นครศรีธรรมราช",
+     "en": "Nakhon Si Thammarat"
+    }
+   },
+   "station": {
+    "id": 1459081,
+    "tele_station_name": {
+     "th": "บ้านเขาทราย"
+    },
+    "tele_station_lat": 8.848799,
+    "tele_station_long": 99.823532,
+    "tele_station_oldcode": "STN2216",
+    "tele_station_type": "rainfall_24h",
+    "sub_basin_id": "1917"
+   },
+   "basin": {
+    "id": 0,
+    "basin_name": {}
+   }
+  },
+  {
+   "id": 312558405,
+   "rain_24h": 0,
+   "rain_1h": 0,
+   "rainfall_datetime": "2026-09-30 02:00",
+   "station_type": "rainfall_24h",
+   "agency": {
+    "agency_name": {
+     "th": "กรมทรัพยากรน้ำ",
+     "en": "Department of Water Resources",
+     "jp": ""
+    },
+    "agency_shortname": {
+     "th": "ทน.",
+     "en": "DWR",
+     "jp": ""
+    }
+   },
+   "geocode": {
+    "warning_zone": "09",
+    "area_code": "5",
+    "area_name": {
+     "th": "ภาคใต้",
+     "en": "South"
+    },
+    "amphoe_name": {
+     "th": "ถ้ำพรรณรา",
+     "en": "Tham Phannara District"
+    },
+    "tumbon_name": {
+     "th": "ถ้ำพรรณรา",
+     "en": "Tham Phannara"
+    },
+    "province_code": "80",
+    "province_name": {
+     "th": "นครศรีธรรมราช",
+     "en": "Nakhon Si Thammarat"
+    }
+   },
+   "station": {
+    "id": 1459083,
+    "tele_station_name": {
+     "th": "บ้านปลายรา"
+    },
+    "tele_station_lat": 8.453712,
+    "tele_station_long": 99.395122,
+    "tele_station_oldcode": "STN2218",
+    "tele_station_type": "rainfall_24h",
+    "sub_basin_id": "1911"
+   },
+   "basin": {
+    "id": 0,
+    "basin_name": {}
+   }
+  }
+ ]
+}

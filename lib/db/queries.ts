@@ -247,3 +247,79 @@ export async function provinceExtent(sql: Sql): Promise<{ bbox: BBox; bufferedBb
   const bufferedBbox = toBBox(row.bbbox);
   return bbox && bufferedBbox ? { bbox, bufferedBbox } : null;
 }
+
+// ---------------------------------------------------------------- live data
+
+/** Sources that have delivered data at least once (a successful or partial ingest run). */
+export async function connectedSources(sql: Sql): Promise<Set<string>> {
+  const rows = await sql<{ source_id: string }[]>`select distinct source_id from ingest_runs where status in ('ok', 'partial')`;
+  return new Set(rows.map((r) => r.source_id));
+}
+
+export interface NearestObservationRow {
+  source_id: string;
+  station_id: string;
+  name_th: string | null;
+  name_en: string | null;
+  river_name: string | null;
+  station_properties: Record<string, unknown> | null;
+  value: number;
+  unit: string;
+  observed_at: Date;
+  fetched_at: Date;
+  official_status: string | null;
+  official_level: number | null;
+  official_color: string | null;
+  official_detail: string | null;
+  distance_m: number;
+}
+
+export async function nearestObservations(sql: Sql, lng: number, lat: number, variable: string, limit = 10): Promise<NearestObservationRow[]> {
+  return sql<NearestObservationRow[]>`
+    select source_id, station_id, name_th, name_en, river_name, station_properties, value, unit, observed_at, fetched_at,
+           official_status, official_level, official_color, official_detail, distance_m
+      from nearest_observations(${lng}, ${lat}, ${variable}, ${limit})`;
+}
+
+/** Latest value of a variable at given stations (e.g. ThaiWater bank % for water-level stations). */
+export async function latestAtStations(sql: Sql, sourceId: string, stationIds: string[], variable: string): Promise<Map<string, number>> {
+  if (!stationIds.length) return new Map();
+  const rows = await sql<{ station_id: string; value: number }[]>`
+    select distinct on (station_id) station_id, value
+      from observations
+     where source_id = ${sourceId} and variable = ${variable} and station_id in ${sql(stationIds)}
+     order by station_id, observed_at desc`;
+  return new Map(rows.map((r) => [r.station_id, r.value]));
+}
+
+/** Names of named waterways (river/canal/stream/drain) within radius of the point. */
+export async function waterwayNamesNear(sql: Sql, lng: number, lat: number, radiusM: number): Promise<string[]> {
+  const rows = await sql<{ name: string }[]>`
+    select distinct coalesce(name_th, name_en) as name
+      from osm_features
+     where kind in ('river', 'canal', 'stream', 'drain')
+       and coalesce(name_th, name_en) is not null
+       and st_dwithin(geom::geography, st_setsrid(st_makepoint(${lng}, ${lat}), 4326)::geography, ${radiusM})`;
+  return rows.map((r) => r.name);
+}
+
+export interface StationFeatureRow {
+  source_id: string;
+  station_id: string;
+  name_th: string | null;
+  name_en: string | null;
+  lng: number;
+  lat: number;
+  agency_th: string | null;
+  value: number;
+  unit: string;
+  observed_at: Date;
+  official_status: string | null;
+  official_level: number | null;
+  official_color: string | null;
+  official_detail: string | null;
+}
+
+export async function latestStationReadings(sql: Sql, variable: string): Promise<StationFeatureRow[]> {
+  return sql<StationFeatureRow[]>`select * from latest_station_readings(${variable})`;
+}

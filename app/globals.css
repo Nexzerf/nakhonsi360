@@ -291,3 +291,13 @@ body {
     bottom: 6px;
   }
 }
+
+/* Attribution stays compact and readable; it wraps instead of spanning the map. */
+.maplibregl-ctrl-attrib.maplibregl-compact-show {
+  max-width: min(460px, calc(100vw - 96px));
+}
+@media (min-width: 640px) {
+  .maplibregl-ctrl-attrib.maplibregl-compact-show {
+    max-width: min(460px, calc(100vw - 620px));
+  }
+}

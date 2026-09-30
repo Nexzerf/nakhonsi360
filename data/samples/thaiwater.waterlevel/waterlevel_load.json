@@ -1,0 +1,2654 @@
+{
+ "_sample": {
+  "fetchedAt": "2026-09-29T21:17:00Z",
+  "fetchedAtNote": "file mtime of the download (UTC)",
+  "filter": "records with geocode.province_code == '80' (นครศรีธรรมราช), unmodified",
+  "url": "https://api-v3.thaiwater.net/api/v1/thaiwater30/public/waterlevel_load",
+  "fullResponseSha256": "0e252b4bc8c10e82a832ea15a5eafe71e52a6aaae9064aaa1084812be89d0eff",
+  "fullResponseBytes": 1397669,
+  "totalRecords": {
+   "waterlevel_data": 806,
+   "waterlevel_manual_data": 35
+  }
+ },
+ "waterlevel_data": {
+  "result": "OK",
+  "data": [
+   {
+    "id": 1315448015,
+    "waterlevel_datetime": "2026-09-30 04:00",
+    "waterlevel_m": null,
+    "waterlevel_msl": "22.63",
+    "waterlevel_msl_previous": "22.63",
+    "flow_rate": null,
+    "discharge": null,
+    "storage_percent": "93.46",
+    "sort_order": null,
+    "station_type": "tele_waterlevel",
+    "situation_level": 4,
+    "agency": {
+     "id": 9,
+     "agency_name": {
+      "th": "สถาบันสารสนเทศทรัพยากรน้ำ (องค์การมหาชน)",
+      "en": "Hydro – Informatics Institute (Public Organization)",
+      "jp": ""
+     },
+     "agency_shortname": {
+      "th": "สสน.",
+      "en": "HII",
+      "jp": ""
+     }
+    },
+    "basin": {
+     "id": 22,
+     "basin_code": 19,
+     "basin_name": {
+      "th": "ลุ่มน้ำภาคใต้ฝั่งตะวันออกตอนบน",
+      "en": "Peninsula - Upper East Coast Basin"
+     }
+    },
+    "station": {
+     "id": 1093079,
+     "tele_station_name": {
+      "en": "Khlong Cha Uat",
+      "th": "คลองชะอวด"
+     },
+     "tele_station_lat": 7.96636,
+     "tele_station_long": 99.99436,
+     "tele_station_oldcode": "CHAU01",
+     "tele_station_type": "tele_waterlevel",
+     "left_bank": 25.467,
+     "right_bank": 24.217,
+     "min_bank": 24.22,
+     "ground_level": 0,
+     "offset": null,
+     "sub_basin_id": 327,
+     "agency_id": 9,
+     "geocode_id": 7231,
+     "hydro_id": null,
+     "qmax": null,
+     "is_key_station": false,
+     "warning_level_m": null,
+     "critical_level_m": null,
+     "critical_level_msl": null
+    },
+    "geocode": {
+     "area_code": "5",
+     "area_name": {
+      "th": "ภาคใต้",
+      "en": "South"
+     },
+     "amphoe_code": "07",
+     "amphoe_name": {
+      "th": "ชะอวด",
+      "en": "Cha-uat District"
+     },
+     "tumbon_code": "01",
+     "tumbon_name": {
+      "th": "ชะอวด",
+      "en": "Cha-Uat"
+     },
+     "province_code": "80",
+     "province_name": {
+      "th": "นครศรีธรรมราช",
+      "en": "Nakhon Si Thammarat"
+     }
+    },
+    "diff_wl_bank": "1.58",
+    "diff_wl_bank_text": "ต่ำกว่าตลิ่ง (ม.)",
+    "river_gid": 222921,
+    "river_name": "คลองชะอวด"
+   },
+   {
+    "id": 1315448312,
+    "waterlevel_datetime": "2026-09-30 04:00",
+    "waterlevel_m": null,
+    "waterlevel_msl": "0.13",
+    "waterlevel_msl_previous": "0.17",
+    "flow_rate": null,
+    "discharge": null,
+    "storage_percent": "88.49",
+    "sort_order": null,
+    "station_type": "tele_waterlevel",
+    "situation_level": 4,
+    "agency": {
+     "id": 9,
+     "agency_name": {
+      "th": "สถาบันสารสนเทศทรัพยากรน้ำ (องค์การมหาชน)",
+      "en": "Hydro – Informatics Institute (Public Organization)",
+      "jp": ""
+     },
+     "agency_shortname": {
+      "th": "สสน.",
+      "en": "HII",
+      "jp": ""
+     }
+    },
+    "basin": {
+     "id": 22,
+     "basin_code": 19,
+     "basin_name": {
+      "th": "ลุ่มน้ำภาคใต้ฝั่งตะวันออกตอนบน",
+      "en": "Peninsula - Upper East Coast Basin"
+     }
+    },
+    "station": {
+     "id": 1373691,
+     "tele_station_name": {
+      "en": "Nang Phraya Bridge-Bang Luang Pak Nakhon Community",
+      "th": "สะพานนางพระยา-บางหลวง ชุมชนปากนคร"
+     },
+     "tele_station_lat": 8.438141,
+     "tele_station_long": 100.0304,
+     "tele_station_oldcode": "PTTEP3",
+     "tele_station_type": "tele_waterlevel",
+     "left_bank": 0.73,
+     "right_bank": 0.8,
+     "min_bank": 0.73,
+     "ground_level": -4.481,
+     "offset": null,
+     "sub_basin_id": 327,
+     "sponsor_by": "บริษัท ปตท.สำรวจและผลิตปิโตรเลียม จำกัด (มหาชน)",
+     "agency_id": 9,
+     "geocode_id": 7177,
+     "hydro_id": null,
+     "qmax": null,
+     "is_key_station": false,
+     "warning_level_m": null,
+     "critical_level_m": null,
+     "critical_level_msl": null
+    },
+    "geocode": {
+     "area_code": "5",
+     "area_name": {
+      "th": "ภาคใต้",
+      "en": "South"
+     },
+     "amphoe_code": "01",
+     "amphoe_name": {
+      "th": "เมืองนครศรีธรรมราช",
+      "en": "Mueang Nakhon Si Thammarat District"
+     },
+     "tumbon_code": "06",
+     "tumbon_name": {
+      "th": "ท่าไร่",
+      "en": "Tha Rai"
+     },
+     "province_code": "80",
+     "province_name": {
+      "th": "นครศรีธรรมราช",
+      "en": "Nakhon Si Thammarat"
+     }
+    },
+    "diff_wl_bank": "0.60",
+    "diff_wl_bank_text": "ต่ำกว่าตลิ่ง (ม.)"
+   },
+   {
+    "id": 1315414337,
+    "waterlevel_datetime": "2026-09-30 02:00",
+    "waterlevel_m": null,
+    "waterlevel_msl": "23.74",
+    "waterlevel_msl_previous": "23.74",
+    "flow_rate": null,
+    "discharge": "4.80",
+    "storage_percent": "87.93",
+    "sort_order": null,
+    "station_type": "tele_waterlevel",
+    "situation_level": 4,
+    "agency": {
+     "id": 12,
+     "agency_name": {
+      "th": "กรมชลประทาน ",
+      "en": "Royal Irrigation Department",
+      "jp": ""
+     },
+     "agency_shortname": {
+      "th": "ชป.",
+      "en": "RID",
+      "jp": ""
+     }
+    },
+    "basin": {
+     "id": 22,
+     "basin_code": 19,
+     "basin_name": {
+      "th": "ลุ่มน้ำภาคใต้ฝั่งตะวันออกตอนบน",
+      "en": "Peninsula - Upper East Coast Basin"
+     }
+    },
+    "station": {
+     "id": 1161516,
+     "tele_station_name": {
+      "th": "บ้านหาดทรายแก้ว "
+     },
+     "tele_station_lat": 8.42915,
+     "tele_station_long": 99.508362,
+     "tele_station_oldcode": "X.176",
+     "tele_station_type": "tele_waterlevel",
+     "left_bank": 27,
+     "right_bank": 27,
+     "min_bank": 27,
+     "ground_level": 0,
+     "offset": null,
+     "sub_basin_id": 318,
+     "agency_id": 12,
+     "geocode_id": 7203,
+     "hydro_id": 8,
+     "qmax": 209,
+     "is_key_station": false,
+     "warning_level_m": null,
+     "critical_level_m": null,
+     "critical_level_msl": null
+    },
+    "geocode": {
+     "area_code": "5",
+     "area_name": {
+      "th": "ภาคใต้",
+      "en": "South"
+     },
+     "amphoe_code": "04",
+     "amphoe_name": {
+      "th": "ฉวาง",
+      "en": "Chawang District"
+     },
+     "tumbon_code": "01",
+     "tumbon_name": {
+      "th": "ฉวาง",
+      "en": "Chawang"
+     },
+     "province_code": "80",
+     "province_name": {
+      "th": "นครศรีธรรมราช",
+      "en": "Nakhon Si Thammarat"
+     }
+    },
+    "diff_wl_bank": "3.26",
+    "diff_wl_bank_text": "ต่ำกว่าตลิ่ง (ม.)",
+    "river_gid": 220031,
+    "river_name": "แม่น้ำตาปี"
+   },
+   {
+    "id": 1315448236,
+    "waterlevel_datetime": "2026-09-30 04:00",
+    "waterlevel_m": null,
+    "waterlevel_msl": "-0.63",
+    "waterlevel_msl_previous": "-0.63",
+    "flow_rate": null,
+    "discharge": null,
+    "storage_percent": "76.30",
+    "sort_order": null,
+    "station_type": "tele_waterlevel",
+    "situation_level": 4,
+    "agency": {
+     "id": 9,
+     "agency_name": {
+      "th": "สถาบันสารสนเทศทรัพยากรน้ำ (องค์การมหาชน)",
+      "en": "Hydro – Informatics Institute (Public Organization)",
+      "jp": ""
+     },
+     "agency_shortname": {
+      "th": "สสน.",
+      "en": "HII",
+      "jp": ""
+     }
+    },
+    "basin": {
+     "id": 22,
+     "basin_code": 19,
+     "basin_name": {
+      "th": "ลุ่มน้ำภาคใต้ฝั่งตะวันออกตอนบน",
+      "en": "Peninsula - Upper East Coast Basin"
+     }
+    },
+    "station": {
+     "id": 792,
+     "tele_station_name": {
+      "en": "Nakhon Si Thammarat 2",
+      "th": "เชียรใหญ่"
+     },
+     "tele_station_lat": 8.089498,
+     "tele_station_long": 100.12784,
+     "tele_station_oldcode": "NKO002",
+     "tele_station_type": "tele_waterlevel",
+     "left_bank": 3.322,
+     "right_bank": 4.017,
+     "min_bank": 3.32,
+     "ground_level": -13.352,
+     "offset": null,
+     "sub_basin_id": 327,
+     "agency_id": 9,
+     "geocode_id": 7227,
+     "hydro_id": null,
+     "qmax": null,
+     "is_key_station": false,
+     "warning_level_m": null,
+     "critical_level_m": null,
+     "critical_level_msl": null
+    },
+    "geocode": {
+     "area_code": "5",
+     "area_name": {
+      "th": "ภาคใต้",
+      "en": "South"
+     },
+     "amphoe_code": "06",
+     "amphoe_name": {
+      "th": "เชียรใหญ่",
+      "en": "Chian Yai District"
+     },
+     "tumbon_code": "11",
+     "tumbon_name": {
+      "th": "การะเกด",
+      "en": "Karaket"
+     },
+     "province_code": "80",
+     "province_name": {
+      "th": "นครศรีธรรมราช",
+      "en": "Nakhon Si Thammarat"
+     }
+    },
+    "diff_wl_bank": "3.95",
+    "diff_wl_bank_text": "ต่ำกว่าตลิ่ง (ม.)",
+    "river_gid": 222280,
+    "river_name": "คลองชะอวด"
+   },
+   {
+    "id": 1315448409,
+    "waterlevel_datetime": "2026-09-30 04:00",
+    "waterlevel_m": null,
+    "waterlevel_msl": "122.81",
+    "waterlevel_msl_previous": "122.81",
+    "flow_rate": null,
+    "discharge": null,
+    "storage_percent": "69.81",
+    "sort_order": null,
+    "station_type": "tele_waterlevel",
+    "situation_level": 3,
+    "agency": {
+     "id": 9,
+     "agency_name": {
+      "th": "สถาบันสารสนเทศทรัพยากรน้ำ (องค์การมหาชน)",
+      "en": "Hydro – Informatics Institute (Public Organization)",
+      "jp": ""
+     },
+     "agency_shortname": {
+      "th": "สสน.",
+      "en": "HII",
+      "jp": ""
+     }
+    },
+    "basin": {
+     "id": 27,
+     "basin_code": 22,
+     "basin_name": {
+      "th": "ลุ่มน้ำภาคใต้ฝั่งตะวันตก",
+      "en": "Peninsula - West Coast Basin"
+     }
+    },
+    "station": {
+     "id": 13892,
+     "tele_station_name": {
+      "en": "Na Luang Sen",
+      "th": "ฝายคลองท่าเลา"
+     },
+     "tele_station_lat": 8.232547,
+     "tele_station_long": 99.70778,
+     "tele_station_oldcode": "SWR025",
+     "tele_station_type": "tele_waterlevel",
+     "left_bank": 123.816,
+     "right_bank": 123.809,
+     "min_bank": 123.81,
+     "ground_level": 120.5,
+     "offset": null,
+     "sub_basin_id": 349,
+     "agency_id": 9,
+     "geocode_id": 7259,
+     "hydro_id": null,
+     "qmax": null,
+     "is_key_station": false,
+     "warning_level_m": null,
+     "critical_level_m": null,
+     "critical_level_msl": null
+    },
+    "geocode": {
+     "area_code": "5",
+     "area_name": {
+      "th": "ภาคใต้",
+      "en": "South"
+     },
+     "amphoe_code": "09",
+     "amphoe_name": {
+      "th": "ทุ่งสง",
+      "en": "Thung Song District"
+     },
+     "tumbon_code": "06",
+     "tumbon_name": {
+      "th": "นาหลวงเสน",
+      "en": "Na Luang Sen"
+     },
+     "province_code": "80",
+     "province_name": {
+      "th": "นครศรีธรรมราช",
+      "en": "Nakhon Si Thammarat"
+     }
+    },
+    "diff_wl_bank": "1.00",
+    "diff_wl_bank_text": "ต่ำกว่าตลิ่ง (ม.)",
+    "river_gid": 221724,
+    "river_name": "คลองท่าเลา"
+   },
+   {
+    "id": 1315414275,
+    "waterlevel_datetime": "2026-09-30 02:00",
+    "waterlevel_m": null,
+    "waterlevel_msl": "9.10",
+    "waterlevel_msl_previous": "9.10",
+    "flow_rate": null,
+    "discharge": "6.35",
+    "storage_percent": "49.92",
+    "sort_order": null,
+    "station_type": "tele_waterlevel",
+    "situation_level": 3,
+    "agency": {
+     "id": 12,
+     "agency_name": {
+      "th": "กรมชลประทาน ",
+      "en": "Royal Irrigation Department",
+      "jp": ""
+     },
+     "agency_shortname": {
+      "th": "ชป.",
+      "en": "RID",
+      "jp": ""
+     }
+    },
+    "basin": {
+     "id": 22,
+     "basin_code": 19,
+     "basin_name": {
+      "th": "ลุ่มน้ำภาคใต้ฝั่งตะวันออกตอนบน",
+      "en": "Peninsula - Upper East Coast Basin"
+     }
+    },
+    "station": {
+     "id": 726653,
+     "tele_station_name": {
+      "th": "บ้านเสาธง"
+     },
+     "tele_station_lat": 8.2801,
+     "tele_station_long": 99.906487,
+     "tele_station_oldcode": "X.167",
+     "tele_station_type": "tele_waterlevel",
+     "left_bank": 14.14,
+     "right_bank": 14.139,
+     "min_bank": 11.8,
+     "ground_level": 6.409,
+     "offset": null,
+     "sub_basin_id": 327,
+     "agency_id": 12,
+     "geocode_id": 7301,
+     "hydro_id": 8,
+     "qmax": 120,
+     "is_key_station": false,
+     "warning_level_m": null,
+     "critical_level_m": null,
+     "critical_level_msl": null
+    },
+    "geocode": {
+     "area_code": "5",
+     "area_name": {
+      "th": "ภาคใต้",
+      "en": "South"
+     },
+     "amphoe_code": "13",
+     "amphoe_name": {
+      "th": "ร่อนพิบูลย์",
+      "en": "Ron Phibun District"
+     },
+     "tumbon_code": "03",
+     "tumbon_name": {
+      "th": "เสาธง",
+      "en": "Sao Thong"
+     },
+     "province_code": "80",
+     "province_name": {
+      "th": "นครศรีธรรมราช",
+      "en": "Nakhon Si Thammarat"
+     }
+    },
+    "diff_wl_bank": "2.70",
+    "diff_wl_bank_text": "ต่ำกว่าตลิ่ง (ม.)",
+    "river_gid": 221374,
+    "river_name": "คลองเสาธง"
+   },
+   {
+    "id": 1315448238,
+    "waterlevel_datetime": "2026-09-30 04:00",
+    "waterlevel_m": null,
+    "waterlevel_msl": "-0.13",
+    "waterlevel_msl_previous": "-0.10",
+    "flow_rate": null,
+    "discharge": null,
+    "storage_percent": "48.43",
+    "sort_order": null,
+    "station_type": "tele_waterlevel",
+    "situation_level": 3,
+    "agency": {
+     "id": 9,
+     "agency_name": {
+      "th": "สถาบันสารสนเทศทรัพยากรน้ำ (องค์การมหาชน)",
+      "en": "Hydro – Informatics Institute (Public Organization)",
+      "jp": ""
+     },
+     "agency_shortname": {
+      "th": "สสน.",
+      "en": "HII",
+      "jp": ""
+     }
+    },
+    "basin": {
+     "id": 22,
+     "basin_code": 19,
+     "basin_name": {
+      "th": "ลุ่มน้ำภาคใต้ฝั่งตะวันออกตอนบน",
+      "en": "Peninsula - Upper East Coast Basin"
+     }
+    },
+    "station": {
+     "id": 794,
+     "tele_station_name": {
+      "en": "Nop Phi Tam 1",
+      "th": "ท่าศาลา"
+     },
+     "tele_station_lat": 8.786868,
+     "tele_station_long": 99.911316,
+     "tele_station_oldcode": "NPI001",
+     "tele_station_type": "tele_waterlevel",
+     "left_bank": 6.333,
+     "right_bank": 3.537,
+     "min_bank": 3.54,
+     "ground_level": -3.574,
+     "offset": null,
+     "sub_basin_id": 326,
+     "agency_id": 9,
+     "geocode_id": 7247,
+     "hydro_id": null,
+     "qmax": null,
+     "is_key_station": false,
+     "warning_level_m": null,
+     "critical_level_m": null,
+     "critical_level_msl": null
+    },
+    "geocode": {
+     "area_code": "5",
+     "area_name": {
+      "th": "ภาคใต้",
+      "en": "South"
+     },
+     "amphoe_code": "08",
+     "amphoe_name": {
+      "th": "ท่าศาลา",
+      "en": "Tha Sala District"
+     },
+     "tumbon_code": "06",
+     "tumbon_name": {
+      "th": "สระแก้ว",
+      "en": "Sa Kaeo"
+     },
+     "province_code": "80",
+     "province_name": {
+      "th": "นครศรีธรรมราช",
+      "en": "Nakhon Si Thammarat"
+     }
+    },
+    "diff_wl_bank": "3.67",
+    "diff_wl_bank_text": "ต่ำกว่าตลิ่ง (ม.)",
+    "river_gid": 217856,
+    "river_name": "คลองกลาย"
+   },
+   {
+    "id": 1315447794,
+    "waterlevel_datetime": "2026-09-30 04:00",
+    "waterlevel_m": null,
+    "waterlevel_msl": "93.33",
+    "waterlevel_msl_previous": "93.33",
+    "flow_rate": null,
+    "discharge": null,
+    "storage_percent": "36.06",
+    "sort_order": null,
+    "station_type": "tele_waterlevel",
+    "situation_level": 3,
+    "agency": {
+     "id": 91,
+     "agency_name": {
+      "th": "มูลนิธิอาสาเพื่อนพึ่ง (ภาฯ) ยามยาก สภากาชาดไทย",
+      "en": "Friend in Need (of “Pa”) Volunteers Foundation",
+      "jp": ""
+     },
+     "agency_shortname": {
+      "th": "พพภ",
+      "en": "FOP",
+      "jp": ""
+     }
+    },
+    "basin": {
+     "id": 27,
+     "basin_code": 22,
+     "basin_name": {
+      "th": "ลุ่มน้ำภาคใต้ฝั่งตะวันตก",
+      "en": "Peninsula - West Coast Basin"
+     }
+    },
+    "station": {
+     "id": 1129758,
+     "tele_station_name": {
+      "en": "Tha Lone Canal Weir",
+      "th": "ฝายคลองท่าโลน"
+     },
+     "tele_station_lat": 8.218343,
+     "tele_station_long": 99.71981,
+     "tele_station_oldcode": "FOP072",
+     "tele_station_type": "tele_waterlevel",
+     "left_bank": 96.752,
+     "right_bank": 96.752,
+     "min_bank": 96.75,
+     "ground_level": 91.4,
+     "offset": null,
+     "sub_basin_id": 349,
+     "sponsor_by": "มูลนิธิอาสาเพื่อนพึ่ง (ภาฯ) ยามยาก สภากาชาดไทย",
+     "agency_id": 91,
+     "geocode_id": 7264,
+     "hydro_id": null,
+     "qmax": null,
+     "is_key_station": false,
+     "warning_level_m": null,
+     "critical_level_m": null,
+     "critical_level_msl": null
+    },
+    "geocode": {
+     "area_code": "5",
+     "area_name": {
+      "th": "ภาคใต้",
+      "en": "South"
+     },
+     "amphoe_code": "09",
+     "amphoe_name": {
+      "th": "ทุ่งสง",
+      "en": "Thung Song District"
+     },
+     "tumbon_code": "11",
+     "tumbon_name": {
+      "th": "ถ้ำใหญ่",
+      "en": "Tham Yai"
+     },
+     "province_code": "80",
+     "province_name": {
+      "th": "นครศรีธรรมราช",
+      "en": "Nakhon Si Thammarat"
+     }
+    },
+    "diff_wl_bank": "3.42",
+    "diff_wl_bank_text": "ต่ำกว่าตลิ่ง (ม.)",
+    "river_gid": 221724,
+    "river_name": "คลองท่าเลา"
+   },
+   {
+    "id": 1315447774,
+    "waterlevel_datetime": "2026-09-30 04:00",
+    "waterlevel_m": null,
+    "waterlevel_msl": "10.88",
+    "waterlevel_msl_previous": "10.88",
+    "flow_rate": null,
+    "discharge": null,
+    "storage_percent": "31.71",
+    "sort_order": null,
+    "station_type": "tele_waterlevel",
+    "situation_level": 3,
+    "agency": {
+     "id": 91,
+     "agency_name": {
+      "th": "มูลนิธิอาสาเพื่อนพึ่ง (ภาฯ) ยามยาก สภากาชาดไทย",
+      "en": "Friend in Need (of “Pa”) Volunteers Foundation",
+      "jp": ""
+     },
+     "agency_shortname": {
+      "th": "พพภ",
+      "en": "FOP",
+      "jp": ""
+     }
+    },
+    "basin": {
+     "id": 22,
+     "basin_code": 19,
+     "basin_name": {
+      "th": "ลุ่มน้ำภาคใต้ฝั่งตะวันออกตอนบน",
+      "en": "Peninsula - Upper East Coast Basin"
+     }
+    },
+    "station": {
+     "id": 740736,
+     "tele_station_name": {
+      "en": "Khlong Wang Khian Bridge",
+      "th": "สะพานข้ามคลองวังเคียน"
+     },
+     "tele_station_lat": 7.954553,
+     "tele_station_long": 99.896324,
+     "tele_station_oldcode": "FOP035",
+     "tele_station_type": "tele_waterlevel",
+     "left_bank": 16.0958,
+     "right_bank": 16.0498,
+     "min_bank": 16.05,
+     "ground_level": 8.4798,
+     "offset": null,
+     "sub_basin_id": 327,
+     "sponsor_by": "มูลนิธิอาสาเพื่อนพึ่ง (ภาฯ) ยามยาก สภากาชาดไทย",
+     "agency_id": 91,
+     "geocode_id": 7235,
+     "hydro_id": null,
+     "qmax": null,
+     "is_key_station": false,
+     "warning_level_m": null,
+     "critical_level_m": null,
+     "critical_level_msl": null
+    },
+    "geocode": {
+     "area_code": "5",
+     "area_name": {
+      "th": "ภาคใต้",
+      "en": "South"
+     },
+     "amphoe_code": "07",
+     "amphoe_name": {
+      "th": "ชะอวด",
+      "en": "Cha-uat District"
+     },
+     "tumbon_code": "05",
+     "tumbon_name": {
+      "th": "วังอ่าง",
+      "en": "Wang Ang"
+     },
+     "province_code": "80",
+     "province_name": {
+      "th": "นครศรีธรรมราช",
+      "en": "Nakhon Si Thammarat"
+     }
+    },
+    "diff_wl_bank": "5.17",
+    "diff_wl_bank_text": "ต่ำกว่าตลิ่ง (ม.)",
+    "river_gid": 222949,
+    "river_name": "คลองวังเคียน"
+   },
+   {
+    "id": 1315414288,
+    "waterlevel_datetime": "2026-09-30 02:00",
+    "waterlevel_m": null,
+    "waterlevel_msl": "39.65",
+    "waterlevel_msl_previous": "39.64",
+    "flow_rate": null,
+    "discharge": "10.00",
+    "storage_percent": "28.80",
+    "sort_order": null,
+    "station_type": "tele_waterlevel",
+    "situation_level": 2,
+    "agency": {
+     "id": 12,
+     "agency_name": {
+      "th": "กรมชลประทาน ",
+      "en": "Royal Irrigation Department",
+      "jp": ""
+     },
+     "agency_shortname": {
+      "th": "ชป.",
+      "en": "RID",
+      "jp": ""
+     }
+    },
+    "basin": {
+     "id": 22,
+     "basin_code": 19,
+     "basin_name": {
+      "th": "ลุ่มน้ำภาคใต้ฝั่งตะวันออกตอนบน",
+      "en": "Peninsula - Upper East Coast Basin"
+     }
+    },
+    "station": {
+     "id": 726656,
+     "tele_station_name": {
+      "th": "บ้านควนกลาง (1)"
+     },
+     "tele_station_lat": 8.555,
+     "tele_station_long": 99.569283,
+     "tele_station_oldcode": "X.243",
+     "tele_station_type": "tele_waterlevel",
+     "left_bank": 44.546,
+     "right_bank": 44.396,
+     "min_bank": 43.58,
+     "ground_level": 38.06,
+     "offset": null,
+     "sub_basin_id": 318,
+     "agency_id": 12,
+     "geocode_id": 7215,
+     "hydro_id": 8,
+     "qmax": 223.449997,
+     "is_key_station": true,
+     "warning_level_m": null,
+     "critical_level_m": null,
+     "critical_level_msl": null
+    },
+    "geocode": {
+     "area_code": "5",
+     "area_name": {
+      "th": "ภาคใต้",
+      "en": "South"
+     },
+     "amphoe_code": "05",
+     "amphoe_name": {
+      "th": "พิปูน",
+      "en": "Phipun District"
+     },
+     "tumbon_code": "02",
+     "tumbon_name": {
+      "th": "กะทูน",
+      "en": "Kathun"
+     },
+     "province_code": "80",
+     "province_name": {
+      "th": "นครศรีธรรมราช",
+      "en": "Nakhon Si Thammarat"
+     }
+    },
+    "diff_wl_bank": "3.93",
+    "diff_wl_bank_text": "ต่ำกว่าตลิ่ง (ม.)",
+    "river_gid": 219081,
+    "river_name": "แม่น้ำตาปี"
+   },
+   {
+    "id": 1315448237,
+    "waterlevel_datetime": "2026-09-30 04:00",
+    "waterlevel_m": null,
+    "waterlevel_msl": "13.39",
+    "waterlevel_msl_previous": "13.39",
+    "flow_rate": null,
+    "discharge": null,
+    "storage_percent": "28.35",
+    "sort_order": null,
+    "station_type": "tele_waterlevel",
+    "situation_level": 2,
+    "agency": {
+     "id": 9,
+     "agency_name": {
+      "th": "สถาบันสารสนเทศทรัพยากรน้ำ (องค์การมหาชน)",
+      "en": "Hydro – Informatics Institute (Public Organization)",
+      "jp": ""
+     },
+     "agency_shortname": {
+      "th": "สสน.",
+      "en": "HII",
+      "jp": ""
+     }
+    },
+    "basin": {
+     "id": 22,
+     "basin_code": 19,
+     "basin_name": {
+      "th": "ลุ่มน้ำภาคใต้ฝั่งตะวันออกตอนบน",
+      "en": "Peninsula - Upper East Coast Basin"
+     }
+    },
+    "station": {
+     "id": 12483,
+     "tele_station_name": {
+      "en": "Nakhon Si Thammarat 3",
+      "th": "ถ้ำพรรณรา"
+     },
+     "tele_station_lat": 8.391227,
+     "tele_station_long": 99.39519,
+     "tele_station_oldcode": "NKO003",
+     "tele_station_type": "tele_waterlevel",
+     "left_bank": 20.854,
+     "right_bank": 21.854,
+     "min_bank": 20.85,
+     "ground_level": 10.436,
+     "offset": null,
+     "sub_basin_id": 319,
+     "agency_id": 9,
+     "geocode_id": 7337,
+     "hydro_id": null,
+     "qmax": null,
+     "is_key_station": false,
+     "warning_level_m": null,
+     "critical_level_m": null,
+     "critical_level_msl": null
+    },
+    "geocode": {
+     "area_code": "5",
+     "area_name": {
+      "th": "ภาคใต้",
+      "en": "South"
+     },
+     "amphoe_code": "18",
+     "amphoe_name": {
+      "th": "ถ้ำพรรณรา",
+      "en": "Tham Phannara District"
+     },
+     "tumbon_code": "01",
+     "tumbon_name": {
+      "th": "ถ้ำพรรณรา",
+      "en": "Tham Phannara"
+     },
+     "province_code": "80",
+     "province_name": {
+      "th": "นครศรีธรรมราช",
+      "en": "Nakhon Si Thammarat"
+     }
+    },
+    "diff_wl_bank": "7.46",
+    "diff_wl_bank_text": "ต่ำกว่าตลิ่ง (ม.)",
+    "river_gid": 220338,
+    "river_name": "แม่น้ำตาปี"
+   },
+   {
+    "id": 1315414283,
+    "waterlevel_datetime": "2026-09-30 02:00",
+    "waterlevel_m": null,
+    "waterlevel_msl": "8.18",
+    "waterlevel_msl_previous": "8.18",
+    "flow_rate": null,
+    "discharge": "2.00",
+    "storage_percent": "26.47",
+    "sort_order": null,
+    "station_type": "tele_waterlevel",
+    "situation_level": 2,
+    "agency": {
+     "id": 12,
+     "agency_name": {
+      "th": "กรมชลประทาน ",
+      "en": "Royal Irrigation Department",
+      "jp": ""
+     },
+     "agency_shortname": {
+      "th": "ชป.",
+      "en": "RID",
+      "jp": ""
+     }
+    },
+    "basin": {
+     "id": 22,
+     "basin_code": 19,
+     "basin_name": {
+      "th": "ลุ่มน้ำภาคใต้ฝั่งตะวันออกตอนบน",
+      "en": "Peninsula - Upper East Coast Basin"
+     }
+    },
+    "station": {
+     "id": 2639,
+     "tele_station_name": {
+      "th": "บ้านนาป่า"
+     },
+     "tele_station_lat": 8.39629,
+     "tele_station_long": 99.920143,
+     "tele_station_oldcode": "X.203",
+     "tele_station_type": "tele_waterlevel",
+     "left_bank": 11.905,
+     "right_bank": 11.877,
+     "min_bank": 10.5,
+     "ground_level": 7.345,
+     "offset": null,
+     "sub_basin_id": 327,
+     "agency_id": 12,
+     "geocode_id": 7181,
+     "hydro_id": 8,
+     "qmax": 39.549999,
+     "is_key_station": true,
+     "warning_level_m": null,
+     "critical_level_m": 10.8,
+     "critical_level_msl": 10.8
+    },
+    "geocode": {
+     "area_code": "5",
+     "area_name": {
+      "th": "ภาคใต้",
+      "en": "South"
+     },
+     "amphoe_code": "01",
+     "amphoe_name": {
+      "th": "เมืองนครศรีธรรมราช",
+      "en": "Mueang Nakhon Si Thammarat District"
+     },
+     "tumbon_code": "13",
+     "tumbon_name": {
+      "th": "ไชยมนตรี",
+      "en": "Chai Montri"
+     },
+     "province_code": "80",
+     "province_name": {
+      "th": "นครศรีธรรมราช",
+      "en": "Nakhon Si Thammarat"
+     }
+    },
+    "diff_wl_bank": "2.32",
+    "diff_wl_bank_text": "ต่ำกว่าตลิ่ง (ม.)",
+    "river_gid": 220268,
+    "river_name": "คลองท่าดี"
+   },
+   {
+    "id": 1315447856,
+    "waterlevel_datetime": "2026-09-30 04:00",
+    "waterlevel_m": null,
+    "waterlevel_msl": "42.94",
+    "waterlevel_msl_previous": "42.94",
+    "flow_rate": null,
+    "discharge": null,
+    "storage_percent": "25.70",
+    "sort_order": null,
+    "station_type": "tele_waterlevel",
+    "situation_level": 2,
+    "agency": {
+     "id": 91,
+     "agency_name": {
+      "th": "มูลนิธิอาสาเพื่อนพึ่ง (ภาฯ) ยามยาก สภากาชาดไทย",
+      "en": "Friend in Need (of “Pa”) Volunteers Foundation",
+      "jp": ""
+     },
+     "agency_shortname": {
+      "th": "พพภ",
+      "en": "FOP",
+      "jp": ""
+     }
+    },
+    "basin": {
+     "id": 22,
+     "basin_code": 19,
+     "basin_name": {
+      "th": "ลุ่มน้ำภาคใต้ฝั่งตะวันออกตอนบน",
+      "en": "Peninsula - Upper East Coast Basin"
+     }
+    },
+    "station": {
+     "id": 1120557,
+     "tele_station_name": {
+      "en": "Ban Khiri Wong (Khlong Tha Di) Bridge",
+      "th": "สะพานบ้านคีรีวง คลองท่าดี"
+     },
+     "tele_station_lat": 8.432906,
+     "tele_station_long": 99.782646,
+     "tele_station_oldcode": "MOU494",
+     "tele_station_type": "tele_waterlevel",
+     "left_bank": 49.623,
+     "right_bank": 46.313,
+     "min_bank": 46.31,
+     "ground_level": 41.773,
+     "offset": null,
+     "sub_basin_id": 327,
+     "sponsor_by": "มูลนิธิอาสาเพื่อนพึ่ง (ภาฯ) ยามยาก สภากาชาดไทย",
+     "agency_id": 91,
+     "geocode_id": 7200,
+     "hydro_id": null,
+     "qmax": null,
+     "is_key_station": false,
+     "warning_level_m": null,
+     "critical_level_m": null,
+     "critical_level_msl": null
+    },
+    "geocode": {
+     "area_code": "5",
+     "area_name": {
+      "th": "ภาคใต้",
+      "en": "South"
+     },
+     "amphoe_code": "03",
+     "amphoe_name": {
+      "th": "ลานสกา",
+      "en": "Lan Saka District"
+     },
+     "tumbon_code": "04",
+     "tumbon_name": {
+      "th": "กำโลน",
+      "en": "Kamlon"
+     },
+     "province_code": "80",
+     "province_name": {
+      "th": "นครศรีธรรมราช",
+      "en": "Nakhon Si Thammarat"
+     }
+    },
+    "diff_wl_bank": "3.37",
+    "diff_wl_bank_text": "ต่ำกว่าตลิ่ง (ม.)",
+    "river_gid": 219987,
+    "river_name": "คลองท่าดี"
+   },
+   {
+    "id": 1315414273,
+    "waterlevel_datetime": "2026-09-30 02:00",
+    "waterlevel_m": null,
+    "waterlevel_msl": "26.61",
+    "waterlevel_msl_previous": "26.61",
+    "flow_rate": null,
+    "discharge": null,
+    "storage_percent": "24.61",
+    "sort_order": null,
+    "station_type": "tele_waterlevel",
+    "situation_level": 2,
+    "agency": {
+     "id": 12,
+     "agency_name": {
+      "th": "กรมชลประทาน ",
+      "en": "Royal Irrigation Department",
+      "jp": ""
+     },
+     "agency_shortname": {
+      "th": "ชป.",
+      "en": "RID",
+      "jp": ""
+     }
+    },
+    "basin": {
+     "id": 22,
+     "basin_code": 19,
+     "basin_name": {
+      "th": "ลุ่มน้ำภาคใต้ฝั่งตะวันออกตอนบน",
+      "en": "Peninsula - Upper East Coast Basin"
+     }
+    },
+    "station": {
+     "id": 2644,
+     "tele_station_name": {
+      "th": "บ้านท้า่ยนา"
+     },
+     "tele_station_lat": 8.73097,
+     "tele_station_long": 99.746094,
+     "tele_station_oldcode": "X.149",
+     "tele_station_type": "tele_waterlevel",
+     "left_bank": 36.183,
+     "right_bank": 36.121,
+     "min_bank": 33.96,
+     "ground_level": 24.211,
+     "offset": null,
+     "sub_basin_id": 326,
+     "agency_id": 12,
+     "geocode_id": 7353,
+     "hydro_id": 8,
+     "qmax": 1932,
+     "is_key_station": false,
+     "warning_level_m": null,
+     "critical_level_m": null,
+     "critical_level_msl": null
+    },
+    "geocode": {
+     "area_code": "5",
+     "area_name": {
+      "th": "ภาคใต้",
+      "en": "South"
+     },
+     "amphoe_code": "21",
+     "amphoe_name": {
+      "th": "นบพิตำ",
+      "en": "Nopphitam District"
+     },
+     "tumbon_code": "01",
+     "tumbon_name": {
+      "th": "นบพิตำ",
+      "en": "Nopphitam"
+     },
+     "province_code": "80",
+     "province_name": {
+      "th": "นครศรีธรรมราช",
+      "en": "Nakhon Si Thammarat"
+     }
+    },
+    "diff_wl_bank": "7.35",
+    "diff_wl_bank_text": "ต่ำกว่าตลิ่ง (ม.)",
+    "river_gid": 218251,
+    "river_name": "คลองกลาย"
+   },
+   {
+    "id": 1315414331,
+    "waterlevel_datetime": "2026-09-30 02:00",
+    "waterlevel_m": null,
+    "waterlevel_msl": "15.23",
+    "waterlevel_msl_previous": "15.23",
+    "flow_rate": null,
+    "discharge": "3.25",
+    "storage_percent": "23.13",
+    "sort_order": null,
+    "station_type": "tele_waterlevel",
+    "situation_level": 2,
+    "agency": {
+     "id": 12,
+     "agency_name": {
+      "th": "กรมชลประทาน ",
+      "en": "Royal Irrigation Department",
+      "jp": ""
+     },
+     "agency_shortname": {
+      "th": "ชป.",
+      "en": "RID",
+      "jp": ""
+     }
+    },
+    "basin": {
+     "id": 22,
+     "basin_code": 19,
+     "basin_name": {
+      "th": "ลุ่มน้ำภาคใต้ฝั่งตะวันออกตอนบน",
+      "en": "Peninsula - Upper East Coast Basin"
+     }
+    },
+    "station": {
+     "id": 999405,
+     "tele_station_name": {
+      "th": "วัดถลุงทอง อำเภอร่อนพิบูลย์ "
+     },
+     "tele_station_lat": 8.3062,
+     "tele_station_long": 99.859917,
+     "tele_station_oldcode": "X.289",
+     "tele_station_type": "tele_waterlevel",
+     "left_bank": 21.001,
+     "right_bank": 21.008,
+     "min_bank": 19.5,
+     "ground_level": 13.945,
+     "offset": null,
+     "sub_basin_id": 327,
+     "agency_id": 12,
+     "geocode_id": 7300,
+     "hydro_id": 8,
+     "qmax": null,
+     "is_key_station": false,
+     "warning_level_m": null,
+     "critical_level_m": null,
+     "critical_level_msl": null
+    },
+    "geocode": {
+     "area_code": "5",
+     "area_name": {
+      "th": "ภาคใต้",
+      "en": "South"
+     },
+     "amphoe_code": "13",
+     "amphoe_name": {
+      "th": "ร่อนพิบูลย์",
+      "en": "Ron Phibun District"
+     },
+     "tumbon_code": "02",
+     "tumbon_name": {
+      "th": "หินตก",
+      "en": "Hin Tok"
+     },
+     "province_code": "80",
+     "province_name": {
+      "th": "นครศรีธรรมราช",
+      "en": "Nakhon Si Thammarat"
+     }
+    },
+    "diff_wl_bank": "4.27",
+    "diff_wl_bank_text": "ต่ำกว่าตลิ่ง (ม.)",
+    "river_gid": 221148,
+    "river_name": "คลองเสาธง"
+   },
+   {
+    "id": 1315447786,
+    "waterlevel_datetime": "2026-09-30 04:00",
+    "waterlevel_m": null,
+    "waterlevel_msl": "59.86",
+    "waterlevel_msl_previous": "59.86",
+    "flow_rate": null,
+    "discharge": null,
+    "storage_percent": "22.57",
+    "sort_order": null,
+    "station_type": "tele_waterlevel",
+    "situation_level": 2,
+    "agency": {
+     "id": 91,
+     "agency_name": {
+      "th": "มูลนิธิอาสาเพื่อนพึ่ง (ภาฯ) ยามยาก สภากาชาดไทย",
+      "en": "Friend in Need (of “Pa”) Volunteers Foundation",
+      "jp": ""
+     },
+     "agency_shortname": {
+      "th": "พพภ",
+      "en": "FOP",
+      "jp": ""
+     }
+    },
+    "basin": {
+     "id": 27,
+     "basin_code": 22,
+     "basin_name": {
+      "th": "ลุ่มน้ำภาคใต้ฝั่งตะวันตก",
+      "en": "Peninsula - West Coast Basin"
+     }
+    },
+    "station": {
+     "id": 1101569,
+     "tele_station_name": {
+      "en": "Ban Tai",
+      "th": "บ้านใต้"
+     },
+     "tele_station_lat": 8.178368,
+     "tele_station_long": 99.70351,
+     "tele_station_oldcode": "FOP058",
+     "tele_station_type": "tele_waterlevel",
+     "left_bank": 62.746,
+     "right_bank": 63.279,
+     "min_bank": 62.75,
+     "ground_level": 59.019,
+     "offset": null,
+     "sub_basin_id": 349,
+     "sponsor_by": "มูลนิธิอาสาเพื่อนพึ่ง (ภาฯ) ยามยาก สภากาชาดไทย",
+     "agency_id": 91,
+     "geocode_id": 7259,
+     "hydro_id": null,
+     "qmax": null,
+     "is_key_station": false,
+     "warning_level_m": null,
+     "critical_level_m": null,
+     "critical_level_msl": null
+    },
+    "geocode": {
+     "area_code": "5",
+     "area_name": {
+      "th": "ภาคใต้",
+      "en": "South"
+     },
+     "amphoe_code": "09",
+     "amphoe_name": {
+      "th": "ทุ่งสง",
+      "en": "Thung Song District"
+     },
+     "tumbon_code": "06",
+     "tumbon_name": {
+      "th": "นาหลวงเสน",
+      "en": "Na Luang Sen"
+     },
+     "province_code": "80",
+     "province_name": {
+      "th": "นครศรีธรรมราช",
+      "en": "Nakhon Si Thammarat"
+     }
+    },
+    "diff_wl_bank": "2.89",
+    "diff_wl_bank_text": "ต่ำกว่าตลิ่ง (ม.)",
+    "river_gid": 221889,
+    "river_name": "คลองท่าโลน"
+   },
+   {
+    "id": 1315448260,
+    "waterlevel_datetime": "2026-09-30 04:00",
+    "waterlevel_m": null,
+    "waterlevel_msl": "57.97",
+    "waterlevel_msl_previous": "57.97",
+    "flow_rate": null,
+    "discharge": null,
+    "storage_percent": "20.65",
+    "sort_order": null,
+    "station_type": "tele_waterlevel",
+    "situation_level": 2,
+    "agency": {
+     "id": 9,
+     "agency_name": {
+      "th": "สถาบันสารสนเทศทรัพยากรน้ำ (องค์การมหาชน)",
+      "en": "Hydro – Informatics Institute (Public Organization)",
+      "jp": ""
+     },
+     "agency_shortname": {
+      "th": "สสน.",
+      "en": "HII",
+      "jp": ""
+     }
+    },
+    "basin": {
+     "id": 27,
+     "basin_code": 22,
+     "basin_name": {
+      "th": "ลุ่มน้ำภาคใต้ฝั่งตะวันตก",
+      "en": "Peninsula - West Coast Basin"
+     }
+    },
+    "station": {
+     "id": 1109512,
+     "tele_station_name": {
+      "en": "Khlong ThaPhae Bridge",
+      "th": "สะพานข้ามคลองท่าแพ"
+     },
+     "tele_station_lat": 8.166437,
+     "tele_station_long": 99.704285,
+     "tele_station_oldcode": "ONE023",
+     "tele_station_type": "tele_waterlevel",
+     "left_bank": 62.563,
+     "right_bank": 60.855,
+     "min_bank": 60.86,
+     "ground_level": 57.219,
+     "offset": null,
+     "sub_basin_id": 349,
+     "agency_id": 9,
+     "geocode_id": 7254,
+     "hydro_id": null,
+     "qmax": null,
+     "is_key_station": false,
+     "warning_level_m": null,
+     "critical_level_m": null,
+     "critical_level_msl": null
+    },
+    "geocode": {
+     "area_code": "5",
+     "area_name": {
+      "th": "ภาคใต้",
+      "en": "South"
+     },
+     "amphoe_code": "09",
+     "amphoe_name": {
+      "th": "ทุ่งสง",
+      "en": "Thung Song District"
+     },
+     "tumbon_code": "01",
+     "tumbon_name": {
+      "th": "ปากแพรก",
+      "en": "Pak Phraek"
+     },
+     "province_code": "80",
+     "province_name": {
+      "th": "นครศรีธรรมราช",
+      "en": "Nakhon Si Thammarat"
+     }
+    },
+    "diff_wl_bank": "2.88",
+    "diff_wl_bank_text": "ต่ำกว่าตลิ่ง (ม.)",
+    "river_gid": 221992,
+    "river_name": "คลองเปิก"
+   },
+   {
+    "id": 1315447855,
+    "waterlevel_datetime": "2026-09-30 04:00",
+    "waterlevel_m": null,
+    "waterlevel_msl": "43.12",
+    "waterlevel_msl_previous": "43.12",
+    "flow_rate": null,
+    "discharge": null,
+    "storage_percent": "17.52",
+    "sort_order": null,
+    "station_type": "tele_waterlevel",
+    "situation_level": 2,
+    "agency": {
+     "id": 91,
+     "agency_name": {
+      "th": "มูลนิธิอาสาเพื่อนพึ่ง (ภาฯ) ยามยาก สภากาชาดไทย",
+      "en": "Friend in Need (of “Pa”) Volunteers Foundation",
+      "jp": ""
+     },
+     "agency_shortname": {
+      "th": "พพภ",
+      "en": "FOP",
+      "jp": ""
+     }
+    },
+    "basin": {
+     "id": 22,
+     "basin_code": 19,
+     "basin_name": {
+      "th": "ลุ่มน้ำภาคใต้ฝั่งตะวันออกตอนบน",
+      "en": "Peninsula - Upper East Coast Basin"
+     }
+    },
+    "station": {
+     "id": 1130124,
+     "tele_station_name": {
+      "en": "Khlong Pong Bridge (Kiriwong)",
+      "th": "สะพานคลองปง (คีรีวง)"
+     },
+     "tele_station_lat": 8.43379,
+     "tele_station_long": 99.78328,
+     "tele_station_oldcode": "MOU493",
+     "tele_station_type": "tele_waterlevel",
+     "left_bank": 48.417,
+     "right_bank": 48.948,
+     "min_bank": 48.42,
+     "ground_level": 42,
+     "offset": null,
+     "sub_basin_id": 327,
+     "sponsor_by": "สำนักงานคณะกรรมการกิจการกระจายเสียง กิจการโทรทัศน์และกิจการโทรคมนาคมแห่งชาติ",
+     "agency_id": 91,
+     "geocode_id": 7200,
+     "hydro_id": null,
+     "qmax": null,
+     "is_key_station": false,
+     "warning_level_m": null,
+     "critical_level_m": null,
+     "critical_level_msl": null
+    },
+    "geocode": {
+     "area_code": "5",
+     "area_name": {
+      "th": "ภาคใต้",
+      "en": "South"
+     },
+     "amphoe_code": "03",
+     "amphoe_name": {
+      "th": "ลานสกา",
+      "en": "Lan Saka District"
+     },
+     "tumbon_code": "04",
+     "tumbon_name": {
+      "th": "กำโลน",
+      "en": "Kamlon"
+     },
+     "province_code": "80",
+     "province_name": {
+      "th": "นครศรีธรรมราช",
+      "en": "Nakhon Si Thammarat"
+     }
+    },
+    "diff_wl_bank": "5.29",
+    "diff_wl_bank_text": "ต่ำกว่าตลิ่ง (ม.)",
+    "river_gid": 219873,
+    "river_name": "คลองท่าดี"
+   },
+   {
+    "id": 1315448235,
+    "waterlevel_datetime": "2026-09-30 04:00",
+    "waterlevel_m": null,
+    "waterlevel_msl": "50.98",
+    "waterlevel_msl_previous": "50.98",
+    "flow_rate": null,
+    "discharge": null,
+    "storage_percent": "8.79",
+    "sort_order": null,
+    "station_type": "tele_waterlevel",
+    "situation_level": 1,
+    "agency": {
+     "id": 9,
+     "agency_name": {
+      "th": "สถาบันสารสนเทศทรัพยากรน้ำ (องค์การมหาชน)",
+      "en": "Hydro – Informatics Institute (Public Organization)",
+      "jp": ""
+     },
+     "agency_shortname": {
+      "th": "สสน.",
+      "en": "HII",
+      "jp": ""
+     }
+    },
+    "basin": {
+     "id": 27,
+     "basin_code": 22,
+     "basin_name": {
+      "th": "ลุ่มน้ำภาคใต้ฝั่งตะวันตก",
+      "en": "Peninsula - West Coast Basin"
+     }
+    },
+    "station": {
+     "id": 795,
+     "tele_station_name": {
+      "en": "Nakhon Si Thammarat 1",
+      "th": "ทุ่งสง"
+     },
+     "tele_station_lat": 8.174942,
+     "tele_station_long": 99.67887,
+     "tele_station_oldcode": "NKO001",
+     "tele_station_type": "tele_waterlevel",
+     "left_bank": 55.203,
+     "right_bank": 55.685,
+     "min_bank": 55.2,
+     "ground_level": 50.573,
+     "offset": null,
+     "sub_basin_id": 349,
+     "agency_id": 9,
+     "geocode_id": 7254,
+     "hydro_id": null,
+     "qmax": null,
+     "is_key_station": false,
+     "warning_level_m": null,
+     "critical_level_m": null,
+     "critical_level_msl": null
+    },
+    "geocode": {
+     "area_code": "5",
+     "area_name": {
+      "th": "ภาคใต้",
+      "en": "South"
+     },
+     "amphoe_code": "09",
+     "amphoe_name": {
+      "th": "ทุ่งสง",
+      "en": "Thung Song District"
+     },
+     "tumbon_code": "01",
+     "tumbon_name": {
+      "th": "ปากแพรก",
+      "en": "Pak Phraek"
+     },
+     "province_code": "80",
+     "province_name": {
+      "th": "นครศรีธรรมราช",
+      "en": "Nakhon Si Thammarat"
+     }
+    },
+    "diff_wl_bank": "4.22",
+    "diff_wl_bank_text": "ต่ำกว่าตลิ่ง (ม.)",
+    "river_gid": 221983,
+    "river_name": "คลองท่าเลา"
+   },
+   {
+    "id": 1315447785,
+    "waterlevel_datetime": "2026-09-30 04:00",
+    "waterlevel_m": null,
+    "waterlevel_msl": "66.72",
+    "waterlevel_msl_previous": "66.72",
+    "flow_rate": null,
+    "discharge": null,
+    "storage_percent": "5.73",
+    "sort_order": null,
+    "station_type": "tele_waterlevel",
+    "situation_level": 1,
+    "agency": {
+     "id": 91,
+     "agency_name": {
+      "th": "มูลนิธิอาสาเพื่อนพึ่ง (ภาฯ) ยามยาก สภากาชาดไทย",
+      "en": "Friend in Need (of “Pa”) Volunteers Foundation",
+      "jp": ""
+     },
+     "agency_shortname": {
+      "th": "พพภ",
+      "en": "FOP",
+      "jp": ""
+     }
+    },
+    "basin": {
+     "id": 27,
+     "basin_code": 22,
+     "basin_name": {
+      "th": "ลุ่มน้ำภาคใต้ฝั่งตะวันตก",
+      "en": "Peninsula - West Coast Basin"
+     }
+    },
+    "station": {
+     "id": 1101568,
+     "tele_station_name": {
+      "en": "Ban Pradu",
+      "th": "บ้านประดู่"
+     },
+     "tele_station_lat": 8.212035,
+     "tele_station_long": 99.703316,
+     "tele_station_oldcode": "FOP057",
+     "tele_station_type": "tele_waterlevel",
+     "left_bank": 70.406,
+     "right_bank": 70.406,
+     "min_bank": 70.41,
+     "ground_level": 66.496,
+     "offset": null,
+     "sub_basin_id": 349,
+     "sponsor_by": "มูลนิธิอาสาเพื่อนพึ่ง (ภาฯ) ยามยาก สภากาชาดไทย",
+     "agency_id": 91,
+     "geocode_id": 7259,
+     "hydro_id": null,
+     "qmax": null,
+     "is_key_station": false,
+     "warning_level_m": null,
+     "critical_level_m": null,
+     "critical_level_msl": null
+    },
+    "geocode": {
+     "area_code": "5",
+     "area_name": {
+      "th": "ภาคใต้",
+      "en": "South"
+     },
+     "amphoe_code": "09",
+     "amphoe_name": {
+      "th": "ทุ่งสง",
+      "en": "Thung Song District"
+     },
+     "tumbon_code": "06",
+     "tumbon_name": {
+      "th": "นาหลวงเสน",
+      "en": "Na Luang Sen"
+     },
+     "province_code": "80",
+     "province_name": {
+      "th": "นครศรีธรรมราช",
+      "en": "Nakhon Si Thammarat"
+     }
+    },
+    "diff_wl_bank": "3.69",
+    "diff_wl_bank_text": "ต่ำกว่าตลิ่ง (ม.)",
+    "river_gid": 221724,
+    "river_name": "คลองท่าเลา"
+   },
+   {
+    "id": 1315414281,
+    "waterlevel_datetime": "2026-09-30 02:00",
+    "waterlevel_m": null,
+    "waterlevel_msl": "31.52",
+    "waterlevel_msl_previous": "31.45",
+    "flow_rate": null,
+    "discharge": "1.80",
+    "storage_percent": "5.30",
+    "sort_order": null,
+    "station_type": "tele_waterlevel",
+    "situation_level": 1,
+    "agency": {
+     "id": 12,
+     "agency_name": {
+      "th": "กรมชลประทาน ",
+      "en": "Royal Irrigation Department",
+      "jp": ""
+     },
+     "agency_shortname": {
+      "th": "ชป.",
+      "en": "RID",
+      "jp": ""
+     }
+    },
+    "basin": {
+     "id": 22,
+     "basin_code": 19,
+     "basin_name": {
+      "th": "ลุ่มน้ำภาคใต้ฝั่งตะวันออกตอนบน",
+      "en": "Peninsula - Upper East Coast Basin"
+     }
+    },
+    "station": {
+     "id": 2641,
+     "tele_station_name": {
+      "th": "บ้านวังไทร"
+     },
+     "tele_station_lat": 8.40836,
+     "tele_station_long": 99.797852,
+     "tele_station_oldcode": "X.200",
+     "tele_station_type": "tele_waterlevel",
+     "left_bank": 36.974,
+     "right_bank": 37.086,
+     "min_bank": 35.2,
+     "ground_level": 31.314,
+     "offset": null,
+     "sub_basin_id": 327,
+     "agency_id": 12,
+     "geocode_id": 7200,
+     "hydro_id": 8,
+     "qmax": 245,
+     "is_key_station": true,
+     "warning_level_m": null,
+     "critical_level_m": null,
+     "critical_level_msl": null
+    },
+    "geocode": {
+     "area_code": "5",
+     "area_name": {
+      "th": "ภาคใต้",
+      "en": "South"
+     },
+     "amphoe_code": "03",
+     "amphoe_name": {
+      "th": "ลานสกา",
+      "en": "Lan Saka District"
+     },
+     "tumbon_code": "04",
+     "tumbon_name": {
+      "th": "กำโลน",
+      "en": "Kamlon"
+     },
+     "province_code": "80",
+     "province_name": {
+      "th": "นครศรีธรรมราช",
+      "en": "Nakhon Si Thammarat"
+     }
+    },
+    "diff_wl_bank": "3.68",
+    "diff_wl_bank_text": "ต่ำกว่าตลิ่ง (ม.)",
+    "river_gid": 220072,
+    "river_name": "คลองท่าดี"
+   },
+   {
+    "id": 1315447775,
+    "waterlevel_datetime": "2026-09-30 04:00",
+    "waterlevel_m": null,
+    "waterlevel_msl": "23.66",
+    "waterlevel_msl_previous": "23.68",
+    "flow_rate": null,
+    "discharge": null,
+    "storage_percent": "1.71",
+    "sort_order": null,
+    "station_type": "tele_waterlevel",
+    "situation_level": 1,
+    "agency": {
+     "id": 91,
+     "agency_name": {
+      "th": "มูลนิธิอาสาเพื่อนพึ่ง (ภาฯ) ยามยาก สภากาชาดไทย",
+      "en": "Friend in Need (of “Pa”) Volunteers Foundation",
+      "jp": ""
+     },
+     "agency_shortname": {
+      "th": "พพภ",
+      "en": "FOP",
+      "jp": ""
+     }
+    },
+    "basin": {
+     "id": 22,
+     "basin_code": 19,
+     "basin_name": {
+      "th": "ลุ่มน้ำภาคใต้ฝั่งตะวันออกตอนบน",
+      "en": "Peninsula - Upper East Coast Basin"
+     }
+    },
+    "station": {
+     "id": 740737,
+     "tele_station_name": {
+      "en": "Huai Nam Sai Bridge",
+      "th": "สะพานห้วยน้ำใส"
+     },
+     "tele_station_lat": 7.889575,
+     "tele_station_long": 99.87421,
+     "tele_station_oldcode": "FOP036",
+     "tele_station_type": "tele_waterlevel",
+     "left_bank": 35.3413,
+     "right_bank": 35.2913,
+     "min_bank": 35.29,
+     "ground_level": 23.4573,
+     "offset": null,
+     "sub_basin_id": 327,
+     "sponsor_by": "มูลนิธิอาสาเพื่อนพึ่ง (ภาฯ) ยามยาก สภากาชาดไทย",
+     "agency_id": 91,
+     "geocode_id": 7238,
+     "hydro_id": null,
+     "qmax": null,
+     "is_key_station": false,
+     "warning_level_m": null,
+     "critical_level_m": null,
+     "critical_level_msl": null
+    },
+    "geocode": {
+     "area_code": "5",
+     "area_name": {
+      "th": "ภาคใต้",
+      "en": "South"
+     },
+     "amphoe_code": "07",
+     "amphoe_name": {
+      "th": "ชะอวด",
+      "en": "Cha-uat District"
+     },
+     "tumbon_code": "08",
+     "tumbon_name": {
+      "th": "เกาะขันธ์",
+      "en": "Ko Khan"
+     },
+     "province_code": "80",
+     "province_name": {
+      "th": "นครศรีธรรมราช",
+      "en": "Nakhon Si Thammarat"
+     }
+    },
+    "diff_wl_bank": "11.63",
+    "diff_wl_bank_text": "ต่ำกว่าตลิ่ง (ม.)",
+    "river_gid": 223209,
+    "river_name": "คลองไม้เสียบ"
+   },
+   {
+    "id": 1315447776,
+    "waterlevel_datetime": "2026-09-30 04:00",
+    "waterlevel_m": null,
+    "waterlevel_msl": "13.27",
+    "waterlevel_msl_previous": "13.27",
+    "flow_rate": null,
+    "discharge": null,
+    "storage_percent": "1.57",
+    "sort_order": null,
+    "station_type": "tele_waterlevel",
+    "situation_level": 1,
+    "agency": {
+     "id": 91,
+     "agency_name": {
+      "th": "มูลนิธิอาสาเพื่อนพึ่ง (ภาฯ) ยามยาก สภากาชาดไทย",
+      "en": "Friend in Need (of “Pa”) Volunteers Foundation",
+      "jp": ""
+     },
+     "agency_shortname": {
+      "th": "พพภ",
+      "en": "FOP",
+      "jp": ""
+     }
+    },
+    "basin": {
+     "id": 24,
+     "basin_code": 20,
+     "basin_name": {
+      "th": "ลุ่มน้ำทะเลสาบสงขลา",
+      "en": "Thale Sap Songkhla Basin"
+     }
+    },
+    "station": {
+     "id": 740738,
+     "tele_station_name": {
+      "en": "Kham Khlong Huai Kruat Bridge",
+      "th": "สะพานข้ามคลองห้วยกรวด"
+     },
+     "tele_station_lat": 7.8768,
+     "tele_station_long": 99.93328,
+     "tele_station_oldcode": "FOP037",
+     "tele_station_type": "tele_waterlevel",
+     "left_bank": 20.5944,
+     "right_bank": 20.5244,
+     "min_bank": 20.52,
+     "ground_level": 13.1544,
+     "offset": null,
+     "sub_basin_id": 328,
+     "sponsor_by": "มูลนิธิอาสาเพื่อนพึ่ง (ภาฯ) ยามยาก สภากาชาดไทย",
+     "agency_id": 91,
+     "geocode_id": 7238,
+     "hydro_id": null,
+     "qmax": null,
+     "is_key_station": false,
+     "warning_level_m": null,
+     "critical_level_m": null,
+     "critical_level_msl": null
+    },
+    "geocode": {
+     "area_code": "5",
+     "area_name": {
+      "th": "ภาคใต้",
+      "en": "South"
+     },
+     "amphoe_code": "07",
+     "amphoe_name": {
+      "th": "ชะอวด",
+      "en": "Cha-uat District"
+     },
+     "tumbon_code": "08",
+     "tumbon_name": {
+      "th": "เกาะขันธ์",
+      "en": "Ko Khan"
+     },
+     "province_code": "80",
+     "province_name": {
+      "th": "นครศรีธรรมราช",
+      "en": "Nakhon Si Thammarat"
+     }
+    },
+    "diff_wl_bank": "7.25",
+    "diff_wl_bank_text": "ต่ำกว่าตลิ่ง (ม.)",
+    "river_gid": 223277,
+    "river_name": "คลองห้วยกรวด"
+   },
+   {
+    "id": 1315448410,
+    "waterlevel_datetime": "2026-09-30 04:00",
+    "waterlevel_m": null,
+    "waterlevel_msl": "23.30",
+    "waterlevel_msl_previous": "23.30",
+    "flow_rate": null,
+    "discharge": null,
+    "storage_percent": null,
+    "sort_order": null,
+    "station_type": "tele_waterlevel",
+    "agency": {
+     "id": 9,
+     "agency_name": {
+      "th": "สถาบันสารสนเทศทรัพยากรน้ำ (องค์การมหาชน)",
+      "en": "Hydro – Informatics Institute (Public Organization)",
+      "jp": ""
+     },
+     "agency_shortname": {
+      "th": "สสน.",
+      "en": "HII",
+      "jp": ""
+     }
+    },
+    "basin": {
+     "id": 22,
+     "basin_code": 19,
+     "basin_name": {
+      "th": "ลุ่มน้ำภาคใต้ฝั่งตะวันออกตอนบน",
+      "en": "Peninsula - Upper East Coast Basin"
+     }
+    },
+    "station": {
+     "id": 1094448,
+     "tele_station_name": {
+      "en": "Wat Khok Pho Sathit School",
+      "th": "โรงเรียนวัดโคกโพธิ์สถิตย์"
+     },
+     "tele_station_lat": 8.40118,
+     "tele_station_long": 99.802,
+     "tele_station_oldcode": "TADE01",
+     "tele_station_type": "tele_waterlevel",
+     "left_bank": 28.737,
+     "right_bank": 28.657,
+     "min_bank": 28.66,
+     "offset": null,
+     "sub_basin_id": 327,
+     "agency_id": 9,
+     "geocode_id": 7200,
+     "hydro_id": null,
+     "qmax": null,
+     "is_key_station": false,
+     "warning_level_m": null,
+     "critical_level_m": null,
+     "critical_level_msl": null
+    },
+    "geocode": {
+     "area_code": "5",
+     "area_name": {
+      "th": "ภาคใต้",
+      "en": "South"
+     },
+     "amphoe_code": "03",
+     "amphoe_name": {
+      "th": "ลานสกา",
+      "en": "Lan Saka District"
+     },
+     "tumbon_code": "04",
+     "tumbon_name": {
+      "th": "กำโลน",
+      "en": "Kamlon"
+     },
+     "province_code": "80",
+     "province_name": {
+      "th": "นครศรีธรรมราช",
+      "en": "Nakhon Si Thammarat"
+     }
+    },
+    "diff_wl_bank": "5.36",
+    "diff_wl_bank_text": "ต่ำกว่าตลิ่ง (ม.)",
+    "river_gid": 220159,
+    "river_name": "คลองท่าดี"
+   }
+  ]
+ },
+ "waterlevel_manual_data": {
+  "result": "OK",
+  "data": []
+ },
+ "basin": {
+  "result": "OK",
+  "data": [
+   {
+    "id": 29,
+    "basin_code": 88,
+    "basin_name": {
+     "th": "นอกประเทศไทย",
+     "en": ""
+    }
+   },
+   {
+    "id": 28,
+    "basin_code": 99,
+    "basin_name": {
+     "th": "ไม่ระบุ",
+     "en": "Not specify"
+    }
+   },
+   {
+    "id": 3,
+    "basin_code": 3,
+    "basin_name": {
+     "th": "ลุ่มน้ำโขงตะวันออกเฉียงเหนือ",
+     "en": "Northeast Khong Basin"
+    }
+   },
+   {
+    "id": 2,
+    "basin_code": 2,
+    "basin_name": {
+     "th": "ลุ่มน้ำโขงเหนือ",
+     "en": "North Khong Basin"
+    }
+   },
+   {
+    "id": 10,
+    "basin_code": 10,
+    "basin_name": {
+     "th": "ลุ่มน้ำเจ้าพระยา",
+     "en": "Chao Phraya Basin"
+    }
+   },
+   {
+    "id": 18,
+    "basin_code": 17,
+    "basin_name": {
+     "th": "ลุ่มน้ำชายฝั่งทะเลตะวันออก",
+     "en": "East Coast Gulf Basin"
+    }
+   },
+   {
+    "id": 4,
+    "basin_code": 4,
+    "basin_name": {
+     "th": "ลุ่มน้ำชี",
+     "en": "Chi Basin Basin"
+    }
+   },
+   {
+    "id": 17,
+    "basin_code": 16,
+    "basin_name": {
+     "th": "ลุ่มน้ำโตนเลสาบ",
+     "en": "Tonle Sap Basin"
+    }
+   },
+   {
+    "id": 24,
+    "basin_code": 20,
+    "basin_name": {
+     "th": "ลุ่มน้ำทะเลสาบสงขลา",
+     "en": "Thale Sap Songkhla Basin"
+    }
+   },
+   {
+    "id": 14,
+    "basin_code": 13,
+    "basin_name": {
+     "th": "ลุ่มน้ำท่าจีน",
+     "en": "Tha Chin Basin"
+    }
+   },
+   {
+    "id": 9,
+    "basin_code": 9,
+    "basin_name": {
+     "th": "ลุ่มน้ำน่าน",
+     "en": "Nan Basin"
+    }
+   },
+   {
+    "id": 16,
+    "basin_code": 15,
+    "basin_name": {
+     "th": "ลุ่มน้ำบางปะกง",
+     "en": "Bang Pakong Basin"
+    }
+   },
+   {
+    "id": 13,
+    "basin_code": 12,
+    "basin_name": {
+     "th": "ลุ่มน้ำป่าสัก",
+     "en": "Pasak Basin"
+    }
+   },
+   {
+    "id": 6,
+    "basin_code": 6,
+    "basin_name": {
+     "th": "ลุ่มน้ำปิง",
+     "en": "Ping Basin"
+    }
+   },
+   {
+    "id": 20,
+    "basin_code": 18,
+    "basin_name": {
+     "th": "ลุ่มน้ำเพชรบุรี-ประจวบคีรีขันธ์",
+     "en": "Phetchaburi - Prachuap Khiri Khan Basin"
+    }
+   },
+   {
+    "id": 27,
+    "basin_code": 22,
+    "basin_name": {
+     "th": "ลุ่มน้ำภาคใต้ฝั่งตะวันตก",
+     "en": "Peninsula - West Coast Basin"
+    }
+   },
+   {
+    "id": 22,
+    "basin_code": 19,
+    "basin_name": {
+     "th": "ลุ่มน้ำภาคใต้ฝั่งตะวันออกตอนบน",
+     "en": "Peninsula - Upper East Coast Basin"
+    }
+   },
+   {
+    "id": 26,
+    "basin_code": 21,
+    "basin_name": {
+     "th": "ลุ่มน้ำภาคใต้ฝั่งตะวันออกตอนล่าง",
+     "en": "Peninsula - Lower East Coast Basin"
+    }
+   },
+   {
+    "id": 5,
+    "basin_code": 5,
+    "basin_name": {
+     "th": "ลุ่มน้ำมูล",
+     "en": "Mun Basin"
+    }
+   },
+   {
+    "id": 15,
+    "basin_code": 14,
+    "basin_name": {
+     "th": "ลุ่มน้ำแม่กลอง",
+     "en": "Mae Klong Basin"
+    }
+   },
+   {
+    "id": 8,
+    "basin_code": 8,
+    "basin_name": {
+     "th": "ลุ่มน้ำยม",
+     "en": "Yom Basin"
+    }
+   },
+   {
+    "id": 7,
+    "basin_code": 7,
+    "basin_name": {
+     "th": "ลุ่มน้ำวัง",
+     "en": "Wang Basin"
+    }
+   },
+   {
+    "id": 12,
+    "basin_code": 11,
+    "basin_name": {
+     "th": "ลุ่มน้ำสะแกกรัง",
+     "en": "Sakae Krang Basin"
+    }
+   },
+   {
+    "id": 1,
+    "basin_code": 1,
+    "basin_name": {
+     "th": "ลุ่มน้ำสาละวิน",
+     "en": "Salawin Basin"
+    }
+   }
+  ]
+ },
+ "agency": {
+  "result": "OK",
+  "data": [
+   {
+    "id": 1,
+    "agency_name": {
+     "th": "กรมเจ้าท่า",
+     "en": "Marine Department",
+     "jp": ""
+    },
+    "agency_shortname": {
+     "th": "จท.",
+     "en": "MD",
+     "jp": ""
+    },
+    "department_id": 76,
+    "department_name": {
+     "th": "กรมเจ้าท่า"
+    },
+    "ministry_id": 8,
+    "ministry_name": {
+     "th": "กระทรวงคมนาคม",
+     "en": "Ministry of Transport",
+     "jp": ""
+    },
+    "logo": "Chl4eKUm4iA4dz7HQn2TgXwyt7n1SWfrTPviVHm4CMzbwxUI6CYbXtOA2Y9Fdclx6mOlfyEBsQ-xlaA16FLLlSrZkqxsTba3tpX5lkiUuM0",
+    "aspects": {}
+   },
+   {
+    "id": 12,
+    "agency_name": {
+     "th": "กรมชลประทาน ",
+     "en": "Royal Irrigation Department",
+     "jp": ""
+    },
+    "agency_shortname": {
+     "th": "ชป.",
+     "en": "RID",
+     "jp": ""
+    },
+    "department_id": 60,
+    "department_name": {
+     "th": "กรมชลประทาน"
+    },
+    "ministry_id": 7,
+    "ministry_name": {
+     "th": "กระทรวงเกษตรและสหกรณ์",
+     "en": "Ministry of Agriculture and Cooperatives",
+     "jp": ""
+    },
+    "logo": "2Bn6w7UG62oWP9u0c5HLXETV54DgymkIyvC6923k_MEu4qN-FhurDvGJmzNh_1Vr6AAf0GzwtmifyP5gCGTDfeD8C_ivP5YZ1ssVLpnMjhQ",
+    "aspects": {}
+   },
+   {
+    "id": 3,
+    "agency_name": {
+     "th": "กรมทรัพยากรน้ำ",
+     "en": "Department of Water Resources",
+     "jp": ""
+    },
+    "agency_shortname": {
+     "th": "ทน.",
+     "en": "DWR",
+     "jp": ""
+    },
+    "department_id": 86,
+    "department_name": {
+     "th": "กรมทรัพยากรน้ำ",
+     "en": "",
+     "jp": ""
+    },
+    "ministry_id": 9,
+    "ministry_name": {
+     "th": "กระทรวงทรัพยากรธรรมชาติและสิ่งแวดล้อม",
+     "en": "Ministry of Natural Resources and Environment",
+     "jp": ""
+    },
+    "logo": "wTTxjRkxm0VEDXJuklVIPZ5_xOhme1ZPbpQNlD5CugGGqEdfLnoDt_ATmTFiALzXUQAwThv2xWlp347iT1W3mB3HXcFQVJhxunviculywgk",
+    "aspects": {}
+   },
+   {
+    "id": 16,
+    "agency_name": {
+     "th": "กรมป้องกันและบรรเทาสาธารณภัย",
+     "en": "Department of Disaster Prevention and Mitigation",
+     "jp": "防災・防災省"
+    },
+    "agency_shortname": {
+     "th": "ปภ.",
+     "en": "DISASTER",
+     "jp": ""
+    },
+    "department_id": 118,
+    "department_name": {
+     "th": "กรมป้องกันและบรรเทาสาธารณภัย"
+    },
+    "ministry_id": 13,
+    "ministry_name": {
+     "th": "กระทรวงมหาดไทย",
+     "en": "Ministry of Interior",
+     "jp": ""
+    },
+    "logo": "tRYplQ2Zj9VCwltKPUkLyizXx1gDCGEl-nQDxw_HVGDIqNoE8Rtu2RM41Iur5iLgWU1a_wKo7--FjpV8ijHioacZ-71qcAonh5P9lmp8O_8",
+    "aspects": {}
+   },
+   {
+    "id": 6,
+    "agency_name": {
+     "th": "กรมอุทกศาสตร์ ",
+     "en": "Hydrographics Department, Royal Thai Navy",
+     "jp": ""
+    },
+    "agency_shortname": {
+     "th": "อศ",
+     "en": "RTN",
+     "jp": ""
+    },
+    "department_id": 22,
+    "department_name": {
+     "th": "กองทัพเรือ"
+    },
+    "ministry_id": 2,
+    "ministry_name": {
+     "th": "กระทรวงกลาโหม",
+     "en": "Ministry of Defence",
+     "jp": ""
+    },
+    "logo": "ntv7mHzA0gWD1suAPDt-iK9VAgjkcPZSFjwPvfuiSANmQbbQ6rJSVf114gRh3T-_o3yOfxgO3c47cnaZh3ef8fhF-wdT2LJpJnTlm5NRLCc",
+    "aspects": {}
+   },
+   {
+    "id": 21,
+    "agency_name": {
+     "th": "กรมอุทยานแห่งขาติ สัตว์ป่าและพันธุ์พืช",
+     "en": "Department of National Parks, Wildlife and Plant Conservation",
+     "jp": "国立公園・野生生物・植物保護省"
+    },
+    "agency_shortname": {
+     "th": "อส.",
+     "en": "DNP",
+     "jp": ""
+    },
+    "department_id": 89,
+    "department_name": {
+     "th": "กรมอุทยานแห่งชาติ สัตว์ป่า และพันธุ์พืช"
+    },
+    "ministry_id": 9,
+    "ministry_name": {
+     "th": "กระทรวงทรัพยากรธรรมชาติและสิ่งแวดล้อม",
+     "en": "Ministry of Natural Resources and Environment",
+     "jp": ""
+    },
+    "logo": "ANI_QNc-seJ3KMYLyW9HQmKJ1tHNObD5H0CwZBfQxIBVPu1UH0TWaQAIY90OF87d4gOS1Fqc60RtLeEkKmnx_XWtVxIHKCOD3JVQDu3Kl44",
+    "aspects": {}
+   },
+   {
+    "id": 8,
+    "agency_name": {
+     "th": "การไฟฟ้าฝ่ายผลิตแห่งประเทศไทย",
+     "en": "Electricity Generating Authority of Thailand",
+     "jp": ""
+    },
+    "agency_shortname": {
+     "th": "กฟผ.",
+     "en": "EGAT",
+     "jp": ""
+    },
+    "department_id": 312,
+    "department_name": {
+     "th": "การไฟฟ้าฝ่ายผลิตแห่งประเทศไทย"
+    },
+    "ministry_id": 23,
+    "ministry_name": {
+     "th": "รัฐวิสาหกิจ",
+     "en": "State enterprise",
+     "jp": ""
+    },
+    "logo": "pSforOnFEq9jroiBcaLowdE0veFrpHnBTlp1cWAH9KFlA5_mPgaSv9G8h5p5uer_ncPYGHrqFWdloZLujzCH4Hl_bAbDvsQ-EyKiFVdoZxQ",
+    "aspects": {}
+   },
+   {
+    "id": 94,
+    "agency_name": {
+     "th": "มูลนิธิรักษ์ป่าน่าน",
+     "en": "Rak Pa Nan Foundation",
+     "jp": ""
+    },
+    "agency_shortname": {
+     "th": "ม.รป.",
+     "en": " RPN",
+     "jp": ""
+    },
+    "department_id": 329,
+    "department_name": {
+     "th": "หน่วยงานภายนอก",
+     "en": "",
+     "jp": ""
+    },
+    "ministry_id": 26,
+    "ministry_name": {
+     "th": "หน่วยงานภายนอก",
+     "en": "External agencies",
+     "jp": ""
+    },
+    "logo": "J6YK_1l8ZkaujRcs5Z6Db_A5IFzWLUilehs43dUKqYsZgqDOQjMmzBTTgKSAD-zOwi-LVISrn4aqa_AnVlUNKH9xeHgW2UvGfzimPm9Txh8",
+    "aspects": {}
+   },
+   {
+    "id": 91,
+    "agency_name": {
+     "th": "มูลนิธิอาสาเพื่อนพึ่ง (ภาฯ) ยามยาก สภากาชาดไทย",
+     "en": "Friend in Need (of “Pa”) Volunteers Foundation",
+     "jp": ""
+    },
+    "agency_shortname": {
+     "th": "พพภ",
+     "en": "FOP",
+     "jp": ""
+    },
+    "department_id": 329,
+    "department_name": {
+     "th": "หน่วยงานภายนอก",
+     "en": "",
+     "jp": ""
+    },
+    "ministry_id": 26,
+    "ministry_name": {
+     "th": "หน่วยงานภายนอก",
+     "en": "External agencies",
+     "jp": ""
+    },
+    "logo": "R7C7ZzTQRNxxQZtuPEZHsHMlkCh_L57-7Q0sJcxQPcaJtqDRURvKoHHqtk4JOphzSwZE2yWqmTZCIPltpXRzDOnDvxqq89Y-ZrqnVCcDXtY",
+    "aspects": {}
+   },
+   {
+    "id": 9,
+    "agency_name": {
+     "th": "สถาบันสารสนเทศทรัพยากรน้ำ (องค์การมหาชน)",
+     "en": "Hydro – Informatics Institute (Public Organization)",
+     "jp": ""
+    },
+    "agency_shortname": {
+     "th": "สสน.",
+     "en": "HII",
+     "jp": ""
+    },
+    "department_id": 156,
+    "department_name": {
+     "th": "สถาบันสารสนเทศทรัพยากรน้ำ (องค์การมหาชน)",
+     "en": "Hydro - Informatics Institute",
+     "jp": ""
+    },
+    "ministry_id": 33,
+    "ministry_name": {
+     "th": "กระทรวงการอุดมศึกษา วิทยาศาสตร์ วิจัย และนวัตกรรม",
+     "en": "Ministry of Higher Education, Science, Research and Innovation",
+     "jp": ""
+    },
+    "logo": "-gYyv4BcfRknopJux3-5CZQydW9E-NkOlJwZIuwPbz7NJZEy3bhhEvxG60IkUP5RDzqg_BzuB7_aB54kQvORcWRK9G-I3QrcereodFJUl4I",
+    "aspects": {}
+   },
+   {
+    "id": 10,
+    "agency_name": {
+     "th": "สำนักการระบายน้ำ กรุงเทพมหานคร",
+     "en": "Department of Bangkok",
+     "jp": ""
+    },
+    "agency_shortname": {
+     "th": "สนน กทม.",
+     "en": "BMA",
+     "jp": ""
+    },
+    "department_id": 121,
+    "department_name": {
+     "th": "กรุงเทพมหานคร"
+    },
+    "ministry_id": 13,
+    "ministry_name": {
+     "th": "กระทรวงมหาดไทย",
+     "en": "Ministry of Interior",
+     "jp": ""
+    },
+    "logo": "0KaKRjy8_CIHFLvoQ1-qUQwkgKYTqCBSyriYA4SBtBiOT_wARYpUMiXBH5Ofyj8rV74edIyEvTOuVGwVoOKs9P2Fdgr27vUGyGMiDf338XA",
+    "aspects": {}
+   }
+  ]
+ },
+ "scale": {
+  "result": "OK",
+  "data": {
+   "scale": [
+    {
+     "operator": ">",
+     "term": "100",
+     "color": "#FF0000",
+     "colorname": "red",
+     "situation": "น้ำล้นตลิ่ง",
+     "trans": "waterlevel_level_5",
+     "text": ">100"
+    },
+    {
+     "operator": ">",
+     "term": "70",
+     "color": "#003CFA",
+     "colorname": "blue",
+     "situation": "น้ำมาก",
+     "trans": "waterlevel_level_4",
+     "text": ">70"
+    },
+    {
+     "operator": ">",
+     "term": "30",
+     "color": "#00B050",
+     "colorname": "green",
+     "situation": "น้ำปกติ",
+     "trans": "waterlevel_level_3",
+     "text": ">30"
+    },
+    {
+     "operator": ">",
+     "term": "10",
+     "color": "#FFC000",
+     "colorname": "yellow",
+     "situation": "น้ำน้อย",
+     "trans": "waterlevel_level_2",
+     "text": ">10"
+    },
+    {
+     "operator": "<=",
+     "term": "10",
+     "color": "#990000",
+     "colorname": "gold",
+     "situation": "น้ำน้อยวิกฤติ",
+     "trans": "waterlevel_level_1",
+     "text": "<=10"
+    }
+   ],
+   "rule": [
+    {
+     "operator": ">",
+     "term": "100",
+     "level": 2
+    },
+    {
+     "operator": "<=",
+     "term": "10",
+     "level": 1
+    }
+   ],
+   "level": {
+    "1": {
+     "color": "#DB802B",
+     "colorname": "gold",
+     "trans": "waterlevel_level_1"
+    },
+    "2": {
+     "color": "#FF0000",
+     "colorname": "red",
+     "trans": "waterlevel_level_5"
+    }
+   },
+   "not_today": {
+    "color": "gray",
+    "colorname": "gray",
+    "text": "-"
+   },
+   "rule_web": [
+    {
+     "operator": ">",
+     "term": "100",
+     "level": 5
+    },
+    {
+     "operator": ">",
+     "term": "70",
+     "level": 4
+    },
+    {
+     "operator": ">",
+     "term": "30",
+     "level": 3
+    },
+    {
+     "operator": ">",
+     "term": "10",
+     "level": 2
+    },
+    {
+     "operator": "<=",
+     "term": "10",
+     "level": 1
+    }
+   ]
+  }
+ }
+}

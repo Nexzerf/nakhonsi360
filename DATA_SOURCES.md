@@ -4,32 +4,36 @@ Status: ✅ verified (real sample saved in `data/samples/<id>/`) · 🟡 adapter
 
 The machine-readable registry is `lib/registry/sources.ts`; this file is the verification log.
 
-**Verification attempt, 2026-09-29:** the environment used to build Phase 1 has an outbound network policy that denies every source host below (HTTP 403 from the egress proxy for `data.humdata.org`, `gdcatalog.go.th`, `download.geofabrik.de`, `tiles.openfreemap.org`, `api-v3.thaiwater.net`, `air4thai.pcd.go.th`, `gis.dmr.go.th`, `overpass-api.de`). **No source is verified yet** and `data/samples/` is empty. Run `npm run fetch:sources` (see SETUP.md) from a machine with internet access to verify them.
+**Verification log**
+
+- 2026-09-29: the build environment's network policy denied every source host; nothing verified.
+- 2026-09-30: network access opened for most hosts. Verified with real downloads: HDX COD-AB, ThaiWater water level, ThaiWater 24-h rain, OpenFreeMap. Still blocked from the build environment: `opendata_tst.dopa.go.th` (DOPA file host), `download.geofabrik.de` (connection reset upstream), `air4thai.pcd.go.th` (http not allowlisted; https certificate chain does not verify), `api-gateway.gistda.or.th` (upstream 502). Keyed sources (TMD, FIRMS, GISTDA) need their keys.
 
 ## Phase 1 — base geography
 
 | Source id | Organisation | Endpoint | Key | Licence | Update | Verified | Status |
 |---|---|---|---|---|---|---|---|
-| `hdx.cod-ab-tha` | กรมแผนที่ทหาร via UN OCHA (HDX) | CKAN `https://data.humdata.org/api/3/action/package_show?id=cod-ab-tha` → GeoPackage / SHP resource | No | unknown — verify on HDX | Static (manual re-import) | — | 🟡 importer built; field names detected from the file (supports `ADMn_TH/ADMn_EN/ADMn_PCODE` and `admn_name/admn_name1/admn_pcode`); Thai-name field checked to contain Thai script |
-| `dopa.villages` | กรมการปกครอง | CKAN `https://gdcatalog.go.th/api/3/action/package_show?id=gdpublish-gis-01` → resource for นครศรีธรรมราช | No (verify) | unknown — verify | Static | — | 🟡 importer built; **file schema unknown**, fields detected from candidates or given with `--map`; may be geo-blocked outside Thailand |
-| `osm.geofabrik` | OpenStreetMap contributors (Geofabrik extract) | `https://download.geofabrik.de/asia/thailand-latest.osm.pbf` (+ `.md5`, `thailand-updates/state.txt`) | No | ODbL 1.0 | Static (daily extract, re-import manually) | — | 🟡 importer built; small-canal completeness still to be checked after import |
-| `basemap.openfreemap` | OpenFreeMap | `https://tiles.openfreemap.org/styles/positron`, `/styles/dark` | No | unknown — verify (data ODbL) | — | — | 🟡 if unreachable, the map falls back to a plain background and says so |
+| `hdx.cod-ab-tha` | กรมแผนที่ทหาร via UN OCHA (HDX) | CKAN `package_show?id=cod-ab-tha` → `tha_admin_boundaries.shp.zip` (HDX 2026-01-26) | No | CC BY-IGO (as stated on HDX) | Static (manual re-import) | 2026-09-30 | ✅ imported TH80: 1 province, 23 districts, 170 subdistricts. Schema `admN_name` (en) / `admN_name1` (th, `lang1=th`) / `admN_pcode`. Data date = `valid_on` 2022-01-22. Sample: `data/samples/hdx.cod-ab-tha/package_show.json` |
+| `dopa.villages` | กรมการปกครอง | CKAN `gdcatalog.go.th … gdpublish-gis-01` (76 provinces) → JSON `https://opendata_tst.dopa.go.th/downloads/15/จังหวัดนครศรีธรรมราช.json` (resource 2023-09-06) | No | "Open Data Common" (as stated on GD Catalog) | Static | — | 🟡 catalog verified; **file host `opendata_tst.dopa.go.th` blocked** from the build environment — add it to the allowlist. File schema still unknown |
+| `osm.geofabrik` | OpenStreetMap contributors (Geofabrik extract) | `https://download.geofabrik.de/asia/thailand-latest.osm.pbf` (+ `.md5`, `thailand-updates/state.txt`) | No | ODbL 1.0 | Static (daily extract, re-import manually) | — | 🟡 importer built; Geofabrik resets connections from the build environment. Run `fetch:sources --only osm` elsewhere (or GitHub Actions) |
+| `basemap.openfreemap` | OpenFreeMap | `https://tiles.openfreemap.org/styles/positron`, `/styles/dark` | No | unknown — verify (data ODbL) | — | 2026-09-30 | ✅ style loads; terms to confirm. If unreachable, the map falls back to a plain background and says so |
 | `basemap.eox-s2cloudless` | EOX IT Services | `https://tiles.maps.eox.at/wmts/1.0.0/s2cloudless_3857/…` | No | unknown — verify (EOX states CC BY 4.0 for 2016) | Imagery 2016–2017, not current | — | 🟡 |
 | `basemap.opentopomap` | OpenTopoMap | `https://{a,b,c}.tile.opentopomap.org/{z}/{x}/{y}.png` | No | unknown — verify (CC-BY-SA) | — | — | 🟡 fair-use policy |
 
-## Phase 2 — live conditions (not started)
+## Phase 2 — live conditions
 
-| Source id | Organisation | Endpoint (to verify) | Key | Status |
-|---|---|---|---|---|
-| `thaiwater.waterlevel` | สสน. (HII) | `https://api-v3.thaiwater.net/api/v1/thaiwater30/public/waterlevel_load` | No | ⚪ host blocked from build env |
-| `thaiwater.rain24h` | สสน. (HII) | `…/thaiwater30/public/rain_24h` | No | ⚪ |
-| `tmd.weather`, `tmd.warnings`, `tmd.earthquake` | กรมอุตุนิยมวิทยา | `https://data.tmd.go.th/api/…` | Yes (free) | ⚪ must credit "กรมอุตุนิยมวิทยา" every time shown |
-| `air4thai.aqi` | กรมควบคุมมลพิษ | `http://air4thai.pcd.go.th/services/getNewAQI_JSON.php` | No | ⚪ |
-| `gistda.flood` | GISTDA | `https://api-gateway.gistda.or.th/api/2.0/resources` | Yes | ⚪ |
-| `gistda.hotspots` | GISTDA | `https://fire.gistda.or.th` | Verify | ⚪ |
-| `firms.hotspots` | NASA FIRMS | Area API (CSV by bbox) | Yes (free) | ⚪ |
+| Source id | Organisation | Endpoint | Key | Update | Verified | Status |
+|---|---|---|---|---|---|---|
+| `thaiwater.waterlevel` | สสน. (HII), aggregating HII, ชป. (RID), พพภ and others | `https://api-v3.thaiwater.net/api/v1/thaiwater30/public/waterlevel_load` | No | ~10 min–2 h per station | 2026-09-30 | ✅ adapter `lib/adapters/thaiwater.ts`; ~806 stations nationwide, 28 within province + 5 km. Uses `waterlevel_data` (telemetry); `waterlevel_manual_data` not ingested (no NST records in the sample). Official status = `situation_level` mapped to the `scale` published in the same response (text + colour). `storage_percent` stored as `water_level_bank_pct` (can be negative). Sample: `data/samples/thaiwater.waterlevel/` |
+| `thaiwater.rain24h` | สสน. (HII), aggregating ทน. (DWR), ชป., สสน., ปภ., อต., กฟผ. | `…/thaiwater30/public/rain_24h` | No | hourly | 2026-09-30 | ✅ adapter; ~4,400 stations, 163 within province + 5 km; each value credits its operating agency. Sample: `data/samples/thaiwater.rain24h/` |
+| `tmd.weather`, `tmd.warnings`, `tmd.earthquake` | กรมอุตุนิยมวิทยา | `https://data.tmd.go.th/api/…` | Yes (free) | — | — | ⚪ host reachable; needs `TMD_UID`/`TMD_UKEY`. Must credit "กรมอุตุนิยมวิทยา" every time shown |
+| `air4thai.aqi` | กรมควบคุมมลพิษ | `http://air4thai.pcd.go.th/services/getNewAQI_JSON.php` | No | — | — | ⚪ blocked: http host not allowlisted; https certificate chain does not verify |
+| `gistda.flood`, `gistda.hotspots` | GISTDA | `https://api-gateway.gistda.or.th/api/2.0/resources` | Yes | — | — | ⚪ upstream 502 from the build environment (possibly non-Thai IPs blocked); needs `GISTDA_API_KEY` |
+| `firms.hotspots` | NASA FIRMS | Area API (CSV by bbox) | Yes (free) | — | — | ⚪ host reachable; needs `FIRMS_MAP_KEY` |
 
-`expectedUpdateMinutes` values for Phase 2 sources in the registry are placeholders for freshness classification and must be confirmed from each source when its adapter is written.
+**Timezone (ThaiWater).** Timestamps such as `2026-09-30 04:00` carry no timezone. They are read as Thai time (+07:00): a response fetched at 21:17 UTC contained readings stamped 04:00, which would be 7 hours in the future if read as UTC, and later fetches at 12:40 Bangkok showed readings stamped 12:20. This is inferred from the data, not from documentation; confirm with HII. Readings more than 1 h in the future are rejected, so a wrong assumption would show up as rejections rather than wrong values.
+
+**Verification against the source (acceptance check).** On 2026-09-30 every station served by `/api/layers/water-stations` (28) and `/api/layers/rain-24h` (163) had the same value as a direct ThaiWater request for the same observation time.
 
 ## Phase 3–4 (not started)
 

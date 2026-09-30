@@ -3,18 +3,18 @@
  * response from its source has been saved to data/samples/<sourceId>/ and its
  * parser is tested against that sample (tests/unit/adapters/*.test.ts).
  *
- * None are registered yet: the Phase 2 sources could not be reached from the
- * build environment (see DATA_SOURCES.md). Run `npm run fetch:live-samples`
- * from a machine with internet access to collect the samples.
+ * Sources still pending are listed below with the reason in DATA_SOURCES.md.
  */
 import type { IngestAdapter } from '@/lib/ingest/types';
+import { thaiwaterRain24h, thaiwaterWaterlevel } from '@/lib/adapters/thaiwater';
 
-export const ADAPTERS: Record<string, IngestAdapter> = {};
+export const ADAPTERS: Record<string, IngestAdapter> = {
+  [thaiwaterWaterlevel.sourceId]: thaiwaterWaterlevel,
+  [thaiwaterRain24h.sourceId]: thaiwaterRain24h,
+};
 
 /** Live sources that still need a verified sample before an adapter can be written. */
 export const PENDING_ADAPTERS = [
-  'thaiwater.waterlevel',
-  'thaiwater.rain24h',
   'tmd.weather',
   'tmd.warnings',
   'tmd.earthquake',

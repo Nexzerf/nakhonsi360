@@ -1,7 +1,9 @@
 import { NextResponse, type NextRequest } from 'next/server';
 import { getDb, withTimeout, TimeoutError } from '@/lib/db/client';
-import { inspectAdmin, latestImports, nearestFeatures, nearestVillages } from '@/lib/db/queries';
-import type { CardResult, ImportRecord, InspectResponse, InspectSection, SourceRef } from '@/lib/types';
+import { connectedSources, inspectAdmin, latestAtStations, latestImports, nearestFeatures, nearestObservations, nearestVillages, waterwayNamesNear } from '@/lib/db/queries';
+import { CONDITION_VARIABLES } from '@/lib/registry/stationRules';
+import { buildVariableConditions } from '@/lib/inspect/conditions';
+import type { CardResult, ConditionsCard, ImportRecord, InspectResponse, InspectSection, SourceRef } from '@/lib/types';
 
 export const dynamic = 'force-dynamic';
 
@@ -43,15 +45,17 @@ export async function GET(req: NextRequest) {
   const sql = getDb();
   const out: InspectResponse = { lat, lng, generatedAt: new Date().toISOString(), sections: {} };
 
-  for (const s of ['conditions', 'hazards', 'satellite'] as const) {
+  for (const s of ['hazards', 'satellite'] as const) {
     if (sections.includes(s)) out.sections[s] = { status: 'not_connected', ...PLANNED[s] };
   }
 
-  const wantDb = sections.filter((s) => s === 'admin' || s === 'village' || s === 'context');
+  const wantDb = sections.filter((s) => s === 'admin' || s === 'village' || s === 'context' || s === 'conditions');
   if (wantDb.length === 0) return NextResponse.json(out);
 
   if (!sql) {
-    for (const s of wantDb) out.sections[s] = { status: 'unavailable', reason: 'database_not_configured' };
+    for (const s of wantDb) {
+      out.sections[s] = s === 'conditions' ? { status: 'not_connected', ...PLANNED.conditions } : { status: 'unavailable', reason: 'database_not_configured' };
+    }
     return NextResponse.json(out);
   }
 
@@ -130,6 +134,41 @@ export async function GET(req: NextRequest) {
     );
   }
 
+  if (wantDb.includes('conditions')) {
+    tasks.push(
+      (async () => {
+        out.sections.conditions = await guarded(async () => conditionsCard(sql, lng, lat, await outside()));
+      })(),
+    );
+  }
+
   await Promise.all(tasks);
   return NextResponse.json(out, { headers: { 'Cache-Control': 'no-store' } });
+}
+
+async function conditionsCard(sql: NonNullable<ReturnType<typeof getDb>>, lng: number, lat: number, outsideArea: boolean): Promise<CardResult<ConditionsCard>> {
+  const connected = await connectedSources(sql);
+  const anyConnected = CONDITION_VARIABLES.some((v) => v.sourceIds.some((id) => connected.has(id)));
+  if (!anyConnected) return { status: 'not_connected', ...PLANNED.conditions };
+  if (outsideArea) return { status: 'empty', reason: 'outside_study_area', sources: [] };
+
+  const snap = Math.max(...CONDITION_VARIABLES.map((v) => (v.rule.kind === 'same_river' ? v.rule.riverSnapM : 0)));
+  const pointRivers = await waterwayNamesNear(sql, lng, lat, snap);
+  const variables = await Promise.all(
+    CONDITION_VARIABLES.map(async (rule) => {
+      const rows = rule.sourceIds.some((id) => connected.has(id)) ? await nearestObservations(sql, lng, lat, rule.variable, 10) : [];
+      const bank =
+        rule.variable === 'water_level'
+          ? await latestAtStations(sql, 'thaiwater.waterlevel', rows.filter((r) => r.source_id === 'thaiwater.waterlevel').map((r) => r.station_id), 'water_level_bank_pct')
+          : new Map<string, number>();
+      return buildVariableConditions(rule, rows, connected, pointRivers, bank);
+    }),
+  );
+  const sources: SourceRef[] = [];
+  for (const v of variables) {
+    for (const r of [...v.readings, ...(v.elsewhere ? [v.elsewhere] : [])]) {
+      if (!sources.some((s) => s.sourceId === r.sourceId)) sources.push({ sourceId: r.sourceId, observedAt: r.observedAt, fetchedAt: r.fetchedAt });
+    }
+  }
+  return { status: 'ok', data: { variables }, sources };
 }

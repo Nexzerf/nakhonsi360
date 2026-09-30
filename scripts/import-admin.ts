@@ -71,6 +71,7 @@ main(async () => {
   }
 
   const rows: AdminRow[] = [];
+  const validOn = new Set<string>();
   const rejections: Array<{ level: number; pcode?: string; reason: string }> = [];
   let sourceRecordCount = 0;
 
@@ -85,6 +86,9 @@ main(async () => {
       // Without an ADM1 field, filter by pcode prefix (TH80 → TH80xx…).
       if (!where && !pcode.startsWith(province)) continue;
       sourceRecordCount++;
+      // COD-AB carries the boundary version date per feature (e.g. "2022/01/22").
+      const vo = typeof p.valid_on === 'string' ? /^(\d{4})[/-](\d{2})[/-](\d{2})/.exec(p.valid_on) : null;
+      if (vo) validOn.add(`${vo[1]}-${vo[2]}-${vo[3]}`);
       const nameTh = cleanName(p[fields.nameTh]);
       if (!pcode) {
         rejections.push({ level: lvl, reason: 'missing_pcode' });
@@ -132,6 +136,10 @@ main(async () => {
   }
 
   // For /vsizip/archive.zip[/inner] hash the archive itself.
+  // --source-date wins; otherwise the latest valid_on stated in the file; otherwise unknown (null).
+  const effectiveDate = sourceDate ?? ([...validOn].sort().at(-1) || undefined);
+  console.log(`Data date: ${effectiveDate ?? 'not stated by the source'}${!sourceDate && validOn.size ? ' (from valid_on)' : ''}`);
+
   const sha = await sha256File(file.replace(/^\/vsizip\//, '').replace(/(\.zip).*$/i, '$1'));
   console.log(`\nSource features for ${province}: ${sourceRecordCount} · to import: ${rows.length} (province ${counts[0]}, districts ${counts[1]}, subdistricts ${counts[2]})`);
   console.log(`Rejections/warnings: ${summarize(rejections)}`);
@@ -149,7 +157,7 @@ main(async () => {
         sourceUrl: args.str('url'),
         sourceSha256: sha,
         sourceVersion: args.str('source-version'),
-        sourceDate,
+        sourceDate: effectiveDate,
         sourceRecordCount,
         importedCount: rows.length,
         rejections,

@@ -88,11 +88,6 @@ function extFor(format: string | undefined, url: string): string {
   return '.bin';
 }
 
-/** HDX "dataset_date" looks like "[2019-11-22T00:00:00 TO 2019-11-22T23:59:59]"; take the start date. */
-function datasetDate(d: string | undefined): string | null {
-  const m = d && /(\d{4}-\d{2}-\d{2})/.exec(d);
-  return m ? m[1]! : null;
-}
 
 async function saveSample(sourceId: string, name: string, content: string) {
   const dir = path.join(SAMPLES, sourceId);
@@ -119,8 +114,9 @@ async function fetchHdx(): Promise<ManifestEntry> {
     sourceId: 'hdx.cod-ab-tha',
     file: file.endsWith('.zip') ? `/vsizip/${file}` : file,
     url: res.url,
-    sourceVersion: res.last_modified ?? pkg.last_modified ?? null,
-    sourceDate: datasetDate(pkg.dataset_date),
+    sourceVersion: `${res.last_modified ?? pkg.last_modified ?? ''} (dataset_date ${pkg.dataset_date ?? 'not stated'})`.trim(),
+    // The boundary validity date is read from the file itself (valid_on) by import-admin.
+    sourceDate: null,
     sha256,
     fetchedAt: new Date().toISOString(),
   };

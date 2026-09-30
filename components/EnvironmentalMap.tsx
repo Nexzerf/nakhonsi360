@@ -17,6 +17,8 @@ import {
   overlayLayers,
   overlaySourceId,
   selectionLayers,
+  stationLayers,
+  stationSource,
   vectorSource,
 } from '@/lib/map/style';
 import { THAILAND_ENVELOPE } from '@/lib/geo/bbox';
@@ -29,7 +31,11 @@ const PMTILES_BASE = process.env.NEXT_PUBLIC_PMTILES_BASE_URL || undefined;
 const Z_ORDER = [
   'water-bodies', 'water-reservoirs', 'roads', 'coastline', 'water-streams', 'water-canals', 'water-rivers',
   'admin-subdistrict', 'admin-district', 'admin-province', 'villages',
+  'rain-24h', 'water-stations',
 ];
+
+/** Live station layers, clickable like villages. */
+const STATION_LAYER_IDS = ['water-stations', 'rain-24h'];
 
 let protocolRegistered = false;
 
@@ -111,20 +117,34 @@ export function EnvironmentalMap({ initialBounds }: { initialBounds: BBox | null
     });
 
     map.on('click', (e) => {
+      const stationLayers = STATION_LAYER_IDS.map((id) => `${OVERLAY_PREFIX}${id}`).filter((id) => map.getLayer(id));
+      const station = stationLayers.length ? map.queryRenderedFeatures(e.point, { layers: stationLayers })[0] : undefined;
+      if (station && station.geometry.type === 'Point') {
+        const [lng, lat] = station.geometry.coordinates as [number, number];
+        const p = station.properties as { name_th?: string };
+        useMapStore.getState().select({ lat, lng, label: p.name_th, kind: 'station' });
+        return;
+      }
+      const clusterLayers = STATION_LAYER_IDS.map((id) => `${OVERLAY_PREFIX}${id}-cluster`).filter((id) => map.getLayer(id));
+      const cluster = clusterLayers.length ? map.queryRenderedFeatures(e.point, { layers: clusterLayers })[0] : undefined;
+      if (cluster && cluster.geometry.type === 'Point') {
+        map.easeTo({ center: cluster.geometry.coordinates as [number, number], zoom: Math.max(map.getZoom() + 2, 10), duration: reducedMotion() ? 0 : 500 });
+        return;
+      }
       const villageLayer = `${OVERLAY_PREFIX}villages`;
       const hits = map.getLayer(villageLayer) ? map.queryRenderedFeatures(e.point, { layers: [villageLayer] }) : [];
       const v = hits[0];
       if (v && v.geometry.type === 'Point') {
         const [lng, lat] = v.geometry.coordinates as [number, number];
         const p = v.properties as { id?: string; name_th?: string };
-        useMapStore.getState().select({ lat, lng, label: p.name_th, highlight: p.id ? { layerId: 'villages', key: 'id', value: p.id } : undefined });
+        useMapStore.getState().select({ lat, lng, label: p.name_th, kind: 'village', highlight: p.id ? { layerId: 'villages', key: 'id', value: p.id } : undefined });
         return;
       }
-      useMapStore.getState().select({ lat: e.lngLat.lat, lng: e.lngLat.lng });
+      useMapStore.getState().select({ lat: e.lngLat.lat, lng: e.lngLat.lng, kind: 'point' });
     });
     map.on('mousemove', (e) => {
-      const villageLayer = `${OVERLAY_PREFIX}villages`;
-      const over = map.getLayer(villageLayer) && map.queryRenderedFeatures(e.point, { layers: [villageLayer] }).length > 0;
+      const hit = [`${OVERLAY_PREFIX}villages`, ...STATION_LAYER_IDS.flatMap((id) => [`${OVERLAY_PREFIX}${id}`, `${OVERLAY_PREFIX}${id}-cluster`])].filter((id) => map.getLayer(id));
+      const over = hit.length > 0 && map.queryRenderedFeatures(e.point, { layers: hit }).length > 0;
       map.getCanvas().style.cursor = over ? 'pointer' : 'crosshair';
     });
 
@@ -183,6 +203,11 @@ export function EnvironmentalMap({ initialBounds }: { initialBounds: BBox | null
     );
     for (const layer of active) {
       const srcId = overlaySourceId(layer.id);
+      if (layer.variable) {
+        if (!map.getSource(srcId)) map.addSource(srcId, stationSource(layer, origin));
+        for (const spec of stationLayers(layer, locale)) map.addLayer(spec);
+        continue;
+      }
       if (!map.getSource(srcId)) map.addSource(srcId, vectorSource(layer, origin, PMTILES_BASE));
       for (const spec of overlayLayers(layer, locale)) map.addLayer(spec);
     }
@@ -203,7 +228,9 @@ export function EnvironmentalMap({ initialBounds }: { initialBounds: BBox | null
     });
 
     // Attribution for every active overlay source (e.g. © OpenStreetMap, DOPA, HDX).
-    const attributions = [...new Set(active.flatMap((l) => l.sourceIds.map((id) => findSource(id)?.attribution).filter(Boolean)))] as string[];
+    // Credit only sources that actually deliver data (a live layer may list sources not connected yet).
+    const delivering = (id: string) => ['ok', 'degraded', 'down'].includes(sources?.sources.find((x) => x.id === id)?.health.status ?? '');
+    const attributions = [...new Set(active.flatMap((l) => l.sourceIds.filter(delivering).map((id) => findSource(id)?.attribution).filter(Boolean)))] as string[];
     const key = attributions.join('|');
     if (attributionRef.current?.key !== key) {
       if (attributionRef.current) map.removeControl(attributionRef.current.ctrl);
@@ -217,18 +244,37 @@ export function EnvironmentalMap({ initialBounds }: { initialBounds: BBox | null
     syncOverlays();
   }, [syncOverlays, styleVersion]);
 
+  // Refresh live station layers every 5 minutes.
+  useEffect(() => {
+    const id = setInterval(() => {
+      const map = mapRef.current;
+      if (!map) return;
+      for (const layerId of STATION_LAYER_IDS) {
+        const src = map.getSource(overlaySourceId(layerId)) as GeoJSONSource | undefined;
+        src?.setData(`${window.location.origin}/api/layers/${layerId}`);
+      }
+    }, 5 * 60_000);
+    return () => clearInterval(id);
+  }, []);
+
   // ---------------------------------------------------------------- camera
   useEffect(() => {
     const map = mapRef.current;
     if (!map || !camera) return;
     const duration = reducedMotion() ? 0 : 900;
+    // Keep the target clear of the inspector: bottom sheet on mobile, right panel on desktop.
+    const vh = window.innerHeight;
+    const padding = isMobile
+      ? { top: 80, left: 24, right: 24, bottom: Math.round(vh * 0.52) + 16 }
+      : { top: 88, left: 48, right: 440, bottom: 64 };
     if (camera.bbox) {
       const [w, s, e, n] = camera.bbox;
-      if (w === e && s === n) map.flyTo({ center: [w, s], zoom: Math.max(map.getZoom(), 14), duration });
-      else map.fitBounds([[w, s], [e, n]], { padding: 48, maxZoom: 15, duration });
+      if (w === e && s === n) map.flyTo({ center: [w, s], zoom: Math.max(map.getZoom(), 14), padding, duration });
+      else map.fitBounds([[w, s], [e, n]], { padding, maxZoom: 15, duration });
     } else if (camera.center) {
-      map.flyTo({ center: camera.center, zoom: camera.zoom ?? Math.max(map.getZoom(), 13), duration });
+      map.flyTo({ center: camera.center, zoom: camera.zoom ?? Math.max(map.getZoom(), 13), padding, duration });
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- react to camera requests only
   }, [camera]);
 
   // ---------------------------------------------------------------- controls

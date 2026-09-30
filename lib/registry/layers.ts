@@ -53,6 +53,8 @@ export interface LayerDef {
   legend: LegendSymbol;
   /** For vector layers: name of the layer inside the MVT/PMTiles tile. */
   sourceLayer?: string;
+  /** Live station layers: the observation variable served by /api/layers/:id as GeoJSON. */
+  variable?: string;
   /** Short note on zoom behaviour for the ⓘ panel. */
   zoomNoteTh?: string;
   zoomNoteEn?: string;
@@ -95,7 +97,7 @@ export const LAYERS: readonly LayerDef[] = [
   },
   {
     id: 'admin-subdistrict', group: 'admin', th: 'ตำบล', en: 'Subdistrict', icon: 'subdistrict',
-    sourceIds: ['hdx.cod-ab-tha'], phase: 1, defaultOn: true, minzoom: 10, sourceLayer: 'admin_subdistrict',
+    sourceIds: ['hdx.cod-ab-tha'], phase: 1, defaultOn: false, minzoom: 10, sourceLayer: 'admin_subdistrict',
     legend: { type: 'line', color: COLORS.subdistrict, width: 1, dash: [2, 2] },
     zoomNoteTh: 'แสดงเมื่อซูมระดับ 10 ขึ้นไป', zoomNoteEn: 'Shown from zoom 10',
   },
@@ -120,7 +122,7 @@ export const LAYERS: readonly LayerDef[] = [
   },
   {
     id: 'water-canals', group: 'water', th: 'คลอง', en: 'Canals', icon: 'canal',
-    sourceIds: ['osm.geofabrik'], phase: 1, defaultOn: true, minzoom: 12, sourceLayer: 'canals',
+    sourceIds: ['osm.geofabrik'], phase: 1, defaultOn: false, minzoom: 12, sourceLayer: 'canals',
     legend: { type: 'line', color: COLORS.canal, width: 1.5 },
     zoomNoteTh: 'แสดงเมื่อซูมระดับ 12 ขึ้นไป', zoomNoteEn: 'Shown from zoom 12',
   },
@@ -137,8 +139,10 @@ export const LAYERS: readonly LayerDef[] = [
   },
   {
     id: 'water-stations', group: 'water', th: 'สถานีวัดระดับน้ำ', en: 'Water-level stations', icon: 'station',
-    sourceIds: ['thaiwater.waterlevel'], phase: 2, defaultOn: false, minzoom: 0,
-    legend: { type: 'circle', color: COLORS.river, stroke: '#ffffff', radius: 5 },
+    sourceIds: ['thaiwater.waterlevel'], phase: 2, defaultOn: true, minzoom: 0, variable: 'water_level',
+    zoomNoteTh: 'รวมกลุ่มสถานีเมื่อซูมน้อยกว่า 10 สีสถานะตามเกณฑ์ของ ThaiWater', zoomNoteEn: 'Clustered below zoom 10; status colours are ThaiWater\'s official scale',
+    // Neutral grey: stations are coloured by ThaiWater's own status scale (see legend); grey = no status published.
+    legend: { type: 'circle', color: '#64748b', stroke: '#ffffff', radius: 5 },
   },
 
   // Roads & coastline — OSM
@@ -156,7 +160,7 @@ export const LAYERS: readonly LayerDef[] = [
 
   // Weather — Phase 2
   { id: 'weather-stations', group: 'weather', th: 'สถานีอากาศ', en: 'Weather stations', icon: 'station', sourceIds: ['tmd.weather'], phase: 2, defaultOn: false, minzoom: 0, legend: { type: 'circle', color: '#374151', stroke: '#fff', radius: 5 } },
-  { id: 'rain-24h', group: 'weather', th: 'ฝน 24 ชม.', en: '24-h rain', icon: 'rain', sourceIds: ['thaiwater.rain24h', 'tmd.weather'], phase: 2, defaultOn: false, minzoom: 0, legend: { type: 'circle', color: '#2563eb', stroke: '#fff', radius: 5 } },
+  { id: 'rain-24h', group: 'weather', th: 'ฝน 24 ชม.', en: '24-h rain', icon: 'rain', sourceIds: ['thaiwater.rain24h', 'tmd.weather'], phase: 2, defaultOn: true, minzoom: 0, variable: 'rain_24h', zoomNoteTh: 'รวมกลุ่มสถานีเมื่อซูมน้อยกว่า 10', zoomNoteEn: 'Clustered below zoom 10', legend: { type: 'circle', color: '#2563eb', stroke: '#fff', radius: 5 } },
   { id: 'temperature', group: 'weather', th: 'อุณหภูมิ', en: 'Temperature', icon: 'temperature', sourceIds: ['tmd.weather'], phase: 2, defaultOn: false, minzoom: 0, legend: { type: 'circle', color: '#9a3412', stroke: '#fff', radius: 5 } },
   { id: 'wind', group: 'weather', th: 'ลม', en: 'Wind', icon: 'wind', sourceIds: ['tmd.weather'], phase: 2, defaultOn: false, minzoom: 0, legend: { type: 'circle', color: '#475569', stroke: '#fff', radius: 5 } },
   { id: 'weather-warnings', group: 'weather', th: 'คำเตือนภัย', en: 'Warnings', icon: 'warning', sourceIds: ['tmd.warnings'], phase: 2, defaultOn: false, minzoom: 0, legend: { type: 'fill', color: '#fde68a', outline: COLORS.warning } },
@@ -202,7 +206,8 @@ export function isLayerAvailable(l: LayerDef): boolean {
   return l.phase <= CURRENT_PHASE;
 }
 
-export const DEFAULT_LAYER_IDS: readonly string[] = LAYERS.filter((l) => l.defaultOn && isLayerAvailable(l)).map((l) => l.id);
+/** Default overlays (spec §7). Live layers only draw once their source has data. */
+export const DEFAULT_LAYER_IDS: readonly string[] = LAYERS.filter((l) => l.defaultOn).map((l) => l.id);
 
 /** Vector layers served as MVT/PMTiles. */
 export const VECTOR_LAYER_IDS: readonly string[] = LAYERS.filter((l) => l.sourceLayer && isLayerAvailable(l)).map((l) => l.id);

@@ -1,8 +1,8 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
-import { BASEMAPS, LAYERS, LAYER_GROUPS, MAX_VISIBLE_OVERLAYS, isLayerAvailable, type BasemapId, type LayerDef } from '@/lib/registry/layers';
-import { useSources, layerStatus, layerHasData } from '@/lib/hooks';
+import { BASEMAPS, LAYERS, LAYER_GROUPS, MAX_VISIBLE_OVERLAYS, type BasemapId, type LayerDef } from '@/lib/registry/layers';
+import { useSources, layerStatus, layerHasData, layerUsable } from '@/lib/hooks';
 import { useMapStore, useT } from '@/lib/state/store';
 import { placeName } from '@/lib/i18n';
 import { formatDateTime } from '@/lib/freshness/format';
@@ -41,7 +41,7 @@ function LayerRow({ layer }: { layer: LayerDef }) {
   const zoom = useMapStore((s) => s.zoom);
   const failedAt = useMapStore((s) => s.layerErrors[layer.id]);
   const { data } = useSources();
-  const available = isLayerAvailable(layer);
+  const available = layerUsable(layer, data);
   const status = failedAt ? 'down' : layerStatus(layer, data);
   const hasData = layerHasData(layer, data);
   const name = placeName(locale, layer.th, layer.en)!;
@@ -125,7 +125,8 @@ function GroupSection({ group, layers, defaultOpen }: { group: (typeof LAYER_GRO
   const locale = useMapStore((s) => s.locale);
   const enabled = useMapStore((s) => s.enabledLayers);
   const [open, setOpen] = useState(defaultOpen);
-  const available = layers.filter(isLayerAvailable);
+  const { data } = useSources();
+  const available = layers.filter((l) => layerUsable(l, data));
   const on = available.filter((l) => enabled.includes(l.id)).length;
   const phase = Math.min(...layers.map((l) => l.phase));
   const headId = `group-${group.id}`;
@@ -176,7 +177,7 @@ export function LayerControl() {
 
   if (!open) return null;
 
-  const visibleCount = LAYERS.filter((l) => enabled.includes(l.id) && isLayerAvailable(l) && layerHasData(l, data) && zoom >= l.minzoom).length;
+  const visibleCount = LAYERS.filter((l) => enabled.includes(l.id) && layerUsable(l, data) && layerHasData(l, data) && zoom >= l.minzoom).length;
   const current = BASEMAPS.find((b) => b.id === basemap)!;
 
   return (
@@ -239,7 +240,7 @@ export function LayerControl() {
           {LAYER_GROUPS.map((g) => {
             const layers = LAYERS.filter((l) => l.group === g.id);
             if (!layers.length) return null;
-            return <GroupSection key={g.id} group={g} layers={layers} defaultOpen={layers.some(isLayerAvailable)} />;
+            return <GroupSection key={g.id} group={g} layers={layers} defaultOpen={layers.some((l) => layerUsable(l, data))} />;
           })}
         </div>
       </div>

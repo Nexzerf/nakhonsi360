@@ -2,9 +2,9 @@
 
 import { useEffect, useRef } from 'react';
 import { formatDate, formatDateTime } from '@/lib/freshness/format';
-import { getLayer, isLayerAvailable } from '@/lib/registry/layers';
+import { getLayer } from '@/lib/registry/layers';
 import { findSource } from '@/lib/registry/sources';
-import { useSources } from '@/lib/hooks';
+import { useSources, layerUsable } from '@/lib/hooks';
 import { useMapStore, useT } from '@/lib/state/store';
 import { placeName } from '@/lib/i18n';
 import type { DataSource, SourceHealth } from '@/lib/types';
@@ -111,7 +111,7 @@ export function DataProvenanceDialog() {
             </button>
           </div>
           <div className="space-y-5 overflow-y-auto px-4 py-3">
-            {layer && !isLayerAvailable(layer) && (
+            {layer && !layerUsable(layer, data) && (
               <p className="rounded border border-line bg-surface-subtle p-2 text-sm">{t('empty.notConnected', { phase: layer.phase })}</p>
             )}
             {layer && (locale === 'en' ? layer.zoomNoteEn : layer.zoomNoteTh) && (

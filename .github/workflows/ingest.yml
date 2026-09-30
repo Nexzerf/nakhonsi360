@@ -1,0 +1,48 @@
+name: Ingest live data
+
+# Pulls live sources (ThaiWater water level + 24-h rain, more as adapters are
+# verified) into the database every 15 minutes, then applies retention.
+# Requires the DATABASE_URL repository secret; without it the job is skipped.
+on:
+  schedule:
+    - cron: '*/15 * * * *'
+  workflow_dispatch:
+    inputs:
+      source:
+        description: 'Single source id (empty = all registered adapters)'
+        default: ''
+
+concurrency:
+  group: ingest
+  cancel-in-progress: false
+
+jobs:
+  ingest:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - name: Check database secret
+        id: check
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+        run: |
+          if [ -z "$DATABASE_URL" ]; then echo "DATABASE_URL secret not set; skipping."; echo "ready=false" >> "$GITHUB_OUTPUT"; else echo "ready=true" >> "$GITHUB_OUTPUT"; fi
+      - uses: actions/checkout@v4
+        if: steps.check.outputs.ready == 'true'
+      - uses: actions/setup-node@v4
+        if: steps.check.outputs.ready == 'true'
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+        if: steps.check.outputs.ready == 'true'
+      - name: Ingest
+        if: steps.check.outputs.ready == 'true'
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          TMD_UID: ${{ secrets.TMD_UID }}
+          TMD_UKEY: ${{ secrets.TMD_UKEY }}
+          GISTDA_API_KEY: ${{ secrets.GISTDA_API_KEY }}
+          FIRMS_MAP_KEY: ${{ secrets.FIRMS_MAP_KEY }}
+        run: |
+          if [ -n "${{ inputs.source }}" ]; then npm run ingest -- --source "${{ inputs.source }}"; else npm run ingest; fi

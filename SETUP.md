@@ -52,7 +52,18 @@ npm run import:admin -- --file data/static/<file>.gpkg --map level3.nameTh=ADM3_
 2. Run **Actions → Import static data (Phase 1) → Run workflow**.
 3. Download the `samples-and-manifest` artifact and commit `data/samples/` so adapter tests can run against the real samples.
 
-## 4. Vector tiles
+## 4. Live data (Phase 2)
+
+```bash
+DATABASE_URL=… npm run ingest                          # every registered adapter + retention
+DATABASE_URL=… npm run ingest -- --source thaiwater.rain24h
+```
+
+Each run is logged in `ingest_runs` (fetched, stored, rejected with reasons); `/api/sources` and the status bar read it. One failing source never stops the others. On GitHub, the **Ingest live data** workflow runs every 15 minutes once the `DATABASE_URL` secret is set.
+
+Behind a corporate proxy, Node's `fetch` only uses `HTTPS_PROXY` when started with `NODE_USE_ENV_PROXY=1` (Node ≥ 22.21).
+
+## 5. Vector tiles
 
 Without extra setup, map layers are served as vector tiles straight from PostGIS (`/api/tiles/...`, cached by the CDN). For large layers, build PMTiles and host them on object storage:
 
@@ -62,7 +73,7 @@ DATABASE_URL=… npm run build:pmtiles        # → data/tiles/<layerId>.pmtiles
 
 Upload the files to a public Supabase Storage bucket (or Cloudflare R2) and set `NEXT_PUBLIC_PMTILES_BASE_URL` to the folder URL.
 
-## 5. Run
+## 6. Run
 
 ```bash
 npm run dev            # http://localhost:3000
@@ -76,7 +87,7 @@ The database tests use the real downloaded files only:
 TEST_DATABASE_URL=postgres://…/postgres CODAB_FILE=… DOPA_FILE=… OSM_FILE=… npm run test:sql
 ```
 
-## 6. API keys for later phases (all free)
+## 7. API keys for later phases (all free)
 
 Keys stay server-side (never `NEXT_PUBLIC_`). None are needed in Phase 1.
 
@@ -88,6 +99,6 @@ Keys stay server-side (never `NEXT_PUBLIC_`). None are needed in Phase 1.
 | `COPERNICUS_CLIENT_ID`, `COPERNICUS_CLIENT_SECRET` | Copernicus Data Space (Sentinel-2) | Create a free account at https://dataspace.copernicus.eu, then create OAuth client credentials in the dashboard. Check the free monthly quota. |
 | `SUPABASE_SERVICE_ROLE_KEY` | Supabase | Project Settings → API. Only for scheduled ingest jobs. |
 
-## 7. Deploy (Vercel)
+## 8. Deploy (Vercel)
 
 Import the repository in Vercel, set `DATABASE_URL` (and `NEXT_PUBLIC_PMTILES_BASE_URL` if used), and deploy. In Phase 2, test each live source from the deployment region; if a Thai server blocks it, run that ingest from GitHub Actions or a Thai-hosted runner and store the results in Postgres.

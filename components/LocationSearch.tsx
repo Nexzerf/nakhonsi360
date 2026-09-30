@@ -67,14 +67,14 @@ export function LocationSearch() {
     const s = useMapStore.getState();
     if (o.kind === 'coord') {
       s.flyTo({ center: [o.lng, o.lat], zoom: 14 });
-      s.select({ lat: o.lat, lng: o.lng });
+      s.select({ lat: o.lat, lng: o.lng, kind: 'point' });
     } else {
       const h = o.hit;
       const name = placeName(locale, h.nameTh, h.nameEn) ?? undefined;
       const hl = HIGHLIGHT[h.type];
       if (h.bbox) s.flyTo({ bbox: h.bbox });
       else s.flyTo({ center: [h.lng, h.lat] });
-      s.select({ lat: h.lat, lng: h.lng, label: name, highlight: hl ? { layerId: hl.layerId, key: hl.key, value: h.refId } : undefined });
+      s.select({ lat: h.lat, lng: h.lng, label: name, kind: h.type, highlight: hl ? { layerId: hl.layerId, key: hl.key, value: h.refId } : undefined });
     }
     setOpen(false);
     inputRef.current?.blur();

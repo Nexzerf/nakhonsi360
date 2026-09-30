@@ -46,7 +46,14 @@ export interface Observation {
   unit: string;
   observedAt: string;
   fetchedAt: string;
+  /** Official classification text exactly as the source publishes it (e.g. ThaiWater "น้ำมาก"). */
   officialStatus?: string;
+  /** Official level number, when the source publishes one. */
+  officialLevel?: number;
+  /** Colour published by the source for that level (never chosen by us). */
+  officialColor?: string;
+  /** Extra official wording, e.g. ThaiWater "ต่ำกว่าตลิ่ง 1.58 ม.". */
+  officialDetail?: string;
   raw?: unknown;
 }
 
@@ -163,6 +170,47 @@ export interface ContextCard {
   features: NearbyFeature[];
 }
 
+/** One station reading as shown in the inspector. */
+export interface ConditionReading {
+  sourceId: string;
+  stationId: string;
+  stationNameTh: string | null;
+  stationNameEn: string | null;
+  /** Agency that operates the station, as published (ThaiWater aggregates several). */
+  agencyTh: string | null;
+  riverName: string | null;
+  value: number;
+  unit: string;
+  observedAt: string;
+  fetchedAt: string;
+  distanceM: number;
+  officialStatus: string | null;
+  officialLevel: number | null;
+  officialColor: string | null;
+  officialDetail: string | null;
+  /** ThaiWater water level as % of channel capacity, when published. */
+  bankPercent: number | null;
+}
+
+export interface VariableConditions {
+  variable: string;
+  rule: { kind: 'radius' | 'same_river'; radiusM: number };
+  /** Sources for this variable that have delivered data at least once. */
+  connectedSourceIds: string[];
+  /** Sources not connected yet, with their build phase. */
+  pendingSourceIds: string[];
+  /** Local readings, at most one per source (sources are never merged). */
+  readings: ConditionReading[];
+  /** Nearest reading beyond the rule, clearly labelled as elsewhere. */
+  elsewhere: ConditionReading | null;
+  /** Local readings from different sources differ beyond tolerance. */
+  disagree: boolean;
+}
+
+export interface ConditionsCard {
+  variables: VariableConditions[];
+}
+
 export type InspectSection = 'admin' | 'village' | 'context' | 'conditions' | 'hazards' | 'satellite';
 
 export interface InspectResponse {
@@ -173,7 +221,7 @@ export interface InspectResponse {
     admin: CardResult<AdminCard>;
     village: CardResult<VillageCard>;
     context: CardResult<ContextCard>;
-    conditions: CardResult<never>;
+    conditions: CardResult<ConditionsCard>;
     hazards: CardResult<never>;
     satellite: CardResult<never>;
   }>;

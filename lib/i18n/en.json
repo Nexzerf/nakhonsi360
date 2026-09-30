@@ -59,7 +59,9 @@
   },
   "legend": {
     "title": "Legend",
-    "none": "No layers with data are on the map yet"
+    "none": "No layers with data are on the map yet",
+    "waterScale": "Water-level status per ThaiWater (HII) scale",
+    "noStatus": "No status from source"
   },
   "inspector": {
     "title": "Location details",
@@ -111,7 +113,12 @@
       "village": "Village",
       "subdistrict": "Subdistrict",
       "point": "Selected point",
-      "place": "Place"
+      "place": "Place",
+      "province": "Province",
+      "district": "District",
+      "station": "Monitoring station",
+      "water": "Water",
+      "road": "Road"
     },
     "sourceLabel": "Source"
   },
@@ -176,5 +183,26 @@
   "breadcrumb": {
     "label": "Administrative hierarchy",
     "thailand": "Thailand"
+  },
+  "conditions": {
+    "noStationRadius": "No monitoring station within {radius}",
+    "noStationRiver": "No water-level station on the same waterway within {radius}",
+    "riverRuleNote": "Water level only applies to its own waterway, so readings from other waterways are not shown as this point's value",
+    "elsewhere": "Nearest station (a value from elsewhere, not this point)",
+    "disagree": "Sources disagree",
+    "pending": "Source not connected yet",
+    "statusNote": "Status per the scale published by {source} (water level vs channel capacity)",
+    "bankPct": "{pct}% of channel capacity",
+    "via": "{agency} via {source}",
+    "distance": "{distance} away",
+    "atStation": "At the station"
+  },
+  "units": {
+    "mm": "mm",
+    "m MSL": "m MSL",
+    "%": "%",
+    "°C": "°C",
+    "µg/m³": "µg/m³",
+    "m/s": "m/s"
   }
 }

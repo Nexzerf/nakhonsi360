@@ -36,11 +36,12 @@ export async function GET() {
     const lastImport = imports.get(src.id) ?? null;
     const lastRun = runs.get(src.id) ?? null;
     let status: SourceStatus;
-    if (src.phase > CURRENT_PHASE) status = 'not_connected';
-    else if (src.id.startsWith('basemap.')) status = 'external';
-    else if (database !== 'ok') status = 'unknown';
+    if (src.id.startsWith('basemap.')) status = 'external';
+    else if (database !== 'ok') status = src.phase > CURRENT_PHASE ? 'not_connected' : 'unknown';
     else if (imported.has(src.id)) status = lastImport ? 'ok' : 'not_imported';
-    else status = liveStatus(src, lastRun);
+    // Live sources count as connected once they have any ingest run, whatever the phase.
+    else if (lastRun) status = liveStatus(src, lastRun);
+    else status = 'not_connected';
     return { ...src, health: { id: src.id, status, lastImport, lastRun } };
   });
 
