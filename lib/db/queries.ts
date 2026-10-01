@@ -14,6 +14,7 @@ import type {
   ForecastCard,
   GazetteerType,
   HazardsCard,
+  LandcoverCard,
   UnlocatedVillage,
   VillageHit,
   VillageLocationMethod,
@@ -229,6 +230,7 @@ const TILE_LAYERS: Record<string, TileLayerSql> = {
   'water-bodies': { sourceLayer: 'water_bodies', from: 'osm_features', where: "kind = 'water'", props: 'osm_id, kind, subkind, name_th, name_en', polygon: true },
   roads: { sourceLayer: 'roads', from: 'osm_features', where: "(kind = 'road_major' or ($1 >= 14 and kind = 'road_minor'))", props: 'osm_id, kind, subkind, name_th, name_en', polygon: false },
   coastline: { sourceLayer: 'coastline', from: 'osm_features', where: "kind = 'coastline'", props: 'osm_id', polygon: false },
+  mangroves: { sourceLayer: 'mangroves', from: 'landcover_features', where: "source_id = 'esa.worldcover' and class_code = 95", props: 'id, class_code, area_m2', polygon: true },
 };
 
 export function isTileLayer(id: string): boolean {
@@ -417,5 +419,25 @@ export async function forecastAt(sql: Sql, lng: number, lat: number, hours: numb
     fetchedAt: new Date(Math.min(...fetched)).toISOString(),
     hourly: hourly.map((r) => ({ validAt: toIso(r.valid_at)!, values: r.vals })),
     daily: daily.map((r) => ({ validAt: toIso(r.valid_at)!, values: r.vals })),
+  };
+}
+
+// ---------------------------------------------------------------- land cover
+
+export async function landcoverAt(sql: Sql, lng: number, lat: number, mangroveRadiusM: number): Promise<LandcoverCard | null> {
+  const [rows, near] = await Promise.all([
+    sql<{ source_id: string; pcode: string; subdistrict_th: string; class_code: number; area_km2: number; share: number }[]>`
+      select * from landcover_at(${lng}, ${lat})`,
+    sql<{ distance_m: number }[]>`select distance_m from landcover_feature_near(${lng}, ${lat}, 95::smallint, ${mangroveRadiusM})`,
+  ]);
+  const first = rows[0];
+  if (!first) return null;
+  return {
+    sourceId: first.source_id,
+    pcode: first.pcode,
+    subdistrictTh: first.subdistrict_th,
+    classes: rows.map((r) => ({ code: r.class_code, areaKm2: r.area_km2, share: r.share })),
+    mangroveRadiusM,
+    mangroveDistanceM: near[0]?.distance_m ?? null,
   };
 }

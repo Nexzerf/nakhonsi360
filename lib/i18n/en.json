@@ -79,7 +79,8 @@
       "context": "Geographic context",
       "satellite": "Satellite",
       "sources": "Sources",
-      "forecast": "Weather forecast"
+      "forecast": "Weather forecast",
+      "landcover": "Land cover"
     },
     "admin": {
       "province": "Province",
@@ -257,5 +258,13 @@
     },
     "chip": "Forecast",
     "rainShort": "{value} mm"
+  },
+  "landcover": {
+    "subdistrict": "Share of {name} subdistrict ({area})",
+    "note": "Satellite classification for 2021 at 10 m, not the Land Development Department's land-use survey. Rubber and oil palm plantations count as tree cover",
+    "others": "Other",
+    "mangroveInside": "This point is inside mangroves classified from satellite imagery",
+    "mangroveNear": "Nearest mangroves {distance} away",
+    "mangroveNone": "No mangroves within {radius}"
   }
 }

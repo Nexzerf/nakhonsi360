@@ -14,7 +14,8 @@ export interface OgrLayerInfo {
   geometryType: string | null;
 }
 
-function run(cmd: string, args: string[]): Promise<string> {
+/** Run a GDAL command-line tool and return its stdout. */
+export function run(cmd: string, args: string[]): Promise<string> {
   return new Promise((resolve, reject) => {
     const p = spawn(cmd, args, { stdio: ['ignore', 'pipe', 'pipe'] });
     let out = '';

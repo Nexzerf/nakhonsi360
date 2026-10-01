@@ -325,6 +325,25 @@ export const SOURCES: readonly DataSource[] = [
 
   // ---------------------------------------------------------------- Phase 3
   {
+    id: 'esa.worldcover',
+    organization: 'European Space Agency (ESA) — WorldCover',
+    organizationEn: 'European Space Agency (ESA) — WorldCover project',
+    datasetName: 'สิ่งปกคลุมดินละเอียด 10 ม. จากดาวเทียม Sentinel-1/2 ปี 2564 (ESA WorldCover 2021 v200)',
+    datasetNameEn: 'ESA WorldCover 10 m land cover 2021 (v200), from Sentinel-1/2',
+    kind: 'satellite_derived',
+    license: 'CC BY 4.0 (WorldCover Product User Manual v2.0, section 5.1)',
+    attribution: 'สิ่งปกคลุมดิน: © ESA WorldCover project 2021 / Contains modified Copernicus Sentinel data (2021) processed by ESA WorldCover consortium',
+    endpoint: 'https://esa-worldcover.s3.eu-central-1.amazonaws.com/v200/2021/map/',
+    requiresKey: false,
+    expectedUpdateMinutes: null,
+    coverage: 'Global, 10 m; one map per reference year (2021 is the latest, v200). Classification of satellite imagery, not an official Thai land-use survey: plantations such as rubber and oil palm are counted as tree cover. Overall accuracy in Asia 82.1 ± 1.0% (PUM Table 4)',
+    verified: true,
+    verifiedAt: '2026-10-01',
+    optional: false,
+    phase: 3,
+    verificationNote: 'ตรวจสอบแล้ว: อ่านไฟล์ COG จริง 2 แผ่น (N06E099, N09E099) จาก S3 ของ ESA ตัดเฉพาะจังหวัด + 5 กม. และคำนวณพื้นที่ทุกพิกเซล 10 ม. ตามละติจูด ผลรวมรายตำบลตรงกับพื้นที่รูปตำบล HDX ต่างกันไม่เกิน 0.05% ใบอนุญาต CC BY 4.0 และนิยามชั้นข้อมูลจากคู่มือ PUM v2.0 — Verified: read the 2 real COG tiles from ESA\'s S3 bucket, clipped to the province + 5 km, summed every 10 m pixel\'s area from its latitude; per-subdistrict totals match the HDX polygon areas within 0.05%. Licence and class definitions from the PUM v2.0.',
+  },
+  {
     id: 'gistda.soilmoisture',
     organization: 'GISTDA',
     organizationEn: 'GISTDA',
@@ -474,5 +493,5 @@ export function findSource(id: string): DataSource | undefined {
 }
 
 /** Static sources loaded into Postgres by the import scripts. */
-export const IMPORTED_SOURCE_IDS = ['hdx.cod-ab-tha', 'dopa.villages', 'osm.geofabrik'] as const;
+export const IMPORTED_SOURCE_IDS = ['hdx.cod-ab-tha', 'dopa.villages', 'osm.geofabrik', 'esa.worldcover'] as const;
 export type ImportedSourceId = (typeof IMPORTED_SOURCE_IDS)[number];

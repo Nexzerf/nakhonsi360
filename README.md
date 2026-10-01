@@ -12,13 +12,16 @@ An interactive environmental map of Nakhon Si Thammarat Province, Thailand. It b
 
 ## Status
 
-**Phase 1 (map foundation): code complete; real data import pending.** See [PHASE1_REPORT.md](PHASE1_REPORT.md).
+- **Phase 1 (map foundation):** code complete; boundaries and villages verified with real files. See [PHASE1_REPORT.md](PHASE1_REPORT.md).
+- **Phase 2 (live conditions):** ThaiWater water level and rain, NASA FIRMS hotspots and TMD NWP forecasts are live. TMD observations, Air4Thai and GISTDA are blocked. See [PHASE2_PROGRESS.md](PHASE2_PROGRESS.md).
+- **Phase 3 (environment):** started with ESA WorldCover land cover and mangroves. Thai agency sources are blocked from the build environment. See [PHASE3_PROGRESS.md](PHASE3_PROGRESS.md).
 
 ## Docs
 
 - [SETUP.md](SETUP.md) — install, database, loading the real data, API keys, deploy
 - [DATA_SOURCES.md](DATA_SOURCES.md) — every source with endpoint, key, licence, update frequency and verification status
 - [PHASE1_REPORT.md](PHASE1_REPORT.md) — what works, what failed verification, what is stubbed
+- [PHASE2_PROGRESS.md](PHASE2_PROGRESS.md), [PHASE3_PROGRESS.md](PHASE3_PROGRESS.md) — live sources and environment layers
 
 ## Quick start
 

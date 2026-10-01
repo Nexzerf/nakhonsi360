@@ -31,7 +31,7 @@ const PMTILES_BASE = process.env.NEXT_PUBLIC_PMTILES_BASE_URL || undefined;
 
 /** Draw order, bottom to top. */
 const Z_ORDER = [
-  'water-bodies', 'water-reservoirs', 'roads', 'coastline', 'water-streams', 'water-canals', 'water-rivers',
+  'mangroves', 'water-bodies', 'water-reservoirs', 'roads', 'coastline', 'water-streams', 'water-canals', 'water-rivers',
   'admin-subdistrict', 'admin-district', 'admin-province', 'villages',
   'hotspots',
   'rain-24h', 'water-stations',

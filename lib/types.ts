@@ -220,6 +220,18 @@ export interface ForecastCard {
   daily: Array<{ validAt: string; values: Record<string, number> }>;
 }
 
+/** Land cover of the subdistrict at a point (satellite classification), plus mapped mangroves near the point. */
+export interface LandcoverCard {
+  sourceId: string;
+  pcode: string;
+  subdistrictTh: string;
+  /** Largest class first; share is of the subdistrict's classified area. */
+  classes: Array<{ code: number; areaKm2: number; share: number }>;
+  mangroveRadiusM: number;
+  /** Distance to the nearest mapped mangrove polygon (0 = inside), null if none within the radius. */
+  mangroveDistanceM: number | null;
+}
+
 export interface ContextCard {
   radiusM: number;
   features: NearbyFeature[];
@@ -266,7 +278,7 @@ export interface ConditionsCard {
   variables: VariableConditions[];
 }
 
-export type InspectSection = 'admin' | 'village' | 'context' | 'conditions' | 'forecast' | 'hazards' | 'satellite';
+export type InspectSection = 'admin' | 'village' | 'context' | 'conditions' | 'forecast' | 'hazards' | 'landcover' | 'satellite';
 
 export interface InspectResponse {
   lat: number;
@@ -279,6 +291,7 @@ export interface InspectResponse {
     conditions: CardResult<ConditionsCard>;
     forecast: CardResult<ForecastCard>;
     hazards: CardResult<HazardsCard>;
+    landcover: CardResult<LandcoverCard>;
     satellite: CardResult<never>;
   }>;
 }

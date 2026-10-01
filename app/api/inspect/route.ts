@@ -1,6 +1,6 @@
 import { NextResponse, type NextRequest } from 'next/server';
 import { getDb, withTimeout, TimeoutError } from '@/lib/db/client';
-import { connectedSources, forecastAt, hazardsAt, inspectAdmin, latestAtStations, latestImports, nearestFeatures, nearestObservations, nearestVillages, unlocatedVillagesAt, waterwayNamesNear } from '@/lib/db/queries';
+import { connectedSources, forecastAt, hazardsAt, inspectAdmin, landcoverAt, latestAtStations, latestImports, nearestFeatures, nearestObservations, nearestVillages, unlocatedVillagesAt, waterwayNamesNear } from '@/lib/db/queries';
 import { CONDITION_VARIABLES } from '@/lib/registry/stationRules';
 import { buildVariableConditions } from '@/lib/inspect/conditions';
 import type { CardResult, ConditionsCard, HazardsCard, ImportRecord, InspectResponse, InspectSection, SourceRef } from '@/lib/types';
@@ -9,10 +9,11 @@ export const dynamic = 'force-dynamic';
 
 const CARD_TIMEOUT_MS = 4000;
 const CONTEXT_RADIUS_M = 30_000;
-const ALL_SECTIONS: InspectSection[] = ['admin', 'village', 'context', 'conditions', 'forecast', 'hazards', 'satellite'];
+const ALL_SECTIONS: InspectSection[] = ['admin', 'village', 'context', 'conditions', 'forecast', 'hazards', 'landcover', 'satellite'];
 
 /** Sections whose sources are built in later phases. */
-const PLANNED: Record<'conditions' | 'forecast' | 'hazards' | 'satellite', { phase: number; sourceIds: string[] }> = {
+const PLANNED: Record<'conditions' | 'forecast' | 'hazards' | 'landcover' | 'satellite', { phase: number; sourceIds: string[] }> = {
+  landcover: { phase: 3, sourceIds: ['esa.worldcover', 'ldd.landuse'] },
   forecast: { phase: 2, sourceIds: ['tmd.nwp'] },
   conditions: { phase: 2, sourceIds: ['thaiwater.rain24h', 'thaiwater.waterlevel', 'tmd.weather', 'air4thai.aqi'] },
   hazards: { phase: 2, sourceIds: ['gistda.flood', 'gistda.hotspots', 'firms.hotspots', 'dmr.landslide', 'dmcr.coast'] },
@@ -52,8 +53,9 @@ export async function GET(req: NextRequest) {
   if (wantDb.length === 0) return NextResponse.json(out);
 
   if (!sql) {
+    const sections = out.sections as Partial<Record<InspectSection, CardResult<unknown>>>;
     for (const s of wantDb) {
-      out.sections[s] = s === 'conditions' || s === 'forecast' || s === 'hazards' ? { status: 'not_connected', ...PLANNED[s] } : { status: 'unavailable', reason: 'database_not_configured' };
+      sections[s] = s in PLANNED ? { status: 'not_connected', ...PLANNED[s as keyof typeof PLANNED] } : { status: 'unavailable', reason: 'database_not_configured' };
     }
     return NextResponse.json(out);
   }
@@ -63,7 +65,8 @@ export async function GET(req: NextRequest) {
     imports = await withTimeout(latestImports(sql), CARD_TIMEOUT_MS);
   } catch (err) {
     console.error('[api/inspect] imports', err);
-    for (const s of wantDb) out.sections[s] = err instanceof TimeoutError ? { status: 'timeout' } : { status: 'error' };
+    const sections = out.sections as Partial<Record<InspectSection, CardResult<unknown>>>;
+    for (const s of wantDb) sections[s] = err instanceof TimeoutError ? { status: 'timeout' } : { status: 'error' };
     return NextResponse.json(out);
   }
   const hdx = imports.get('hdx.cod-ab-tha');
@@ -156,6 +159,24 @@ export async function GET(req: NextRequest) {
     );
   }
 
+  if (wantDb.includes('landcover')) {
+    tasks.push(
+      (async () => {
+        const wc = imports.get('esa.worldcover');
+        if (!wc) {
+          out.sections.landcover = { status: 'not_connected', ...PLANNED.landcover };
+          return;
+        }
+        out.sections.landcover = await guarded(async () => {
+          const sources = [ref('esa.worldcover', wc)];
+          if (await outside()) return { status: 'empty', reason: 'outside_study_area', sources };
+          const data = await landcoverAt(sql, lng, lat, MANGROVE_RADIUS_M);
+          return data ? { status: 'ok', data, sources } : { status: 'empty', reason: 'no_public_data', sources };
+        });
+      })(),
+    );
+  }
+
   if (wantDb.includes('hazards')) {
     tasks.push(
       (async () => {
@@ -171,6 +192,7 @@ export async function GET(req: NextRequest) {
 const FORECAST_HOURS = 24;
 const FORECAST_DAYS = 7;
 const HOTSPOT_RADIUS_M = 5_000;
+const MANGROVE_RADIUS_M = 10_000;
 const HOTSPOT_DAYS = 7;
 
 async function hazardsCard(sql: NonNullable<ReturnType<typeof getDb>>, lng: number, lat: number, outsideArea: boolean): Promise<CardResult<HazardsCard>> {

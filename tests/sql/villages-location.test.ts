@@ -107,6 +107,17 @@ suite('village location correction (real DOPA excerpt)', () => {
         if (!(e instanceof Rollback)) throw e;
       });
   });
+
+  it('resolves DOPA subdistricts whose HDX Thai name is published cut to 48 bytes (TH801210, TH801214)', async () => {
+    const [r] = await sql<{ hdx_w: string; hdx_e: string; w: string; e: string }[]>`
+      select (select name_th from admin_areas where pcode = 'TH801210') as hdx_w, (select name_th from admin_areas where pcode = 'TH801214') as hdx_e,
+             resolve_source_subdistrict('80121000', 'ปากพนังฝั่งตะวันตก', 'ปากพนัง') as w,
+             resolve_source_subdistrict('80121400', 'ปากพนังฝั่งตะวันออก', 'ปากพนัง') as e`;
+    // If HDX publishes the full names, this test should be updated: the workaround is no longer needed.
+    expect(r!.hdx_w).toBe('ปากพนังฝั่งตะวัน');
+    expect(r!.hdx_e).toBe('ปากพนังฝั่งตะวัน');
+    expect([r!.w, r!.e]).toEqual(['TH801210', 'TH801214']);
+  });
 });
 
 class Rollback extends Error {}

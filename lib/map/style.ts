@@ -151,6 +151,11 @@ export function overlayLayers(layer: LayerDef, locale: Locale): LayerSpecificati
         { ...base, id: id(''), type: 'fill', paint: { 'fill-color': '#7fb3e0', 'fill-opacity': 0.6 } },
         { ...base, id: id('-outline'), type: 'line', paint: { 'line-color': COLORS.waterOutline, 'line-width': 1 } },
       ];
+    case 'mangroves':
+      return [
+        { ...base, id: id(''), type: 'fill', paint: { 'fill-color': '#00cf75', 'fill-opacity': 0.55 } },
+        { ...base, id: id('-outline'), type: 'line', minzoom: 11, paint: { 'line-color': '#047857', 'line-width': 0.75 } },
+      ];
     case 'water-bodies':
       return [
         { ...base, id: id(''), type: 'fill', paint: { 'fill-color': COLORS.water, 'fill-opacity': 0.6 } },

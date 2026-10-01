@@ -8,8 +8,9 @@ import { findSource } from '@/lib/registry/sources';
 import { COLORS, type IconId } from '@/lib/registry/layers';
 import { useIsMobile } from '@/lib/hooks';
 import { useMapStore, useT, type SheetSnap } from '@/lib/state/store';
-import type { AdminCard, CardResult, ConditionReading, ConditionsCard, ContextCard, FeatureKind, ForecastCard, HazardsCard, InspectResponse, InspectSection, SourceRef, VariableConditions, VillageCard } from '@/lib/types';
+import type { AdminCard, CardResult, ConditionReading, ConditionsCard, ContextCard, FeatureKind, ForecastCard, HazardsCard, LandcoverCard, InspectResponse, InspectSection, SourceRef, VariableConditions, VillageCard } from '@/lib/types';
 import { CONDITION_VARIABLES } from '@/lib/registry/stationRules';
+import { WORLDCOVER_CLASSES } from '@/lib/import/worldcover';
 import { DataFreshness } from '@/components/DataFreshness';
 import { GeoBreadcrumb } from '@/components/GeoBreadcrumb';
 import { Icon } from '@/components/Icon';
@@ -485,6 +486,67 @@ function ForecastCardView({ sel }: { sel: Sel }) {
   );
 }
 
+function LandcoverCardView({ sel }: { sel: Sel }) {
+  const t = useT();
+  const locale = useMapStore((s) => s.locale);
+  const q = useSection<LandcoverCard>('landcover', sel);
+  const r = q.data;
+  if (r?.status === 'not_connected') return null;
+  if (r?.status !== 'ok') {
+    return (
+      <Card id="card-landcover" title={t('inspector.sections.landcover')} icon="landuse">
+        <CardState q={q} />
+      </Card>
+    );
+  }
+  const d = r.data;
+  const total = d.classes.reduce((a, c) => a + c.areaKm2, 0);
+  // Classes under 1% are grouped so the list stays short; the bar still shows every class.
+  const major = d.classes.filter((c) => c.share >= 0.01);
+  const minor = d.classes.filter((c) => c.share < 0.01);
+  const cls = (code: number) => WORLDCOVER_CLASSES.find((c) => c.code === code);
+  const km2 = (v: number) => (locale === 'th' ? `${v.toLocaleString('th-TH', { maximumFractionDigits: v < 10 ? 2 : 1 })} ตร.กม.` : `${v.toLocaleString('en-GB', { maximumFractionDigits: v < 10 ? 2 : 1 })} km²`);
+  const pct = (v: number) => `${(v * 100).toLocaleString(locale === 'th' ? 'th-TH' : 'en-GB', { maximumFractionDigits: v < 0.1 ? 1 : 0 })}%`;
+  return (
+    <Card id="card-landcover" title={t('inspector.sections.landcover')} icon="landuse">
+      <p className="text-xs text-fg-subtle">{t('landcover.subdistrict', { name: d.subdistrictTh, area: km2(total) })}</p>
+      <div className="mt-2 flex h-2.5 overflow-hidden rounded-full" role="img" aria-label={major.map((c) => `${locale === 'en' ? cls(c.code)?.en : cls(c.code)?.th} ${pct(c.share)}`).join(', ')}>
+        {d.classes.map((c) => (
+          <span key={c.code} style={{ width: `${c.share * 100}%`, background: cls(c.code)?.color ?? '#999' }} />
+        ))}
+      </div>
+      <ul className="mt-2 space-y-1">
+        {major.map((c) => (
+          <li key={c.code} className="flex items-baseline gap-2 text-sm">
+            <span aria-hidden="true" className="mt-1 h-2.5 w-2.5 shrink-0 rounded-sm" style={{ background: cls(c.code)?.color ?? '#999' }} />
+            <span className="min-w-0 flex-1">{locale === 'en' ? cls(c.code)?.en : cls(c.code)?.th}</span>
+            <span className="tabular shrink-0 text-xs text-fg-subtle">{km2(c.areaKm2)}</span>
+            <span className="tabular w-12 shrink-0 text-right font-medium">{pct(c.share)}</span>
+          </li>
+        ))}
+        {minor.length > 0 && (
+          <li className="flex items-baseline gap-2 text-sm text-fg-muted">
+            <span aria-hidden="true" className="h-2.5 w-2.5 shrink-0" />
+            <span className="min-w-0 flex-1">
+              {t('landcover.others')}: {minor.map((c) => (locale === 'en' ? cls(c.code)?.en : cls(c.code)?.th)).join(', ')}
+            </span>
+            <span className="tabular w-12 shrink-0 text-right">{pct(minor.reduce((a, c) => a + c.share, 0))}</span>
+          </li>
+        )}
+      </ul>
+      <p className="mt-2 border-t border-line pt-2 text-sm">
+        {d.mangroveDistanceM === null
+          ? t('landcover.mangroveNone', { radius: formatDistance(d.mangroveRadiusM, locale) })
+          : d.mangroveDistanceM === 0
+            ? t('landcover.mangroveInside')
+            : t('landcover.mangroveNear', { distance: formatDistance(d.mangroveDistanceM, locale) })}
+      </p>
+      <p className="mt-1.5 text-xs text-fg-subtle">{t('landcover.note')}</p>
+      <SourceFooter refs={r.sources} />
+    </Card>
+  );
+}
+
 function HazardsCardView({ sel }: { sel: Sel }) {
   const t = useT();
   const locale = useMapStore((s) => s.locale);
@@ -582,6 +644,7 @@ export function LocationInspector() {
   // Same queries as the forecast and hazards cards (shared cache); used here for the sources list.
   const forecast = useSection<ForecastCard>('forecast', selection);
   const hazards = useSection<HazardsCard>('hazards', selection);
+  const landcover = useSection<LandcoverCard>('landcover', selection);
 
   // Highlight the containing subdistrict when the user clicked a bare point.
   useEffect(() => {
@@ -605,7 +668,7 @@ export function LocationInspector() {
   const crumbLevels = levels.filter((l) => l.level <= maxLevel);
   const villageCrumb = isVillage && selection.label ? { name: selection.label, lng: selection.lng, lat: selection.lat } : undefined;
 
-  const allRefs = [conditions, forecast, hazards, admin, village, context].flatMap((q) => (q.data && 'sources' in q.data ? q.data.sources : []));
+  const allRefs = [conditions, forecast, hazards, landcover, admin, village, context].flatMap((q) => (q.data && 'sources' in q.data ? q.data.sources : []));
   const uniqueRefs = [...new Map(allRefs.map((r) => [r.sourceId, r])).values()];
 
   const copy = async () => {
@@ -703,6 +766,7 @@ export function LocationInspector() {
         <ConditionsCardView q={conditions} />
         <ForecastCardView sel={selection} />
         <HazardsCardView sel={selection} />
+        <LandcoverCardView sel={selection} />
         <VillageCardView q={village} />
         <ContextCardView q={context} />
         <AdminCardView q={admin} />

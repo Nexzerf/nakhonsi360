@@ -59,6 +59,14 @@ npm run import:admin -- --file data/static/<file>.gpkg --map level3.nameTh=ADM3_
 2. Run **Actions → Import static data (Phase 1) → Run workflow**.
 3. Download the `samples-and-manifest` artifact and commit `data/samples/` so adapter tests can run against the real samples.
 
+### Land cover (Phase 3)
+
+```bash
+DATABASE_URL=… npm run import:worldcover   # ESA WorldCover 2021, read from its public S3 bucket (~1 min)
+```
+
+Needs the admin boundaries first and GDAL (`gdalbuildvrt`, `gdal_translate`, `gdal_rasterize`, `gdal_contour`). It reads only the province window of two Cloud-Optimised GeoTIFF tiles over HTTP; `--file <tif|vrt>` uses local copies instead.
+
 ## 4. Live data (Phase 2)
 
 ```bash

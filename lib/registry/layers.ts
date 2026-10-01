@@ -184,7 +184,7 @@ export const LAYERS: readonly LayerDef[] = [
   // Coast — Phase 3
   { id: 'shoreline-change', group: 'coast', th: 'การเปลี่ยนแปลงแนวชายฝั่ง', en: 'Shoreline change', icon: 'coastline', sourceIds: ['dmr.shoreline'], phase: 3, defaultOn: false, minzoom: 0, legend: { type: 'line', color: COLORS.coastline, width: 2 } },
   { id: 'erosion', group: 'coast', th: 'การกัดเซาะ', en: 'Coastal erosion', icon: 'erosion', sourceIds: ['dmcr.coast'], phase: 3, defaultOn: false, minzoom: 0, legend: { type: 'line', color: COLORS.erosion, width: 3 } },
-  { id: 'mangroves', group: 'coast', th: 'ป่าชายเลน', en: 'Mangroves', icon: 'mangrove', sourceIds: ['dmcr.coast'], phase: 3, defaultOn: false, minzoom: 0, legend: { type: 'fill', color: '#86efac', outline: COLORS.forest } },
+  { id: 'mangroves', group: 'coast', th: 'ป่าชายเลน', en: 'Mangroves', icon: 'mangrove', sourceIds: ['esa.worldcover', 'dmcr.coast'], phase: 3, defaultOn: false, minzoom: 0, sourceLayer: 'mangroves', zoomNoteTh: 'จากการจำแนกภาพดาวเทียม ESA WorldCover 2021 (10 ม.) ไม่ใช่แผนที่ทางการของ ทช.', zoomNoteEn: 'From ESA WorldCover 2021 satellite classification (10 m), not the official DMCR map', legend: { type: 'fill', color: '#00cf75', outline: '#047857' } },
 
   // Environment — Phase 3
   { id: 'landuse', group: 'environment', th: 'การใช้ที่ดิน', en: 'Land use', icon: 'landuse', sourceIds: ['ldd.landuse'], phase: 3, defaultOn: false, minzoom: 12, legend: { type: 'fill', color: '#e5e7eb', outline: COLORS.urban } },
