@@ -131,6 +131,26 @@ export const SOURCES: readonly DataSource[] = [
     verificationNote: UNVERIFIED_NETWORK,
   },
 
+  {
+    id: 'basemap.terrain-aws',
+    organization: 'Mapzen / AWS Open Data (Terrain Tiles)',
+    organizationEn: 'Mapzen / AWS Open Data (Terrain Tiles)',
+    datasetName: 'ความสูงภูมิประเทศสำหรับมุมมอง 3 มิติ',
+    datasetNameEn: 'Elevation for the 3D view',
+    kind: 'reference',
+    license: 'Open data; attribution per https://github.com/tilezen/joerd/blob/master/docs/attribution.md (includes SRTM, GMTED2010, ETOPO1)',
+    attribution: 'ภูมิประเทศ: Mapzen Terrain Tiles (AWS Open Data; SRTM, GMTED2010, ETOPO1)',
+    endpoint: 'https://registry.opendata.aws/terrain-tiles/',
+    requiresKey: false,
+    expectedUpdateMinutes: null,
+    coverage: 'Global; ~30 m in Thailand (SRTM)',
+    verified: true,
+    verifiedAt: '2026-10-01',
+    optional: true,
+    phase: 1,
+    verificationNote: 'ตรวจสอบแล้ว: ดึงไทล์ terrarium ได้ (HTTP 200) ใช้เฉพาะมุมมอง 3 มิติ — Verified: terrarium tiles load; used only in the 3D view.',
+  },
+
   // ---------------------------------------------------------------- Phase 2
   {
     id: 'thaiwater.waterlevel',

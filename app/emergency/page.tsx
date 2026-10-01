@@ -13,7 +13,8 @@ export default async function EmergencyPage({ searchParams }: { searchParams: Pr
   const locale: Locale = (await searchParams).lang === 'en' ? 'en' : 'th';
   const t = (k: string) => translate(locale, k);
   return (
-    <main className="mx-auto min-h-full max-w-2xl bg-surface px-4 py-5 text-fg" lang={locale}>
+    <main className="mx-auto min-h-full max-w-2xl bg-surface px-4 pt-0 pb-5 text-fg" lang={locale}>
+      <div aria-hidden="true" className="thai-band -mx-4 mb-3" />
       <div className="flex items-center justify-between gap-2">
         <Link href="/" className="inline-flex min-h-11 items-center text-accent underline">
           ← {t('emergency.backToMap')}
@@ -22,7 +23,7 @@ export default async function EmergencyPage({ searchParams }: { searchParams: Pr
           {locale === 'en' ? 'ไทย' : 'EN'}
         </Link>
       </div>
-      <h1 className="mt-2 text-2xl font-semibold">{t('emergency.title')}</h1>
+      <h1 className="font-display mt-2 text-2xl font-semibold">{t('emergency.title')}</h1>
       <p className="mt-1 mb-4 text-sm text-fg-muted">{t('emergency.pageIntro')}</p>
       <EmergencyDirectory locale={locale} />
     </main>

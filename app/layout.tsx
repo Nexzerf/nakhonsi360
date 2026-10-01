@@ -2,7 +2,7 @@ import type { Metadata, Viewport } from 'next';
 import 'maplibre-gl/dist/maplibre-gl.css';
 import './globals.css';
 import { Providers } from '@/components/Providers';
-import { IBM_Plex_Sans_Thai } from 'next/font/google';
+import { IBM_Plex_Sans_Thai, Noto_Serif_Thai } from 'next/font/google';
 
 // Downloaded at build time and self-hosted (OFL licence); no runtime request to Google.
 const plex = IBM_Plex_Sans_Thai({
@@ -10,6 +10,14 @@ const plex = IBM_Plex_Sans_Thai({
   weight: ['400', '500', '600'],
   display: 'swap',
   variable: '--font-plex',
+});
+
+// Looped traditional Thai letterforms for headings and the wordmark (OFL).
+const serifThai = Noto_Serif_Thai({
+  subsets: ['thai', 'latin'],
+  weight: ['600', '700'],
+  display: 'swap',
+  variable: '--font-serif-thai',
 });
 
 export const metadata: Metadata = {
@@ -24,13 +32,13 @@ export const viewport: Viewport = {
   viewportFit: 'cover',
   themeColor: [
     { media: '(prefers-color-scheme: light)', color: '#ffffff' },
-    { media: '(prefers-color-scheme: dark)', color: '#0f1b2d' },
+    { media: '(prefers-color-scheme: dark)', color: '#1d1912' },
   ],
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="th" className={plex.variable}>
+    <html lang="th" className={`${plex.variable} ${serifThai.variable}`}>
       <body>
         <Providers>{children}</Providers>
       </body>

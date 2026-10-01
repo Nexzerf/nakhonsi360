@@ -169,18 +169,18 @@ export function highlightLayers(layer: LayerDef, key: string, value: string | nu
   const base = { source: overlaySourceId(layer.id), 'source-layer': layer.sourceLayer!, filter: ['==', ['get', key], value] as never };
   const id = `${OVERLAY_PREFIX}highlight-${layer.id}`;
   if (layer.legend.type === 'circle') {
-    return [{ ...base, id, type: 'circle', paint: { 'circle-radius': 9, 'circle-color': 'rgba(0,0,0,0)', 'circle-stroke-color': '#1d4ed8', 'circle-stroke-width': 3 } }];
+    return [{ ...base, id, type: 'circle', paint: { 'circle-radius': 9, 'circle-color': 'rgba(0,0,0,0)', 'circle-stroke-color': '#b8892e', 'circle-stroke-width': 3 } }];
   }
   return [
-    { ...base, id: `${id}-fill`, type: 'fill', paint: { 'fill-color': '#1d4ed8', 'fill-opacity': 0.08 } },
-    { ...base, id, type: 'line', paint: { 'line-color': '#1d4ed8', 'line-width': 3 } },
+    { ...base, id: `${id}-fill`, type: 'fill', paint: { 'fill-color': '#b8892e', 'fill-opacity': 0.08 } },
+    { ...base, id, type: 'line', paint: { 'line-color': '#b8892e', 'line-width': 3 } },
   ];
 }
 
 export function selectionLayers(): LayerSpecification[] {
   return [
-    { id: `${OVERLAY_PREFIX}selection-halo`, type: 'circle', source: SELECTION_SOURCE, paint: { 'circle-radius': 12, 'circle-color': '#1d4ed8', 'circle-opacity': 0.18 } },
-    { id: `${OVERLAY_PREFIX}selection`, type: 'circle', source: SELECTION_SOURCE, paint: { 'circle-radius': 6, 'circle-color': '#1d4ed8', 'circle-stroke-color': '#ffffff', 'circle-stroke-width': 2 } },
+    { id: `${OVERLAY_PREFIX}selection-halo`, type: 'circle', source: SELECTION_SOURCE, paint: { 'circle-radius': 12, 'circle-color': '#b8892e', 'circle-opacity': 0.18 } },
+    { id: `${OVERLAY_PREFIX}selection`, type: 'circle', source: SELECTION_SOURCE, paint: { 'circle-radius': 6, 'circle-color': '#b8892e', 'circle-stroke-color': '#ffffff', 'circle-stroke-width': 2 } },
   ];
 }
 
@@ -338,4 +338,55 @@ export function draftLayers(): LayerSpecification[] {
     { id: `${OVERLAY_PREFIX}report-draft-halo`, type: 'circle', source: DRAFT_SOURCE, paint: { 'circle-radius': 16, 'circle-color': '#dc2626', 'circle-opacity': 0.2 } },
     { id: `${OVERLAY_PREFIX}report-draft`, type: 'circle', source: DRAFT_SOURCE, paint: { 'circle-radius': 7, 'circle-color': '#dc2626', 'circle-stroke-color': '#ffffff', 'circle-stroke-width': 2.5 } },
   ];
+}
+
+// ---------------------------------------------------------------- 3D view
+
+export const TERRAIN_SOURCE = 'n3d-terrain';
+export const HILLSHADE_SOURCE = 'n3d-hillshade-dem';
+export const BUILDINGS_SOURCE = 'n3d-buildings';
+export const BUILDINGS_LAYER = 'n3d-buildings';
+export const HILLSHADE_LAYER = 'n3d-hillshade';
+
+const TERRARIUM_TILES = ['https://s3.amazonaws.com/elevation-tiles-prod/terrarium/{z}/{x}/{y}.png'];
+
+/** Elevation (Mapzen Terrain Tiles on AWS Open Data). Two copies: one drives the 3D surface, one the hillshade. */
+export function terrainSource(): SourceSpecification {
+  return { type: 'raster-dem', tiles: TERRARIUM_TILES, encoding: 'terrarium', tileSize: 256, maxzoom: 14 };
+}
+
+/** OpenStreetMap buildings in the OpenMapTiles schema, served by OpenFreeMap. */
+export function buildingsSource(): SourceSpecification {
+  return { type: 'vector', url: 'https://tiles.openfreemap.org/planet' };
+}
+
+export function hillshadeLayer(): LayerSpecification {
+  return {
+    id: HILLSHADE_LAYER,
+    type: 'hillshade',
+    source: HILLSHADE_SOURCE,
+    paint: { 'hillshade-exaggeration': 0.45, 'hillshade-shadow-color': '#3b2f1d', 'hillshade-highlight-color': '#fff8e8' },
+  };
+}
+
+/**
+ * Buildings extruded to the height OSM gives (render_height), else one
+ * storey. Warm stone, like the city's old walls; heights are as mapped, not
+ * modelled.
+ */
+export function buildingsLayer(dark: boolean): LayerSpecification {
+  return {
+    id: BUILDINGS_LAYER,
+    type: 'fill-extrusion',
+    source: BUILDINGS_SOURCE,
+    'source-layer': 'building',
+    minzoom: 13,
+    filter: ['!=', ['get', 'hide_3d'], true],
+    paint: {
+      'fill-extrusion-color': dark ? '#5a4c37' : '#e6d9bf',
+      'fill-extrusion-height': ['interpolate', ['linear'], ['zoom'], 13, 0, 14.5, ['coalesce', ['get', 'render_height'], 4]],
+      'fill-extrusion-base': ['coalesce', ['get', 'render_min_height'], 0],
+      'fill-extrusion-opacity': 0.88,
+    },
+  };
 }

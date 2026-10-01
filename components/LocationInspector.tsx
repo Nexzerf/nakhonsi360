@@ -633,10 +633,11 @@ export function LocationInspector() {
         </button>
       )}
 
+      <div aria-hidden="true" className="thai-band" />
       <header className="flex items-start gap-2 border-b border-line bg-surface pt-2 pr-1.5 pb-3 pl-4 md:pt-3.5">
         <div className="min-w-0 flex-1">
           {kind !== title && <p className="eyebrow">{kind}</p>}
-          <h2 id="inspector-title" className="mt-0.5 text-xl leading-snug font-semibold tracking-tight" tabIndex={-1}>
+          <h2 id="inspector-title" className="font-display mt-0.5 text-xl leading-snug font-semibold" tabIndex={-1}>
             {title}
           </h2>
           {crumbLevels.length > 0 && (

@@ -56,6 +56,8 @@ interface MapState {
   /** Waiting for a map tap to place the report. */
   picking: boolean;
   draftLocation: DraftLocation | null;
+  /** 3D view: terrain relief and extruded buildings, tilted camera. */
+  view3d: boolean;
 
   setLocale: (l: Locale) => void;
   setBasemap: (b: BasemapId) => void;
@@ -74,6 +76,7 @@ interface MapState {
   openReport: (id: string | null) => void;
   setPicking: (picking: boolean) => void;
   setDraftLocation: (l: DraftLocation | null) => void;
+  setView3d: (on: boolean) => void;
 }
 
 let cameraSeq = 0;
@@ -95,6 +98,7 @@ export const useMapStore = create<MapState>((set) => ({
   reportId: null,
   picking: false,
   draftLocation: null,
+  view3d: false,
 
   setLocale: (locale) => set({ locale }),
   setBasemap: (basemap) => set({ basemap }),
@@ -122,6 +126,7 @@ export const useMapStore = create<MapState>((set) => ({
   openReport: (reportId) => set({ panel: 'reports', reportId, picking: false }),
   setPicking: (picking) => set({ picking }),
   setDraftLocation: (draftLocation) => set({ draftLocation, picking: false }),
+  setView3d: (view3d) => set({ view3d }),
 }));
 
 /** Translation hook bound to the current UI locale. */

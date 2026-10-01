@@ -188,6 +188,7 @@ export function LayerControl() {
       aria-label={t('layers.title')}
       className="panel rise fixed inset-x-0 bottom-0 z-40 flex max-h-[78vh] flex-col rounded-b-none md:absolute md:inset-x-auto md:top-[72px] md:right-3 md:bottom-auto md:max-h-[calc(100vh-10rem)] md:w-[340px] md:rounded-b-lg"
     >
+      <div aria-hidden="true" className="thai-band rounded-t-lg" />
       <div className="flex items-center justify-between py-1 pr-1 pl-4">
         <h2 className="text-base font-semibold">{t('layers.title')}</h2>
         <button type="button" className="icon-btn" onClick={() => useMapStore.getState().setLayerPanelOpen(false)} aria-label={t('layers.close')}>

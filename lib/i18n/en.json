@@ -181,7 +181,10 @@
     "locate": "Go to my location",
     "locateFailed": "Could not get your location",
     "compass": "Reset map to north",
-    "keyboardHint": "Use arrow keys to pan the map. Press Enter to inspect the map centre"
+    "keyboardHint": "Use arrow keys to pan the map. Press Enter to inspect the map centre",
+    "view3d": "3D view (terrain and buildings)",
+    "view2d": "Back to 2D view",
+    "view3dNote": "3D: terrain from AWS Terrain Tiles and buildings from OpenStreetMap (visible when zoomed in; rural buildings may be incomplete)"
   },
   "breadcrumb": {
     "label": "Administrative hierarchy",

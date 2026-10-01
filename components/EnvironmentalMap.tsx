@@ -13,6 +13,15 @@ import {
   OVERLAY_PREFIX,
   SELECTION_SOURCE,
   basemapStyle,
+  BUILDINGS_LAYER,
+  BUILDINGS_SOURCE,
+  buildingsLayer,
+  buildingsSource,
+  HILLSHADE_LAYER,
+  HILLSHADE_SOURCE,
+  hillshadeLayer,
+  TERRAIN_SOURCE,
+  terrainSource,
   DRAFT_SOURCE,
   draftLayers,
   earthquakeLayers,
@@ -83,6 +92,7 @@ export function EnvironmentalMap({ initialBounds }: { initialBounds: BBox | null
   const selection = useMapStore((s) => s.selection);
   const camera = useMapStore((s) => s.camera);
   const draft = useMapStore((s) => s.draftLocation);
+  const view3d = useMapStore((s) => s.view3d);
   const panel = useMapStore((s) => s.panel);
   const { data: sources } = useSources();
   const isMobile = useIsMobile();
@@ -107,6 +117,7 @@ export function EnvironmentalMap({ initialBounds }: { initialBounds: BBox | null
         fitBoundsOptions: { padding: 24 },
         attributionControl: false,
         dragRotate: true,
+        // 2D until the 3D view is switched on (which raises the limit).
         maxPitch: 0,
         cooperativeGestures: false,
       });
@@ -288,7 +299,12 @@ export function EnvironmentalMap({ initialBounds }: { initialBounds: BBox | null
     // Attribution for every active overlay source (e.g. © OpenStreetMap, DOPA, HDX).
     // Credit only sources that actually deliver data (a live layer may list sources not connected yet).
     const delivering = (id: string) => ['ok', 'degraded', 'down'].includes(sources?.sources.find((x) => x.id === id)?.health.status ?? '');
-    const attributions = [...new Set(active.flatMap((l) => l.sourceIds.filter(delivering).map((id) => findSource(id)?.attribution).filter(Boolean)))] as string[];
+    const attributions = [
+      ...new Set([
+        ...active.flatMap((l) => l.sourceIds.filter(delivering).map((id) => findSource(id)?.attribution).filter(Boolean)),
+        ...(view3d ? [findSource('basemap.terrain-aws')?.attribution, '© OpenStreetMap contributors (buildings), OpenFreeMap'] : []),
+      ]),
+    ].filter(Boolean) as string[];
     const key = attributions.join('|');
     if (attributionRef.current?.key !== key) {
       if (attributionRef.current) map.removeControl(attributionRef.current.ctrl);
@@ -296,7 +312,7 @@ export function EnvironmentalMap({ initialBounds }: { initialBounds: BBox | null
       map.addControl(ctrl, 'bottom-left');
       attributionRef.current = { key, ctrl };
     }
-  }, [enabledLayers, sources, selection, locale, draft, panel]);
+  }, [enabledLayers, sources, selection, locale, draft, panel, view3d]);
 
   useEffect(() => {
     syncOverlays();
@@ -314,6 +330,42 @@ export function EnvironmentalMap({ initialBounds }: { initialBounds: BBox | null
     }, 5 * 60_000);
     return () => clearInterval(id);
   }, []);
+
+  // 3D view: terrain surface + hillshade + extruded OSM buildings, tilted camera.
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map) return;
+    const apply = () => {
+      const duration = reducedMotion() ? 0 : 800;
+      const firstOverlay = (map.getStyle().layers ?? []).find((l) => l.id.startsWith(OVERLAY_PREFIX))?.id;
+      try {
+        if (view3d) {
+          if (!map.getSource(TERRAIN_SOURCE)) map.addSource(TERRAIN_SOURCE, terrainSource());
+          if (!map.getSource(HILLSHADE_SOURCE)) map.addSource(HILLSHADE_SOURCE, terrainSource());
+          if (!map.getSource(BUILDINGS_SOURCE)) map.addSource(BUILDINGS_SOURCE, buildingsSource());
+          if (!map.getLayer(HILLSHADE_LAYER)) map.addLayer(hillshadeLayer(), firstOverlay);
+          if (!map.getLayer(BUILDINGS_LAYER)) map.addLayer(buildingsLayer(basemap === 'dark'), firstOverlay);
+          map.setTerrain({ source: TERRAIN_SOURCE, exaggeration: 1.5 });
+          map.setMaxPitch(75);
+          if (map.getPitch() < 30) map.easeTo({ pitch: 60, duration });
+        } else {
+          if (map.getTerrain()) map.setTerrain(null);
+          for (const id of [BUILDINGS_LAYER, HILLSHADE_LAYER]) if (map.getLayer(id)) map.removeLayer(id);
+          if (map.getPitch() > 0) map.jumpTo({ pitch: 0, bearing: 0 });
+          map.setMaxPitch(0);
+        }
+      } catch (err) {
+        // The 2D map keeps working if 3D sources are unreachable.
+        console.warn('[map] 3D view unavailable', err);
+      }
+    };
+    // isStyleLoaded() stays false while tiles load; wait for the style itself, not the tiles.
+    if (map.style && (map.style as unknown as { _loaded?: boolean })._loaded) apply();
+    else map.once('style.load', apply);
+    return () => {
+      map.off('style.load', apply);
+    };
+  }, [view3d, styleVersion, basemap]);
 
   // Reports: poll often, and refresh at once after this browser sends one.
   useEffect(() => {
@@ -333,6 +385,7 @@ export function EnvironmentalMap({ initialBounds }: { initialBounds: BBox | null
   useEffect(() => {
     const map = mapRef.current;
     if (!map || !camera) return;
+    const keepTilt = useMapStore.getState().view3d ? { pitch: Math.max(map.getPitch(), 60) } : {};
     const duration = reducedMotion() ? 0 : 900;
     // Keep the target clear of the inspector: bottom sheet on mobile, right panel on desktop.
     const vh = window.innerHeight;
@@ -341,16 +394,17 @@ export function EnvironmentalMap({ initialBounds }: { initialBounds: BBox | null
       : { top: 88, left: 48, right: 440, bottom: 64 };
     if (camera.bbox) {
       const [w, s, e, n] = camera.bbox;
-      if (w === e && s === n) map.flyTo({ center: [w, s], zoom: Math.max(map.getZoom(), 14), padding, duration });
-      else map.fitBounds([[w, s], [e, n]], { padding, maxZoom: 15, duration });
+      if (w === e && s === n) map.flyTo({ center: [w, s], zoom: Math.max(map.getZoom(), 14), padding, duration, ...keepTilt });
+      else map.fitBounds([[w, s], [e, n]], { padding, maxZoom: 15, duration, ...keepTilt });
     } else if (camera.center) {
-      map.flyTo({ center: camera.center, zoom: camera.zoom ?? Math.max(map.getZoom(), 13), padding, duration });
+      map.flyTo({ center: camera.center, zoom: camera.zoom ?? Math.max(map.getZoom(), 13), padding, duration, ...keepTilt });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps -- react to camera requests only
   }, [camera]);
 
   // ---------------------------------------------------------------- controls
-  const zoomBy = (d: number) => mapRef.current?.easeTo({ zoom: (mapRef.current?.getZoom() ?? 8) + d, duration: reducedMotion() ? 0 : 250 });
+  const tilt = () => (useMapStore.getState().view3d && (mapRef.current?.getPitch() ?? 0) < 30 ? { pitch: 60 } : {});
+  const zoomBy = (d: number) => mapRef.current?.easeTo({ zoom: (mapRef.current?.getZoom() ?? 8) + d, duration: reducedMotion() ? 0 : 250, ...tilt() });
   const resetNorth = () => mapRef.current?.easeTo({ bearing: 0, duration: reducedMotion() ? 0 : 300 });
   const locate = () => {
     setLocateError(false);
@@ -396,6 +450,17 @@ export function EnvironmentalMap({ initialBounds }: { initialBounds: BBox | null
           <span aria-hidden="true" className="mx-2 h-px bg-line" />
           <button type="button" className="icon-btn rounded-none" onClick={resetNorth} aria-label={t('controls.compass')} title={t('controls.compass')}>
             <Icon name="compass" />
+          </button>
+          <span aria-hidden="true" className="mx-2 h-px bg-line" />
+          <button
+            type="button"
+            className={`icon-btn rounded-none text-sm font-semibold ${view3d ? 'bg-surface-accent text-accent' : ''}`}
+            onClick={() => useMapStore.getState().setView3d(!view3d)}
+            aria-pressed={view3d}
+            aria-label={view3d ? t('controls.view2d') : t('controls.view3d')}
+            title={`${view3d ? t('controls.view2d') : t('controls.view3d')} — ${t('controls.view3dNote')}`}
+          >
+            {view3d ? '2D' : '3D'}
           </button>
           <span aria-hidden="true" className="mx-2 h-px bg-line" />
           <button type="button" className="icon-btn rounded-none" onClick={locate} aria-label={t('controls.locate')} title={t('controls.locate')}>
