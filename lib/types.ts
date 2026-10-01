@@ -2,7 +2,7 @@ import type * as GeoJSON from 'geojson';
 
 export type Freshness = 'LIVE' | 'RECENT' | 'HISTORICAL' | 'ARCHIVED';
 export type Quality = 'CURRENT' | 'OFFICIAL_HISTORICAL' | 'DELAYED' | 'NO_OBSERVATION';
-export type DataKind = 'station_observation' | 'satellite_derived' | 'survey' | 'reference' | 'forecast' | 'warning';
+export type DataKind = 'station_observation' | 'satellite_derived' | 'survey' | 'reference' | 'forecast' | 'warning' | 'community';
 
 /** [minLng, minLat, maxLng, maxLat] in EPSG:4326. */
 export type BBox = [number, number, number, number];

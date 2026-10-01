@@ -106,6 +106,12 @@ Keys stay server-side (never `NEXT_PUBLIC_`). None are needed in Phase 1.
 | `COPERNICUS_CLIENT_ID`, `COPERNICUS_CLIENT_SECRET` | Copernicus Data Space (Sentinel-2) | Create a free account at https://dataspace.copernicus.eu, then create OAuth client credentials in the dashboard. Check the free monthly quota. |
 | `SUPABASE_SERVICE_ROLE_KEY` | Supabase | Project Settings → API. Only for scheduled ingest jobs. |
 
-## 8. Deploy (Vercel)
+## 8. Citizen reports and emergency numbers
 
-Import the repository in Vercel, set `DATABASE_URL` (and `NEXT_PUBLIC_PMTILES_BASE_URL` if used), and deploy. In Phase 2, test each live source from the deployment region; if a Thai server blocks it, run that ingest from GitHub Actions or a Thai-hosted runner and store the results in Postgres.
+- Reports work as soon as the database is migrated (`npm run db:migrate`). They are stored in `citizen_reports`; see [REPORTS.md](REPORTS.md).
+- Set `REPORTS_ADMIN_TOKEN` (16+ characters) and give it only to responders (ปภ., อปพร., อบต., volunteers). They sign in at `/admin/reports` to see reporters' phone numbers, set status and post public replies.
+- Emergency numbers live in `lib/registry/emergency.ts`, each with its sources and check date. Edit that file to correct or add a number.
+
+## 9. Deploy (Vercel)
+
+Import the repository in Vercel, set `DATABASE_URL` and `REPORTS_ADMIN_TOKEN` (and `NEXT_PUBLIC_PMTILES_BASE_URL` if used), and deploy. Run `npm run db:migrate` against that database once (and after each new migration). In Phase 2, test each live source from the deployment region; if a Thai server blocks it, run that ingest from GitHub Actions or a Thai-hosted runner and store the results in Postgres.

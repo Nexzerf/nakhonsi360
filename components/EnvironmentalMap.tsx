@@ -7,17 +7,22 @@ import { useMapStore, useT } from '@/lib/state/store';
 import { useSources, layerHasData, useIsMobile } from '@/lib/hooks';
 import { getLayer, type LayerDef } from '@/lib/registry/layers';
 import { findSource } from '@/lib/registry/sources';
+import { OPEN_STATUSES, URGENCIES } from '@/lib/reports/schema';
 import {
   FALLBACK_STYLE,
   OVERLAY_PREFIX,
   SELECTION_SOURCE,
   basemapStyle,
+  DRAFT_SOURCE,
+  draftLayers,
   earthquakeLayers,
   hazardSource,
   highlightLayers,
   localizeBasemap,
   overlayLayers,
   overlaySourceId,
+  reportLayers,
+  reportSource,
   selectionLayers,
   stationLayers,
   stationSource,
@@ -33,14 +38,19 @@ const PMTILES_BASE = process.env.NEXT_PUBLIC_PMTILES_BASE_URL || undefined;
 const Z_ORDER = [
   'water-bodies', 'water-reservoirs', 'roads', 'coastline', 'water-streams', 'water-canals', 'water-rivers',
   'admin-subdistrict', 'admin-district', 'admin-province', 'villages',
-  'rain-24h', 'water-stations', 'earthquake',
+  'rain-24h', 'water-stations', 'earthquake', 'citizen-reports',
 ];
+
+const URGENCY_COLORS = Object.fromEntries(URGENCIES.map((u) => [u.id, u.color]));
 
 /** Live station layers, clickable like villages. */
 const STATION_LAYER_IDS = ['water-stations', 'rain-24h'];
 /** Live GeoJSON layers refreshed on a timer. */
 const LIVE_LAYER_IDS = [...STATION_LAYER_IDS, 'earthquake'];
 const QUAKE_LAYER = `${OVERLAY_PREFIX}earthquake`;
+const REPORT_LAYER = `${OVERLAY_PREFIX}citizen-reports`;
+/** Reports are polled more often than station data. */
+const REPORT_REFRESH_MS = 15_000;
 
 let protocolRegistered = false;
 
@@ -72,6 +82,8 @@ export function EnvironmentalMap({ initialBounds }: { initialBounds: BBox | null
   const enabledLayers = useMapStore((s) => s.enabledLayers);
   const selection = useMapStore((s) => s.selection);
   const camera = useMapStore((s) => s.camera);
+  const draft = useMapStore((s) => s.draftLocation);
+  const panel = useMapStore((s) => s.panel);
   const { data: sources } = useSources();
   const isMobile = useIsMobile();
 
@@ -122,6 +134,18 @@ export function EnvironmentalMap({ initialBounds }: { initialBounds: BBox | null
     });
 
     map.on('click', (e) => {
+      if (useMapStore.getState().picking) {
+        useMapStore.getState().setDraftLocation({ lat: e.lngLat.lat, lng: e.lngLat.lng, source: 'map' });
+        return;
+      }
+      const report = map.getLayer(REPORT_LAYER) ? map.queryRenderedFeatures(e.point, { layers: [REPORT_LAYER] })[0] : undefined;
+      if (report) {
+        const id = (report.properties as { id?: string }).id;
+        if (id) {
+          useMapStore.getState().openReport(id);
+          return;
+        }
+      }
       const stationLayers = STATION_LAYER_IDS.map((id) => `${OVERLAY_PREFIX}${id}`).filter((id) => map.getLayer(id));
       const station = stationLayers.length ? map.queryRenderedFeatures(e.point, { layers: stationLayers })[0] : undefined;
       if (station && station.geometry.type === 'Point') {
@@ -156,7 +180,11 @@ export function EnvironmentalMap({ initialBounds }: { initialBounds: BBox | null
       useMapStore.getState().select({ lat: e.lngLat.lat, lng: e.lngLat.lng, kind: 'point' });
     });
     map.on('mousemove', (e) => {
-      const hit = [`${OVERLAY_PREFIX}villages`, QUAKE_LAYER, ...STATION_LAYER_IDS.flatMap((id) => [`${OVERLAY_PREFIX}${id}`, `${OVERLAY_PREFIX}${id}-cluster`])].filter((id) => map.getLayer(id));
+      if (useMapStore.getState().picking) {
+        map.getCanvas().style.cursor = 'crosshair';
+        return;
+      }
+      const hit = [`${OVERLAY_PREFIX}villages`, QUAKE_LAYER, REPORT_LAYER, ...STATION_LAYER_IDS.flatMap((id) => [`${OVERLAY_PREFIX}${id}`, `${OVERLAY_PREFIX}${id}-cluster`])].filter((id) => map.getLayer(id));
       const over = hit.length > 0 && map.queryRenderedFeatures(e.point, { layers: hit }).length > 0;
       map.getCanvas().style.cursor = over ? 'pointer' : 'crosshair';
     });
@@ -221,6 +249,11 @@ export function EnvironmentalMap({ initialBounds }: { initialBounds: BBox | null
         for (const spec of stationLayers(layer, locale)) map.addLayer(spec);
         continue;
       }
+      if (layer.reports) {
+        if (!map.getSource(srcId)) map.addSource(srcId, reportSource(origin));
+        for (const spec of reportLayers(layer, URGENCY_COLORS, OPEN_STATUSES)) map.addLayer(spec);
+        continue;
+      }
       if (layer.hazardKind === 'earthquake') {
         if (!map.getSource(srcId)) map.addSource(srcId, hazardSource(layer, origin));
         for (const spec of earthquakeLayers(layer)) map.addLayer(spec);
@@ -237,6 +270,13 @@ export function EnvironmentalMap({ initialBounds }: { initialBounds: BBox | null
       if (!map.getSource(srcId)) map.addSource(srcId, vectorSource(hlLayer, origin, PMTILES_BASE));
       for (const spec of highlightLayers(hlLayer, hl.key, hl.value)) map.addLayer(spec);
     }
+
+    if (!map.getSource(DRAFT_SOURCE)) map.addSource(DRAFT_SOURCE, { type: 'geojson', data: { type: 'FeatureCollection', features: [] } });
+    for (const spec of draftLayers()) map.addLayer(spec);
+    (map.getSource(DRAFT_SOURCE) as GeoJSONSource).setData({
+      type: 'FeatureCollection',
+      features: draft && panel === 'report' ? [{ type: 'Feature', properties: {}, geometry: { type: 'Point', coordinates: [draft.lng, draft.lat] } }] : [],
+    });
 
     if (!map.getSource(SELECTION_SOURCE)) map.addSource(SELECTION_SOURCE, { type: 'geojson', data: { type: 'FeatureCollection', features: [] } });
     for (const spec of selectionLayers()) map.addLayer(spec);
@@ -256,7 +296,7 @@ export function EnvironmentalMap({ initialBounds }: { initialBounds: BBox | null
       map.addControl(ctrl, 'bottom-left');
       attributionRef.current = { key, ctrl };
     }
-  }, [enabledLayers, sources, selection, locale]);
+  }, [enabledLayers, sources, selection, locale, draft, panel]);
 
   useEffect(() => {
     syncOverlays();
@@ -273,6 +313,20 @@ export function EnvironmentalMap({ initialBounds }: { initialBounds: BBox | null
       }
     }, 5 * 60_000);
     return () => clearInterval(id);
+  }, []);
+
+  // Reports: poll often, and refresh at once after this browser sends one.
+  useEffect(() => {
+    const refresh = () => {
+      const src = mapRef.current?.getSource(overlaySourceId('citizen-reports')) as GeoJSONSource | undefined;
+      src?.setData(`${window.location.origin}/api/reports?format=geojson&hours=72`);
+    };
+    const id = setInterval(refresh, REPORT_REFRESH_MS);
+    window.addEventListener('n360-reports-changed', refresh);
+    return () => {
+      clearInterval(id);
+      window.removeEventListener('n360-reports-changed', refresh);
+    };
   }, []);
 
   // ---------------------------------------------------------------- camera
@@ -325,7 +379,7 @@ export function EnvironmentalMap({ initialBounds }: { initialBounds: BBox | null
       {/* Inline style: maplibre-gl.css sets `.maplibregl-map { position: relative }`, which outranks layered utilities. */}
       <div ref={containerRef} style={{ position: 'absolute', inset: 0, background: 'var(--map-bg)' }} />
       {/* Controls sit left of the desktop inspector when it is open; above the mobile sheet otherwise. */}
-      <div className={`pointer-events-none absolute bottom-24 z-10 flex flex-col items-end gap-2 md:bottom-16 ${selection && !isMobile ? 'right-[424px]' : 'right-3'}`}>
+      <div className={`pointer-events-none absolute bottom-36 z-10 flex flex-col items-end gap-2 md:bottom-16 ${selection && !isMobile ? 'right-[424px]' : 'right-3'}`}>
         {locateError && (
           <p role="status" className="panel pointer-events-auto px-3 py-2 text-sm text-danger">
             {t('controls.locateFailed')}

@@ -8,6 +8,16 @@ import { translate } from '@/lib/i18n';
 
 export type SheetSnap = 'peek' | 'half' | 'full';
 
+/** Left-side task panels (reports, emergency numbers). */
+export type PanelId = 'report' | 'reports' | 'emergency';
+
+export interface DraftLocation {
+  lat: number;
+  lng: number;
+  source: 'gps' | 'map';
+  accuracyM?: number;
+}
+
 export interface Selection {
   lat: number;
   lng: number;
@@ -40,6 +50,12 @@ interface MapState {
   /** Vector layers whose tiles failed to load, with the time of the failure. */
   layerErrors: Record<string, number>;
   basemapFailed: boolean;
+  panel: PanelId | null;
+  /** Report shown in detail inside the reports panel. */
+  reportId: string | null;
+  /** Waiting for a map tap to place the report. */
+  picking: boolean;
+  draftLocation: DraftLocation | null;
 
   setLocale: (l: Locale) => void;
   setBasemap: (b: BasemapId) => void;
@@ -54,6 +70,10 @@ interface MapState {
   reportLayerError: (layerId: string) => void;
   clearLayerError: (layerId: string) => void;
   setBasemapFailed: (failed: boolean) => void;
+  openPanel: (p: PanelId | null) => void;
+  openReport: (id: string | null) => void;
+  setPicking: (picking: boolean) => void;
+  setDraftLocation: (l: DraftLocation | null) => void;
 }
 
 let cameraSeq = 0;
@@ -71,6 +91,10 @@ export const useMapStore = create<MapState>((set) => ({
   zoom: 8,
   layerErrors: {},
   basemapFailed: false,
+  panel: null,
+  reportId: null,
+  picking: false,
+  draftLocation: null,
 
   setLocale: (locale) => set({ locale }),
   setBasemap: (basemap) => set({ basemap }),
@@ -94,6 +118,10 @@ export const useMapStore = create<MapState>((set) => ({
       return { layerErrors: rest };
     }),
   setBasemapFailed: (basemapFailed) => set({ basemapFailed }),
+  openPanel: (panel) => set({ panel, picking: false, ...(panel !== 'reports' ? { reportId: null } : {}) }),
+  openReport: (reportId) => set({ panel: 'reports', reportId, picking: false }),
+  setPicking: (picking) => set({ picking }),
+  setDraftLocation: (draftLocation) => set({ draftLocation, picking: false }),
 }));
 
 /** Translation hook bound to the current UI locale. */

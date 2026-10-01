@@ -37,6 +37,7 @@ export async function GET() {
     const lastRun = runs.get(src.id) ?? null;
     let status: SourceStatus;
     if (src.id.startsWith('basemap.')) status = 'external';
+    else if (src.kind === 'community') status = database === 'ok' ? 'ok' : 'unknown';
     else if (database !== 'ok') status = src.phase > CURRENT_PHASE ? 'not_connected' : 'unknown';
     else if (imported.has(src.id)) status = lastImport ? 'ok' : 'not_imported';
     // Live sources count as connected once they have any ingest run, whatever the phase.

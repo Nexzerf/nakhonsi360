@@ -293,3 +293,49 @@ export function earthquakeLayers(layer: LayerDef): LayerSpecification[] {
     },
   ];
 }
+
+/** Citizen reports (polled; not clustered so urgent reports stay visible). */
+export function reportSource(origin: string): SourceSpecification {
+  return { type: 'geojson', data: `${origin}/api/reports?format=geojson&hours=72` };
+}
+
+/**
+ * Report markers: colour is the urgency the reporter chose; closed reports
+ * are grey. Ring = still open.
+ */
+export function reportLayers(layer: LayerDef, urgencyColors: Record<string, string>, openStatuses: string[]): LayerSpecification[] {
+  const source = overlaySourceId(layer.id);
+  const id = (s: string) => `${OVERLAY_PREFIX}${layer.id}${s}`;
+  const isOpen = ['in', ['get', 'status'], ['literal', openStatuses]];
+  const color = ['case', isOpen, ['match', ['get', 'urgency'], ...Object.entries(urgencyColors).flat(), '#64748b'], '#9ca3af'];
+  return [
+    {
+      id: id('-halo'),
+      type: 'circle',
+      source,
+      filter: isOpen as never,
+      paint: { 'circle-radius': ['interpolate', ['linear'], ['zoom'], 8, 9, 14, 14], 'circle-color': color as never, 'circle-opacity': 0.22 },
+    },
+    {
+      id: id(''),
+      type: 'circle',
+      source,
+      paint: {
+        'circle-radius': ['interpolate', ['linear'], ['zoom'], 8, 5, 14, 8],
+        'circle-color': color as never,
+        'circle-stroke-color': '#ffffff',
+        'circle-stroke-width': 2,
+      },
+    },
+  ];
+}
+
+export const DRAFT_SOURCE = `${OVERLAY_PREFIX}report-draft`;
+
+/** Where the report being written will be placed. */
+export function draftLayers(): LayerSpecification[] {
+  return [
+    { id: `${OVERLAY_PREFIX}report-draft-halo`, type: 'circle', source: DRAFT_SOURCE, paint: { 'circle-radius': 16, 'circle-color': '#dc2626', 'circle-opacity': 0.2 } },
+    { id: `${OVERLAY_PREFIX}report-draft`, type: 'circle', source: DRAFT_SOURCE, paint: { 'circle-radius': 7, 'circle-color': '#dc2626', 'circle-stroke-color': '#ffffff', 'circle-stroke-width': 2.5 } },
+  ];
+}

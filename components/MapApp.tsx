@@ -13,6 +13,7 @@ import { StatusBar } from '@/components/StatusBar';
 import { DataProvenanceDialog } from '@/components/DataProvenance';
 import { MapErrorBoundary } from '@/components/MapErrorBoundary';
 import { Icon } from '@/components/Icon';
+import { ActionBar, TaskPanels } from '@/components/ActionBar';
 
 // MapLibre needs the browser (WebGL); never render it on the server.
 const EnvironmentalMap = dynamic(() => import('@/components/EnvironmentalMap').then((m) => m.EnvironmentalMap), {
@@ -24,6 +25,8 @@ export function MapApp({ initialBounds }: { initialBounds: BBox | null }) {
   const t = useT();
   const locale = useMapStore((s) => s.locale);
   const selection = useMapStore((s) => s.selection);
+  const panel = useMapStore((s) => s.panel);
+  const picking = useMapStore((s) => s.picking);
   const isMobile = useIsMobile();
 
   useEffect(() => {
@@ -68,12 +71,14 @@ export function MapApp({ initialBounds }: { initialBounds: BBox | null }) {
 
       <LayerControl />
       <LocationInspector />
+      <TaskPanels />
 
-      {/* Bottom: legend (left) and data status (right). Hidden behind the mobile sheet when it is open. */}
-      {!(isMobile && selection) && (
-        <div className="pointer-events-none absolute inset-x-0 bottom-0 z-10 flex items-end justify-between gap-2 p-3 pb-[max(0.75rem,env(safe-area-inset-bottom))]">
-          <div className="hidden sm:block">
-            <MapLegend />
+      {/* Bottom: actions (centre), legend (left) and data status (right). Hidden behind the mobile sheets when they are open. */}
+      {!(isMobile && (selection || panel)) && !picking && (
+        <div className="pointer-events-none absolute inset-x-0 bottom-0 z-10 flex flex-col items-center gap-2 p-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] md:flex-row md:items-end md:justify-between">
+          <div className="hidden md:block">{!panel && <MapLegend />}</div>
+          <div className="order-first md:order-none md:absolute md:bottom-3 md:left-1/2 md:-translate-x-1/2">
+            <ActionBar />
           </div>
           <div className="ml-auto">
             <StatusBar />

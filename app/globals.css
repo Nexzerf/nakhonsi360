@@ -281,14 +281,14 @@ body {
   outline-offset: -3px;
 }
 
-/* Keep the scale bar and attribution clear of the status bar (mobile) and legend panel (wider screens). */
+/* Keep the scale bar and attribution clear of the action bar and status bar (mobile: stacked; wider: legend left, actions centre). */
 .maplibregl-ctrl-bottom-left {
-  bottom: 60px;
+  bottom: 124px;
 }
-@media (min-width: 640px) {
+@media (min-width: 768px) {
   .maplibregl-ctrl-bottom-left {
     left: 268px;
-    bottom: 6px;
+    bottom: 66px;
   }
 }
 

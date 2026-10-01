@@ -38,6 +38,13 @@ The machine-readable registry is `lib/registry/sources.ts`; this file is the ver
 
 **Verification against the source (acceptance check).** On 2026-09-30 every station served by `/api/layers/water-stations` (28) and `/api/layers/rain-24h` (163) had the same value as a direct ThaiWater request for the same observation time.
 
+## Not from agencies
+
+| Source id | What | Status |
+|---|---|---|
+| `community.reports` | Hazard reports from the public, stored in `citizen_reports` | Live. Always labelled unverified until a responder updates the status. Not merged with any agency value. See [REPORTS.md](REPORTS.md) |
+| Emergency numbers | `lib/registry/emergency.ts` | Checked 2026-10-01 against the Government Public Relations Department notice "รวมเบอร์โทรศัพท์สำคัญ ช่วยเหลือเหตุอุทกภัยภาคใต้" (prd.go.th) and several publications that list the same numbers. Agency websites and news sites were blocked from the build environment, so the pages themselves were not opened and no number is marked confirmed with the agency. Hospital and district-office numbers were left out because no consistent published number was found |
+
 ## Phase 3–4 (not started)
 
 `gistda.soilmoisture`, `dmr.landslide`, `dmr.shoreline`, `dmcr.coast` (no public API found — contact DMCR), `ldd.landuse`, `dwr.wetlands`, `copernicus.sentinel2`. Protected forests / national parks: source not yet identified.
