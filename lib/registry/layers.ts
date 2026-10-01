@@ -55,6 +55,8 @@ export interface LayerDef {
   sourceLayer?: string;
   /** Live station layers: the observation variable served by /api/layers/:id as GeoJSON. */
   variable?: string;
+  /** Live hazard-event layers: the hazard_features kind served by /api/layers/:id as GeoJSON. */
+  hazardKind?: 'earthquake';
   /** Short note on zoom behaviour for the ⓘ panel. */
   zoomNoteTh?: string;
   zoomNoteEn?: string;
@@ -175,7 +177,13 @@ export const LAYERS: readonly LayerDef[] = [
   { id: 'soil-moisture', group: 'hazards', th: 'ภัยแล้ง / ความชื้นในดิน', en: 'Drought / soil moisture', icon: 'drought', sourceIds: ['gistda.soilmoisture'], phase: 3, defaultOn: false, minzoom: 0, legend: { type: 'fill', color: '#fed7aa', outline: COLORS.drought } },
   { id: 'hotspots', group: 'hazards', th: 'จุดความร้อน', en: 'Hotspots', icon: 'fire', sourceIds: ['gistda.hotspots', 'firms.hotspots'], phase: 2, defaultOn: false, minzoom: 0, legend: { type: 'circle', color: COLORS.fire, stroke: '#fff', radius: 4 } },
   { id: 'landslide', group: 'hazards', th: 'ดินถล่ม', en: 'Landslide risk', icon: 'landslide', sourceIds: ['dmr.landslide'], phase: 3, defaultOn: false, minzoom: 0, legend: { type: 'fill', color: '#fecaca', outline: COLORS.danger, pattern: 'dots' } },
-  { id: 'earthquake', group: 'hazards', th: 'แผ่นดินไหว', en: 'Earthquakes', icon: 'earthquake', sourceIds: ['tmd.earthquake'], phase: 2, defaultOn: false, minzoom: 0, legend: { type: 'circle', color: '#7c3aed', stroke: '#fff', radius: 5 } },
+  {
+    id: 'earthquake', group: 'hazards', th: 'แผ่นดินไหว', en: 'Earthquakes', icon: 'earthquake',
+    sourceIds: ['usgs.earthquakes', 'tmd.earthquake'], phase: 2, defaultOn: false, minzoom: 0, hazardKind: 'earthquake',
+    zoomNoteTh: 'แผ่นดินไหว M4 ขึ้นไปในรัศมี 2,000 กม. ช่วง 30 วัน ส่วนใหญ่อยู่นอกจังหวัด ซูมออกเพื่อดู ขนาดวงกลมตามขนาดแผ่นดินไหว',
+    zoomNoteEn: 'M4+ earthquakes within 2,000 km in the last 30 days; most are outside the province, zoom out to see them. Circle size follows magnitude.',
+    legend: { type: 'circle', color: '#7c3aed', stroke: '#fff', radius: 5 },
+  },
 
   // Coast — Phase 3
   { id: 'shoreline-change', group: 'coast', th: 'การเปลี่ยนแปลงแนวชายฝั่ง', en: 'Shoreline change', icon: 'coastline', sourceIds: ['dmr.shoreline'], phase: 3, defaultOn: false, minzoom: 0, legend: { type: 'line', color: COLORS.coastline, width: 2 } },

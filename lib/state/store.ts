@@ -14,7 +14,7 @@ export interface Selection {
   /** Title from a search result or clicked feature; otherwise the inspector derives one. */
   label?: string;
   /** What was selected: drives the inspector's eyebrow and breadcrumb depth. */
-  kind?: 'point' | 'province' | 'district' | 'subdistrict' | 'village' | 'station' | 'water' | 'road' | 'place';
+  kind?: 'point' | 'province' | 'district' | 'subdistrict' | 'village' | 'station' | 'earthquake' | 'water' | 'road' | 'place';
   /** Feature to highlight, when the selection came from a feature. */
   highlight?: { layerId: string; key: string; value: string | number };
 }

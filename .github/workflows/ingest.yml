@@ -1,6 +1,6 @@
 name: Ingest live data
 
-# Pulls live sources (ThaiWater water level + 24-h rain, more as adapters are
+# Pulls live sources (ThaiWater water level + 24-h rain, USGS earthquakes, more as adapters are
 # verified) into the database every 15 minutes, then applies retention.
 # Requires the DATABASE_URL repository secret; without it the job is skipped.
 on:

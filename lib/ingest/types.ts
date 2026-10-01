@@ -34,6 +34,12 @@ export interface ParsedBatch {
   observations: Observation[];
   hazards: HazardRecord[];
   rejections: Rejection[];
+  /**
+   * The response lists every feature of `kind` observed since `since` (ISO).
+   * Stored features of that kind in the window that are missing now were
+   * deleted or merged at the source, and are removed.
+   */
+  hazardWindows?: { kind: HazardKind; since: string }[];
 }
 
 export interface FetchContext {
@@ -52,6 +58,12 @@ export interface IngestAdapter {
   sourceId: string;
   /** Environment variables the adapter needs (server-side keys). */
   requiredEnv?: string[];
+  /**
+   * Where hazard features are kept. 'study_area' (default): only those
+   * touching the province + 5 km. 'query': the adapter's request already
+   * limits the region (e.g. earthquakes within a radius), keep them all.
+   */
+  hazardArea?: 'study_area' | 'query';
   /** Fetch the raw response exactly as the source returns it. */
   fetchRaw(ctx: FetchContext): Promise<unknown>;
   /** Turn a raw response into normalised records. Must not throw on one bad record. */

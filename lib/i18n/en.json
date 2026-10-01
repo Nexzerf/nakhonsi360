@@ -107,7 +107,7 @@
     },
     "planned": {
       "conditions": "rain, water level, temperature and PM2.5",
-      "hazards": "flood, hotspots, landslide and coast",
+      "hazards": "earthquakes, flood, hotspots, landslide and coast",
       "satellite": "latest satellite image and historical comparison"
     },
     "plannedLabel": "Will show",
@@ -120,7 +120,8 @@
       "district": "District",
       "station": "Monitoring station",
       "water": "Water",
-      "road": "Road"
+      "road": "Road",
+      "earthquake": "Earthquake"
     },
     "sourceLabel": "Source"
   },
@@ -206,5 +207,20 @@
     "°C": "°C",
     "µg/m³": "µg/m³",
     "m/s": "m/s"
+  },
+  "hazards": {
+    "earthquakes": "Earthquakes",
+    "scope": "M{mag}+ within {radius} km of the province centre, last {days} days",
+    "count": "{n} events",
+    "none": "No M{mag}+ earthquakes within {radius} km in the last {days} days in the USGS catalog",
+    "recent": "Most recent",
+    "nearest": "Nearest to this point in the same period",
+    "depth": "{depth} km deep",
+    "reviewed": "Reviewed",
+    "automatic": "Automatic, not yet reviewed",
+    "eventPage": "Details at USGS",
+    "placeNote": "Place names are in English as published by USGS; magnitude and status are USGS's own",
+    "smallNote": "Smaller earthquakes in Thailand are often not in this catalog; the primary source for those is the Thai Meteorological Department",
+    "pending": "Not connected yet"
   }
 }

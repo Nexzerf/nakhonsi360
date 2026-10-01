@@ -1,9 +1,11 @@
 import { NextResponse, type NextRequest } from 'next/server';
 import { getDb, withTimeout, TimeoutError } from '@/lib/db/client';
-import { connectedSources, inspectAdmin, latestAtStations, latestImports, nearestFeatures, nearestObservations, nearestVillages, waterwayNamesNear } from '@/lib/db/queries';
+import { connectedSources, earthquakesNear, inspectAdmin, latestAtStations, latestImports, nearestFeatures, nearestObservations, nearestVillages, waterwayNamesNear } from '@/lib/db/queries';
 import { CONDITION_VARIABLES } from '@/lib/registry/stationRules';
 import { buildVariableConditions } from '@/lib/inspect/conditions';
-import type { CardResult, ConditionsCard, ImportRecord, InspectResponse, InspectSection, SourceRef } from '@/lib/types';
+import { summarizeEarthquakes } from '@/lib/inspect/hazards';
+import { USGS_WINDOW_DAYS } from '@/lib/adapters/usgs';
+import type { CardResult, ConditionsCard, HazardsCard, ImportRecord, InspectResponse, InspectSection, SourceRef } from '@/lib/types';
 
 export const dynamic = 'force-dynamic';
 
@@ -14,7 +16,7 @@ const ALL_SECTIONS: InspectSection[] = ['admin', 'village', 'context', 'conditio
 /** Sections whose sources are built in later phases. */
 const PLANNED: Record<'conditions' | 'hazards' | 'satellite', { phase: number; sourceIds: string[] }> = {
   conditions: { phase: 2, sourceIds: ['thaiwater.rain24h', 'thaiwater.waterlevel', 'tmd.weather', 'air4thai.aqi'] },
-  hazards: { phase: 2, sourceIds: ['gistda.flood', 'gistda.hotspots', 'firms.hotspots', 'dmr.landslide', 'dmcr.coast'] },
+  hazards: { phase: 2, sourceIds: ['usgs.earthquakes', 'gistda.flood', 'gistda.hotspots', 'firms.hotspots', 'dmr.landslide', 'dmcr.coast'] },
   satellite: { phase: 4, sourceIds: ['copernicus.sentinel2'] },
 };
 
@@ -45,18 +47,27 @@ export async function GET(req: NextRequest) {
   const sql = getDb();
   const out: InspectResponse = { lat, lng, generatedAt: new Date().toISOString(), sections: {} };
 
-  for (const s of ['hazards', 'satellite'] as const) {
-    if (sections.includes(s)) out.sections[s] = { status: 'not_connected', ...PLANNED[s] };
-  }
+  if (sections.includes('satellite')) out.sections.satellite = { status: 'not_connected', ...PLANNED.satellite };
 
-  const wantDb = sections.filter((s) => s === 'admin' || s === 'village' || s === 'context' || s === 'conditions');
+  const wantDb = sections.filter((s) => s === 'admin' || s === 'village' || s === 'context' || s === 'conditions' || s === 'hazards');
   if (wantDb.length === 0) return NextResponse.json(out);
 
   if (!sql) {
     for (const s of wantDb) {
-      out.sections[s] = s === 'conditions' ? { status: 'not_connected', ...PLANNED.conditions } : { status: 'unavailable', reason: 'database_not_configured' };
+      out.sections[s] = s === 'conditions' || s === 'hazards' ? { status: 'not_connected', ...PLANNED[s] } : { status: 'unavailable', reason: 'database_not_configured' };
     }
     return NextResponse.json(out);
+  }
+
+  // Earthquakes are regional, so the hazards card does not depend on admin data or the study area.
+  const hazardsTask = sections.includes('hazards')
+    ? guarded(() => hazardsCard(sql, lng, lat)).then((r) => {
+        out.sections.hazards = r;
+      })
+    : Promise.resolve();
+  if (wantDb.every((s) => s === 'hazards')) {
+    await hazardsTask;
+    return NextResponse.json(out, { headers: { 'Cache-Control': 'no-store' } });
   }
 
   let imports: Map<string, ImportRecord>;
@@ -64,7 +75,8 @@ export async function GET(req: NextRequest) {
     imports = await withTimeout(latestImports(sql), CARD_TIMEOUT_MS);
   } catch (err) {
     console.error('[api/inspect] imports', err);
-    for (const s of wantDb) out.sections[s] = err instanceof TimeoutError ? { status: 'timeout' } : { status: 'error' };
+    for (const s of wantDb) if (s !== 'hazards') out.sections[s] = err instanceof TimeoutError ? { status: 'timeout' } : { status: 'error' };
+    await hazardsTask;
     return NextResponse.json(out);
   }
   const hdx = imports.get('hdx.cod-ab-tha');
@@ -80,7 +92,7 @@ export async function GET(req: NextRequest) {
     return a.status === 'ok' && !a.data.inStudyArea;
   };
 
-  const tasks: Promise<void>[] = [];
+  const tasks: Promise<void>[] = [hazardsTask];
 
   if (wantDb.includes('admin')) {
     tasks.push(
@@ -171,4 +183,18 @@ async function conditionsCard(sql: NonNullable<ReturnType<typeof getDb>>, lng: n
     }
   }
   return { status: 'ok', data: { variables }, sources };
+}
+
+async function hazardsCard(sql: NonNullable<ReturnType<typeof getDb>>, lng: number, lat: number): Promise<CardResult<HazardsCard>> {
+  const connected = await connectedSources(sql);
+  const pendingSourceIds = PLANNED.hazards.sourceIds.filter((id) => !connected.has(id));
+  if (!connected.has('usgs.earthquakes')) return { status: 'not_connected', ...PLANNED.hazards };
+  const earthquakes = summarizeEarthquakes(await earthquakesNear(sql, lng, lat, USGS_WINDOW_DAYS));
+  const [last] = await sql<{ finished_at: Date | null }[]>`
+    select finished_at from ingest_runs where source_id = 'usgs.earthquakes' and status in ('ok', 'partial') order by started_at desc limit 1`;
+  // The list is the catalog as of the last successful fetch (no new event is not a delay), so that time is
+  // the data time; each event shows its own origin time in the card.
+  const asOf = last?.finished_at ? new Date(last.finished_at).toISOString() : null;
+  const sources: SourceRef[] = [{ sourceId: 'usgs.earthquakes', observedAt: asOf, fetchedAt: asOf }];
+  return { status: 'ok', data: { earthquakes, pendingSourceIds }, sources };
 }

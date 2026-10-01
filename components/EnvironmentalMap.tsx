@@ -12,6 +12,8 @@ import {
   OVERLAY_PREFIX,
   SELECTION_SOURCE,
   basemapStyle,
+  earthquakeLayers,
+  hazardSource,
   highlightLayers,
   localizeBasemap,
   overlayLayers,
@@ -31,11 +33,14 @@ const PMTILES_BASE = process.env.NEXT_PUBLIC_PMTILES_BASE_URL || undefined;
 const Z_ORDER = [
   'water-bodies', 'water-reservoirs', 'roads', 'coastline', 'water-streams', 'water-canals', 'water-rivers',
   'admin-subdistrict', 'admin-district', 'admin-province', 'villages',
-  'rain-24h', 'water-stations',
+  'rain-24h', 'water-stations', 'earthquake',
 ];
 
 /** Live station layers, clickable like villages. */
 const STATION_LAYER_IDS = ['water-stations', 'rain-24h'];
+/** Live GeoJSON layers refreshed on a timer. */
+const LIVE_LAYER_IDS = [...STATION_LAYER_IDS, 'earthquake'];
+const QUAKE_LAYER = `${OVERLAY_PREFIX}earthquake`;
 
 let protocolRegistered = false;
 
@@ -125,6 +130,14 @@ export function EnvironmentalMap({ initialBounds }: { initialBounds: BBox | null
         useMapStore.getState().select({ lat, lng, label: p.name_th, kind: 'station' });
         return;
       }
+      const quake = map.getLayer(QUAKE_LAYER) ? map.queryRenderedFeatures(e.point, { layers: [QUAKE_LAYER] })[0] : undefined;
+      if (quake && quake.geometry.type === 'Point') {
+        const [lng, lat] = quake.geometry.coordinates as [number, number];
+        const p = quake.properties as { mag?: number; place?: string };
+        const label = [typeof p.mag === 'number' ? `M${p.mag.toFixed(1)}` : null, p.place].filter(Boolean).join(' · ');
+        useMapStore.getState().select({ lat, lng, label: label || undefined, kind: 'earthquake' });
+        return;
+      }
       const clusterLayers = STATION_LAYER_IDS.map((id) => `${OVERLAY_PREFIX}${id}-cluster`).filter((id) => map.getLayer(id));
       const cluster = clusterLayers.length ? map.queryRenderedFeatures(e.point, { layers: clusterLayers })[0] : undefined;
       if (cluster && cluster.geometry.type === 'Point') {
@@ -143,7 +156,7 @@ export function EnvironmentalMap({ initialBounds }: { initialBounds: BBox | null
       useMapStore.getState().select({ lat: e.lngLat.lat, lng: e.lngLat.lng, kind: 'point' });
     });
     map.on('mousemove', (e) => {
-      const hit = [`${OVERLAY_PREFIX}villages`, ...STATION_LAYER_IDS.flatMap((id) => [`${OVERLAY_PREFIX}${id}`, `${OVERLAY_PREFIX}${id}-cluster`])].filter((id) => map.getLayer(id));
+      const hit = [`${OVERLAY_PREFIX}villages`, QUAKE_LAYER, ...STATION_LAYER_IDS.flatMap((id) => [`${OVERLAY_PREFIX}${id}`, `${OVERLAY_PREFIX}${id}-cluster`])].filter((id) => map.getLayer(id));
       const over = hit.length > 0 && map.queryRenderedFeatures(e.point, { layers: hit }).length > 0;
       map.getCanvas().style.cursor = over ? 'pointer' : 'crosshair';
     });
@@ -208,6 +221,11 @@ export function EnvironmentalMap({ initialBounds }: { initialBounds: BBox | null
         for (const spec of stationLayers(layer, locale)) map.addLayer(spec);
         continue;
       }
+      if (layer.hazardKind === 'earthquake') {
+        if (!map.getSource(srcId)) map.addSource(srcId, hazardSource(layer, origin));
+        for (const spec of earthquakeLayers(layer)) map.addLayer(spec);
+        continue;
+      }
       if (!map.getSource(srcId)) map.addSource(srcId, vectorSource(layer, origin, PMTILES_BASE));
       for (const spec of overlayLayers(layer, locale)) map.addLayer(spec);
     }
@@ -244,12 +262,12 @@ export function EnvironmentalMap({ initialBounds }: { initialBounds: BBox | null
     syncOverlays();
   }, [syncOverlays, styleVersion]);
 
-  // Refresh live station layers every 5 minutes.
+  // Refresh live layers every 5 minutes.
   useEffect(() => {
     const id = setInterval(() => {
       const map = mapRef.current;
       if (!map) return;
-      for (const layerId of STATION_LAYER_IDS) {
+      for (const layerId of LIVE_LAYER_IDS) {
         const src = map.getSource(overlaySourceId(layerId)) as GeoJSONSource | undefined;
         src?.setData(`${window.location.origin}/api/layers/${layerId}`);
       }

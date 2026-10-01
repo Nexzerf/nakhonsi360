@@ -20,6 +20,8 @@ export interface IngestResult {
   stations: number;
   observations: number;
   hazards: number;
+  /** Hazard features removed because the source no longer lists them. */
+  hazardsRemoved: number;
   rejected: number;
   outsideArea: number;
   error?: string;
@@ -56,7 +58,7 @@ export function validateBatch(batch: ParsedBatch, now = new Date()): ParsedBatch
     if (bad) rejections.push({ reason: bad, ref: h.featureKey });
     return !bad;
   });
-  return { stations, observations, hazards, rejections };
+  return { stations, observations, hazards, rejections, hazardWindows: batch.hazardWindows };
 }
 
 export async function runIngest(
@@ -66,7 +68,7 @@ export async function runIngest(
 ): Promise<IngestResult> {
   const [run] = await sql<{ id: string }[]>`insert into ingest_runs (source_id, status) values (${adapter.sourceId}, 'running') returning id`;
   const runId = Number(run!.id);
-  const base = { sourceId: adapter.sourceId, runId, stations: 0, observations: 0, hazards: 0, rejected: 0, outsideArea: 0 };
+  const base = { sourceId: adapter.sourceId, runId, stations: 0, observations: 0, hazards: 0, hazardsRemoved: 0, rejected: 0, outsideArea: 0 };
 
   const fail = async (error: string): Promise<IngestResult> => {
     await sql`update ingest_runs set status = 'error', finished_at = now(), error = ${error.slice(0, 2000)} where id = ${runId}`;
@@ -148,19 +150,32 @@ export async function runIngest(
       }
 
       let hazInserted = 0;
+      const clip = adapter.hazardArea !== 'query';
       for (const h of batch.hazards) {
         const r = await tx`
           insert into hazard_features (source_id, feature_key, kind, observed_at, valid_until, fetched_at, properties, geom)
           select ${adapter.sourceId}, ${h.featureKey}, ${h.kind}, ${h.observedAt}, ${h.validUntil ?? null}, ${fetchedAt},
                  ${tx.json((h.properties ?? {}) as never)}, g
             from (select st_makevalid(st_setsrid(st_geomfromgeojson(${JSON.stringify(h.geometry)}), 4326)) as g) s
-           where exists (select 1 from province_extent pe where st_intersects(pe.buffered, s.g))
+           where ${clip ? tx`exists (select 1 from province_extent pe where st_intersects(pe.buffered, s.g))` : tx`true`}
           on conflict (source_id, feature_key) do update
             set observed_at = excluded.observed_at, valid_until = excluded.valid_until, fetched_at = excluded.fetched_at,
                 properties = excluded.properties, geom = excluded.geom`;
         hazInserted += r.count;
       }
-      return { stations: keptIds.size, outsideArea: stationRows.length - keptIds.size, observations: obsInserted, hazards: hazInserted };
+
+      // Features the source no longer lists in a window it reports completely.
+      let hazRemoved = 0;
+      for (const w of batch.hazardWindows ?? []) {
+        if (Number.isNaN(new Date(w.since).getTime())) continue;
+        const keep = batch.hazards.filter((h) => h.kind === w.kind).map((h) => h.featureKey);
+        const r = await tx`
+          delete from hazard_features
+           where source_id = ${adapter.sourceId} and kind = ${w.kind} and observed_at >= ${w.since}
+             and not (feature_key = any(${keep}::text[]))`;
+        hazRemoved += r.count;
+      }
+      return { stations: keptIds.size, outsideArea: stationRows.length - keptIds.size, observations: obsInserted, hazards: hazInserted, hazardsRemoved: hazRemoved };
     });
 
     // A few bad records are normal; flag the run only when more than 10% were rejected.

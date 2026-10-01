@@ -250,3 +250,46 @@ export function stationLayers(layer: LayerDef, locale: Locale): LayerSpecificati
     },
   ];
 }
+
+/** GeoJSON source for a live hazard-event layer (not clustered: events are few and far apart). */
+export function hazardSource(layer: LayerDef, origin: string): SourceSpecification {
+  return { type: 'geojson', data: `${origin}/api/layers/${layer.id}` };
+}
+
+/**
+ * Earthquake epicentres. Circle size follows the magnitude USGS publishes;
+ * one colour, because no severity class is published with the event.
+ */
+export function earthquakeLayers(layer: LayerDef): LayerSpecification[] {
+  const source = overlaySourceId(layer.id);
+  const id = (s: string) => `${OVERLAY_PREFIX}${layer.id}${s}`;
+  const color = layer.legend.type === 'circle' ? layer.legend.color : '#7c3aed';
+  return [
+    {
+      id: id(''),
+      type: 'circle',
+      source,
+      paint: {
+        'circle-radius': ['interpolate', ['linear'], ['coalesce', ['get', 'mag'], 4], 4, 4, 5, 7, 6, 11, 7, 16, 8, 22],
+        'circle-color': color,
+        'circle-opacity': 0.55,
+        'circle-stroke-color': color,
+        'circle-stroke-width': 1.5,
+      },
+    },
+    {
+      id: id('-label'),
+      type: 'symbol',
+      source,
+      layout: {
+        'text-field': ['concat', 'M', ['number-format', ['get', 'mag'], { 'min-fraction-digits': 1, 'max-fraction-digits': 1 }]],
+        'text-font': ['Noto Sans Regular'],
+        'text-size': 11,
+        'text-offset': [0, 1.3],
+        'text-anchor': 'top',
+        'text-optional': true,
+      },
+      paint: { 'text-color': '#4c1d95', 'text-halo-color': '#ffffff', 'text-halo-width': 1.5 },
+    },
+  ];
+}

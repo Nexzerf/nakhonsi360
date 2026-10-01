@@ -2,13 +2,13 @@
 
 import { useQuery } from '@tanstack/react-query';
 import { useEffect, useRef, useState } from 'react';
-import { formatCoord, formatDistance } from '@/lib/freshness/format';
+import { formatCoord, formatDateTime, formatDistance, formatRelative } from '@/lib/freshness/format';
 import { placeName } from '@/lib/i18n';
 import { findSource } from '@/lib/registry/sources';
 import { COLORS, type IconId } from '@/lib/registry/layers';
 import { useIsMobile } from '@/lib/hooks';
 import { useMapStore, useT, type SheetSnap } from '@/lib/state/store';
-import type { AdminCard, CardResult, ConditionReading, ConditionsCard, ContextCard, FeatureKind, InspectResponse, InspectSection, SourceRef, VariableConditions, VillageCard } from '@/lib/types';
+import type { AdminCard, CardResult, ConditionReading, ConditionsCard, ContextCard, EarthquakeEvent, FeatureKind, HazardsCard, InspectResponse, InspectSection, SourceRef, VariableConditions, VillageCard } from '@/lib/types';
 import { CONDITION_VARIABLES } from '@/lib/registry/stationRules';
 import { DataFreshness } from '@/components/DataFreshness';
 import { GeoBreadcrumb } from '@/components/GeoBreadcrumb';
@@ -401,6 +401,112 @@ function ConditionsCardView({ q }: { q: SectionQuery<ConditionsCard> }) {
   );
 }
 
+// ---------------------------------------------------------------- hazards
+
+function Quake({ e }: { e: EarthquakeEvent }) {
+  const t = useT();
+  const locale = useMapStore((s) => s.locale);
+  const when = new Date(e.observedAt);
+  const fmt = (v: number, d: number) => v.toLocaleString(locale === 'th' ? 'th-TH' : 'en-GB', { minimumFractionDigits: d, maximumFractionDigits: d });
+  return (
+    <div className="flex items-center gap-1">
+      <div className="min-w-0 flex-1">
+        <RowButton
+          onClick={() => {
+            const s = useMapStore.getState();
+            s.flyTo({ center: [e.lng, e.lat], zoom: 6 });
+            s.select({ lat: e.lat, lng: e.lng, label: [`M${e.mag.toFixed(1)}`, e.place].filter(Boolean).join(' · '), kind: 'earthquake' });
+          }}
+        >
+          <span className="tabular flex h-8 min-w-10 shrink-0 items-center justify-center rounded-md px-1 text-xs font-semibold" style={{ background: 'color-mix(in srgb, #7c3aed 12%, transparent)', color: '#6d28d9' }}>
+            M{fmt(e.mag, 1)}
+          </span>
+          <span className="min-w-0 flex-1">
+            <span className="block truncate text-sm" lang="en">{e.place ?? e.id}</span>
+            <span className="block truncate text-xs text-fg-subtle" title={[formatDateTime(when, locale), e.magType ? `M${e.magType}` : null].filter(Boolean).join(' · ')}>
+              {[formatRelative(when, locale), e.depthKm !== null ? t('hazards.depth', { depth: fmt(e.depthKm, 0) }) : null, e.status === 'reviewed' ? t('hazards.reviewed') : e.status === 'automatic' ? t('hazards.automatic') : e.status]
+                .filter(Boolean)
+                .join(' · ')}
+            </span>
+          </span>
+          {e.distanceM < 1000 ? <span className="chip">{t('inspector.features.inside')}</span> : <Distance meters={e.distanceM} />}
+        </RowButton>
+      </div>
+      {e.url?.startsWith('https://earthquake.usgs.gov/') && (
+        <a href={e.url} target="_blank" rel="noopener noreferrer" className="icon-btn shrink-0 text-fg-subtle hover:text-accent" aria-label={`${t('hazards.eventPage')}: ${e.place ?? e.id}`} title={t('hazards.eventPage')}>
+          <Icon name="external" size={16} />
+        </a>
+      )}
+    </div>
+  );
+}
+
+function HazardsCardView({ q }: { q: SectionQuery<HazardsCard> }) {
+  const t = useT();
+  const locale = useMapStore((s) => s.locale);
+  const r = q.data;
+  if (r?.status === 'not_connected') {
+    return (
+      <Card id="card-hazards" title={t('inspector.sections.hazards')} icon="warning" aside={<span className="chip">{t('layers.plannedPhase', { phase: r.phase })}</span>}>
+        <EmptyState main={t('empty.noPublicData')} reason={`${t('inspector.plannedLabel')}: ${t('inspector.planned.hazards')}`} />
+      </Card>
+    );
+  }
+  if (r?.status !== 'ok') {
+    return (
+      <Card id="card-hazards" title={t('inspector.sections.hazards')} icon="warning">
+        <CardState q={q} />
+      </Card>
+    );
+  }
+  const eq = r.data.earthquakes;
+  const vars = eq ? { mag: eq.minMagnitude, radius: eq.radiusKm.toLocaleString(locale === 'th' ? 'th-TH' : 'en-GB'), days: eq.windowDays } : null;
+  const nearestShown = eq?.nearest && eq.recent.some((e) => e.id === eq.nearest!.id);
+  return (
+    <Card id="card-hazards" title={t('inspector.sections.hazards')} icon="warning">
+      {eq && vars && (
+        <div>
+          <div className="mb-1 flex items-baseline justify-between gap-2">
+            <span className="flex items-center gap-1.5 text-xs font-semibold text-fg-muted">
+              <Icon name="earthquake" size={14} /> {t('hazards.earthquakes')}
+            </span>
+            {eq.total > 0 && <span className="tabular text-xs text-fg-subtle">{t('hazards.count', { n: eq.total })}</span>}
+          </div>
+          <p className="mb-1 text-xs text-fg-subtle">{t('hazards.scope', vars)}</p>
+          {eq.total === 0 ? (
+            <EmptyState main={t('hazards.none', vars)} />
+          ) : (
+            <>
+              <p className="mt-2 text-[11px] text-fg-subtle">{t('hazards.recent')}</p>
+              <ul>
+                {eq.recent.map((e) => (
+                  <li key={e.id}>
+                    <Quake e={e} />
+                  </li>
+                ))}
+              </ul>
+              {eq.nearest && !nearestShown && (
+                <>
+                  <p className="mt-2 text-[11px] text-fg-subtle">{t('hazards.nearest')}</p>
+                  <Quake e={eq.nearest} />
+                </>
+              )}
+            </>
+          )}
+          <p className="mt-1 text-xs text-fg-subtle">{t('hazards.placeNote')}</p>
+          <p className="mt-0.5 text-xs text-fg-subtle">{t('hazards.smallNote')}</p>
+        </div>
+      )}
+      {r.data.pendingSourceIds.length > 0 && (
+        <p className="mt-2 border-t border-line pt-2 text-xs text-fg-subtle">
+          {t('hazards.pending')}: {[...new Set(r.data.pendingSourceIds.map((id) => findSource(id)?.[locale === 'en' ? 'datasetNameEn' : 'datasetName'] ?? id))].join(', ')}
+        </p>
+      )}
+      <SourceFooter refs={r.sources} />
+    </Card>
+  );
+}
+
 const PLANNED_ICON: Record<'hazards' | 'satellite', IconId> = { hazards: 'warning', satellite: 'satellite' };
 
 function PlannedCard({ section, sel }: { section: 'hazards' | 'satellite'; sel: Sel }) {
@@ -436,6 +542,7 @@ export function LocationInspector() {
   const village = useSection<VillageCard>('village', selection);
   const context = useSection<ContextCard>('context', selection);
   const conditions = useSection<ConditionsCard>('conditions', selection);
+  const hazards = useSection<HazardsCard>('hazards', selection);
 
   // Highlight the containing subdistrict when the user clicked a bare point.
   useEffect(() => {
@@ -459,7 +566,7 @@ export function LocationInspector() {
   const crumbLevels = levels.filter((l) => l.level <= maxLevel);
   const villageCrumb = isVillage && selection.label ? { name: selection.label, lng: selection.lng, lat: selection.lat } : undefined;
 
-  const allRefs = [conditions, admin, village, context].flatMap((q) => (q.data && 'sources' in q.data ? q.data.sources : []));
+  const allRefs = [conditions, hazards, admin, village, context].flatMap((q) => (q.data && 'sources' in q.data ? q.data.sources : []));
   const uniqueRefs = [...new Map(allRefs.map((r) => [r.sourceId, r])).values()];
 
   const copy = async () => {
@@ -555,7 +662,7 @@ export function LocationInspector() {
 
       <div className="scroll-thin flex-1 space-y-2.5 overflow-y-auto overscroll-contain bg-surface-subtle p-2.5 pb-6">
         <ConditionsCardView q={conditions} />
-        <PlannedCard section="hazards" sel={selection} />
+        <HazardsCardView q={hazards} />
         <VillageCardView q={village} />
         <ContextCardView q={context} />
         <AdminCardView q={admin} />
