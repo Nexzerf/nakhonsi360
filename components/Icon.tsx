@@ -1,6 +1,6 @@
 import type { IconId } from '@/lib/registry/layers';
 
-type UiIcon = 'search' | 'layers' | 'close' | 'info' | 'plus' | 'minus' | 'locate' | 'compass' | 'copy' | 'chevron' | 'retry' | 'pin' | 'external' | 'check' | 'alert' | 'phone' | 'list' | 'send' | 'megaphone';
+type UiIcon = 'search' | 'layers' | 'close' | 'info' | 'plus' | 'minus' | 'locate' | 'compass' | 'copy' | 'chevron' | 'retry' | 'pin' | 'external' | 'check' | 'alert' | 'phone' | 'list' | 'send' | 'megaphone' | 'camera' | 'shield';
 
 /** Simple stroked 24×24 icons. Decorative unless a label is given. */
 const PATHS: Record<IconId | UiIcon, string> = {
@@ -55,6 +55,8 @@ const PATHS: Record<IconId | UiIcon, string> = {
   list: 'M9 6h12M9 12h12M9 18h12M4 6h.01M4 12h.01M4 18h.01',
   send: 'M22 2L11 13M22 2l-7 20-4-9-9-4z',
   megaphone: 'M3 11v2a1 1 0 001 1h3l5 4V6L7 10H4a1 1 0 00-1 1zM16 8a5 5 0 010 8M19 5a9 9 0 010 14',
+  camera: 'M4 8h3l2-3h6l2 3h3v11H4zM12 10a3.5 3.5 0 100 7 3.5 3.5 0 000-7z',
+  shield: 'M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6zM8.5 12l2.5 2.5 4.5-5',
 };
 
 export function Icon({ name, size = 20, label, className }: { name: IconId | UiIcon; size?: number; label?: string; className?: string }) {

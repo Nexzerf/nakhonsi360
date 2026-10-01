@@ -30,7 +30,7 @@ export async function GET(req: NextRequest) {
         features: reports.map((r) => ({
           type: 'Feature',
           geometry: { type: 'Point', coordinates: [r.lng, r.lat] },
-          properties: { id: r.id, hazard: r.hazard, urgency: r.urgency, status: r.status, created_at: r.createdAt },
+          properties: { id: r.id, hazard: r.hazard, urgency: r.urgency, status: r.status, created_at: r.createdAt, depth_cm: r.latestDepthCm, photos: r.photoCount, confirms: r.confirmCount },
         })),
       };
       return NextResponse.json(fc, { headers });

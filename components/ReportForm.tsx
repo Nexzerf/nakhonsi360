@@ -3,11 +3,13 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
 import { formatCoord } from '@/lib/freshness/format';
-import { HAZARDS, LIMITS, NEEDS, URGENCIES, WATER_DEPTH_PRESETS, WATER_HAZARDS, WATER_TRENDS, type HazardId, type NeedId, type UrgencyId, type WaterTrend } from '@/lib/reports/schema';
+import { HAZARDS, LIMITS, NEEDS, URGENCIES, WATER_HAZARDS, type HazardId, type NeedId, type UrgencyId, type WaterTrend } from '@/lib/reports/schema';
 import { rememberMyReport } from '@/lib/reports/client';
 import { useMapStore, useT } from '@/lib/state/store';
 import type { AdminCard, CardResult, InspectResponse } from '@/lib/types';
 import { PrimaryCallButtons } from '@/components/EmergencyDirectory';
+import { DepthPicker, ObservedPicker, PhotoPicker, Toggle, observedIso, type Observed } from '@/components/ReportFields';
+import { uploadPhotos, type PreparedPhoto } from '@/lib/reports/photo';
 import { SidePanel } from '@/components/SidePanel';
 import { Icon } from '@/components/Icon';
 
@@ -25,20 +27,6 @@ function Section({ title, hint, children, error }: { title: string; hint?: strin
         </p>
       )}
     </fieldset>
-  );
-}
-
-function Toggle({ pressed, onClick, children, color }: { pressed: boolean; onClick: () => void; children: React.ReactNode; color?: string }) {
-  return (
-    <button
-      type="button"
-      aria-pressed={pressed}
-      onClick={onClick}
-      className={`flex min-h-11 items-center gap-2 rounded-lg border px-3 py-1.5 text-left text-sm ${pressed ? 'border-accent bg-surface-accent font-medium text-fg' : 'border-line text-fg-muted hover:border-line-strong'}`}
-      style={pressed && color ? { borderColor: color, background: `color-mix(in srgb, ${color} 10%, transparent)` } : undefined}
-    >
-      {children}
-    </button>
   );
 }
 
@@ -76,6 +64,10 @@ export function ReportForm() {
   const [contactName, setContactName] = useState('');
   const [contactPhone, setContactPhone] = useState('');
   const [website, setWebsite] = useState('');
+  const [observed, setObserved] = useState<Observed>({ minutes: 0 });
+  const [photos, setPhotos] = useState<PreparedPhoto[]>([]);
+  const [photoResult, setPhotoResult] = useState<{ sent: number; failed: number } | null>(null);
+  const [phase, setPhase] = useState<'idle' | 'report' | 'photos'>('idle');
   const [gpsState, setGpsState] = useState<'idle' | 'busy' | 'failed'>('idle');
   const [sending, setSending] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -124,6 +116,7 @@ export function ReportForm() {
       return;
     }
     setSending(true);
+    setPhase('report');
     try {
       const r = await fetch('/api/reports', {
         method: 'POST',
@@ -135,6 +128,7 @@ export function ReportForm() {
           lng: draft!.lng,
           locationSource: draft!.source,
           gpsAccuracyM: draft!.accuracyM ?? null,
+          observedAt: observedIso(observed),
           placeNote,
           waterDepthCm: water && depth !== '' ? Number(depth) : null,
           waterTrend: water ? trend : null,
@@ -150,6 +144,10 @@ export function ReportForm() {
       const body = (await r.json().catch(() => ({}))) as { id?: string; editToken?: string; error?: string; fields?: Record<string, string> };
       if (r.status === 201 && body.id) {
         if (body.editToken) rememberMyReport(body.id, body.editToken);
+        if (photos.length && body.editToken) {
+          setPhase('photos');
+          setPhotoResult(await uploadPhotos(body.id, photos, { editToken: body.editToken }));
+        }
         setSentId(body.id);
         useMapStore.getState().setDraftLocation(null);
         qc.invalidateQueries({ queryKey: ['reports'] });
@@ -162,6 +160,7 @@ export function ReportForm() {
       setFormError(t('report.submitErrors.network'));
     } finally {
       setSending(false);
+      setPhase('idle');
     }
   };
 
@@ -176,6 +175,11 @@ export function ReportForm() {
           <p className="tabular mt-2 text-sm">
             {t('report.code')}: <span className="font-semibold">{sentId}</span>
           </p>
+          {photoResult && (
+            <p className={`mt-1 text-sm ${photoResult.failed ? 'text-warn' : 'text-fg-muted'}`}>
+              {photoResult.failed ? t('photos.someFailed', { sent: photoResult.sent, failed: photoResult.failed }) : t('photos.allSent', { n: photoResult.sent })}
+            </p>
+          )}
         </div>
         <button type="button" onClick={() => useMapStore.getState().openReport(sentId)} className="mt-3 flex min-h-12 w-full items-center justify-center gap-2 rounded-lg bg-accent px-4 font-semibold text-on-accent">
           <Icon name="list" /> {t('report.trackStatus')}
@@ -259,29 +263,21 @@ export function ReportForm() {
           </Section>
         </div>
 
+        <div id="report-observedAt">
+          <Section title={`4. ${t('report.observed')}`} hint={t('report.observedHint')} error={err('observedAt')}>
+            <ObservedPicker value={observed} onChange={setObserved} />
+          </Section>
+        </div>
+
         {water && (
           <Section title={t('report.waterDepth')} hint={t('report.waterDepthHint')} error={err('waterDepthCm')}>
-            <div className="flex flex-wrap gap-1.5">
-              {WATER_DEPTH_PRESETS.map((p) => (
-                <Toggle key={p.cm} pressed={depth === String(p.cm)} onClick={() => setDepth(depth === String(p.cm) ? '' : String(p.cm))}>
-                  {label(locale, p)} <span className="tabular text-xs text-fg-subtle">~{p.cm}</span>
-                </Toggle>
-              ))}
-            </div>
-            <label className="mt-1.5 flex items-center gap-2 text-xs text-fg-muted">
-              {t('report.depthExact')}
-              <input inputMode="numeric" value={depth} onChange={(e) => setDepth(e.target.value.replace(/\D/g, '').slice(0, 4))} className="tabular min-h-11 w-24 rounded-md border border-line bg-surface px-3 text-sm text-fg" aria-label={t('report.depthExact')} />
-              {t('units.cm')}
-            </label>
-            <div className="mt-2 flex flex-wrap gap-1.5" role="group" aria-label={t('report.waterTrend')}>
-              {WATER_TRENDS.map((w) => (
-                <Toggle key={w.id} pressed={trend === w.id} onClick={() => setTrend(trend === w.id ? null : w.id)}>
-                  {label(locale, w)}
-                </Toggle>
-              ))}
-            </div>
+            <DepthPicker depth={depth} setDepth={setDepth} trend={trend} setTrend={setTrend} />
           </Section>
         )}
+
+        <Section title={t('photos.title')} hint={t('photos.hint')}>
+          <PhotoPicker photos={photos} setPhotos={setPhotos} />
+        </Section>
 
         <Section title={t('report.needs')} hint={t('report.needsHint')} error={err('needs')}>
           <div className="flex flex-wrap gap-1.5">
@@ -328,7 +324,7 @@ export function ReportForm() {
           </p>
         )}
         <button type="submit" disabled={sending} className="mt-3 flex min-h-12 w-full items-center justify-center gap-2 rounded-lg bg-danger px-4 font-semibold text-white disabled:opacity-60">
-          <Icon name="send" /> {sending ? t('report.sending') : t('report.send')}
+          <Icon name="send" /> {phase === 'photos' ? t('photos.uploading') : sending ? t('report.sending') : t('report.send')}
         </button>
       </form>
     </SidePanel>

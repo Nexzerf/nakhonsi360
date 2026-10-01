@@ -17,7 +17,7 @@ export async function POST(req: NextRequest, ctx: { params: Promise<{ id: string
   if (!v.ok) return NextResponse.json({ error: 'invalid' }, { status: 422 });
   try {
     const r = await withTimeout(addUpdate(sql, id, v.value, reporterHash(req)), 6000);
-    if (!r.ok) return NextResponse.json({ error: r.reason }, { status: r.reason === 'rate_limited' ? 429 : 404 });
+    if (!r.ok) return NextResponse.json({ error: r.reason }, { status: r.reason === 'rate_limited' ? 429 : r.reason === 'cannot_confirm' ? 409 : 404 });
     return NextResponse.json(r, { status: 201 });
   } catch (err) {
     console.error('[api/reports/:id/updates]', err);

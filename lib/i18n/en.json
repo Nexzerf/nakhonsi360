@@ -304,7 +304,8 @@
       "tooLong": "Too long",
       "phone": "Invalid phone number (e.g. 0812345678)",
       "number": "Invalid number",
-      "needs": "Invalid choice"
+      "needs": "Invalid choice",
+      "observedAt": "The time cannot be in the future or more than 72 hours ago"
     },
     "submitErrors": {
       "rate_limited": "Too many reports from this connection. Try again shortly; if urgent call 1784.",
@@ -313,7 +314,10 @@
       "invalid": "Some fields are not valid; check the messages in red.",
       "failed": "Could not send. Try again; if urgent call 1784.",
       "network": "Could not send. Check your connection and try again; your entries are kept. If urgent call 1784."
-    }
+    },
+    "observed": "When did you see it",
+    "observedHint": "When you saw it or took the photo, not when you send. Tells others how fresh it is.",
+    "observedCustom": "Set time"
   },
   "reports": {
     "title": "Reports from the public",
@@ -344,7 +348,8 @@
     "byReporter": "Reporter",
     "anonymous": "Anonymous",
     "reporter": "the reporter",
-    "callReporter": "Call {name}"
+    "callReporter": "Call {name}",
+    "water": "Water"
   },
   "help": {
     "title": "Help with this",
@@ -364,6 +369,49 @@
     "failed": "Could not send; try again",
     "flag": "This report is false or abusive",
     "flagConfirm": "Flag this report as false or abusive? It is hidden when several people flag it.",
-    "flagged": "Thanks, flagged"
+    "flagged": "Thanks, flagged",
+    "confirmNote": "Use this when you are here and see it yourself. Add a photo or the water level if you can. One confirmation per person per report.",
+    "levelOptional": "Water level now (if any)",
+    "cannotConfirm": "Already confirmed, or you are the reporter",
+    "needLevel": "Choose the water level first"
+  },
+  "photos": {
+    "title": "Photos (help show it is real)",
+    "hint": "Show the water against something, e.g. a post, door, car or sign",
+    "add": "Take / choose photos ({n}/{max})",
+    "addLabel": "Choose photos",
+    "processing": "Shrinking photo…",
+    "preview": "Chosen photo",
+    "remove": "Remove this photo",
+    "takenAt": "Taken {time}",
+    "noTime": "No time in file",
+    "hasGps": "location in file",
+    "tooMany": "Up to {max} photos",
+    "cannotOpen": "Could not open this file; take it again or choose another",
+    "privacy": "Photos are shrunk and their file data (camera, location) removed before sending. Only the capture time and distance from the pin are kept.",
+    "uploading": "Sending photos…",
+    "allSent": "{n} photo(s) sent",
+    "someFailed": "{sent} photo(s) sent, {failed} failed. Add more from the report (Add information).",
+    "open": "Open full-size photo",
+    "alt": "Photo from a reporter"
+  },
+  "evidence": {
+    "title": "Evidence",
+    "seen": "Seen {seen} · sent {sent}",
+    "confirmsN": "{n} people here confirmed it",
+    "noConfirms": "No confirmations yet",
+    "photosN": "{n} photo(s)",
+    "noPhotos": "No photos yet",
+    "photoTimes": "File capture time close to the reported time: {match} of {n} photos",
+    "photoPlaces": "File location near the pin (≤ 500 m): {near} of {n} photos",
+    "levelReadings": "{n} water level readings",
+    "note": "Time and location are read from the photo files on the sender's device. They help you judge; they are not a certification.",
+    "timeMatches": "matches the reported time ({min} min apart)",
+    "timeDiffers": "~{h} h from the reported time",
+    "distance": "taken {distance} from the pin",
+    "noMeta": "No time or location in the file (normal for photos sent through chat apps)",
+    "seenAt": "seen {time}",
+    "levelsTitle": "Water level over time",
+    "firstLevel": "Water level when reported"
   }
 }

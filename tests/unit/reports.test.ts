@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { normalizePhone, validateReport, validateUpdate, LIMITS } from '@/lib/reports/schema';
+import { normalizePhone, parseObserved, validateReport, validateUpdate, LIMITS } from '@/lib/reports/schema';
 import { EMERGENCY_CONTACTS, PRIMARY_EMERGENCY_IDS, telHref } from '@/lib/registry/emergency';
 import { dictionaries, leafKeys } from '@/lib/i18n';
 
@@ -54,6 +54,25 @@ describe('report validation', () => {
   });
 });
 
+describe('when it was seen', () => {
+  const now = new Date('2026-10-02T03:00:00Z');
+  it('accepts the last 72 hours and a little clock slack', () => {
+    expect(parseObserved('2026-10-02T02:30:00Z', now)?.toISOString()).toBe('2026-10-02T02:30:00.000Z');
+    expect(parseObserved('2026-10-02T03:04:00Z', now)).toBeInstanceOf(Date);
+    expect(parseObserved(null, now)).toBeNull();
+  });
+  it('refuses the future, the too old and junk', () => {
+    expect(parseObserved('2026-10-02T04:00:00Z', now)).toBeUndefined();
+    expect(parseObserved('2026-09-28T00:00:00Z', now)).toBeUndefined();
+    expect(parseObserved('yesterday', now)).toBeUndefined();
+  });
+  it('requires a level for a water-level update', () => {
+    expect(validateUpdate({ action: 'level' }).ok).toBe(false);
+    expect(validateUpdate({ action: 'level', waterDepthCm: 100, waterTrend: 'rising' })).toMatchObject({ ok: true, value: { waterDepthCm: 100, waterTrend: 'rising' } });
+    expect(validateUpdate({ action: 'confirm' }).ok).toBe(true);
+  });
+});
+
 describe('emergency directory', () => {
   it('has unique ids, dialable numbers and at least one source each', () => {
     expect(new Set(EMERGENCY_CONTACTS.map((c) => c.id)).size).toBe(EMERGENCY_CONTACTS.length);
@@ -71,7 +90,7 @@ describe('emergency directory', () => {
 
 describe('i18n for reports', () => {
   it('has the same report, emergency and help keys in Thai and English', () => {
-    const pick = (d: unknown) => leafKeys(d).filter((k) => /^(report|reports|emergency|help|actions|panel)\./.test(k)).sort();
+    const pick = (d: unknown) => leafKeys(d).filter((k) => /^(report|reports|emergency|help|actions|panel|photos|evidence)\./.test(k)).sort();
     expect(pick(dictionaries.en)).toEqual(pick(dictionaries.th));
   });
 });

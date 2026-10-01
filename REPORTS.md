@@ -8,9 +8,32 @@ Hazard type (flood, flash flood, landslide, storm, fire, storm surge/erosion, dr
 
 The name and phone are **shown publicly while the report is open** so that whoever comes to help can call. The form says so next to the field. They are hidden when the report is closed and deleted 30 days later.
 
+## Showing it is real
+
+A report, and every update, can carry:
+
+- **When it was seen** (now / 30 min / 1 h / 3 h ago / a set time within 72 h), kept apart from when it was sent.
+- **Photos** (up to 4 each). The browser shrinks them to ≤ 1600 px JPEG and re-encodes them, which removes all file metadata (camera, exact location) before upload. Before that it reads the file's capture time and GPS position; only the capture time and the **distance from the pin** are stored, never the coordinates.
+- **Water level** by body height (ankle … over head) or in cm, with rising / steady / falling.
+
+The report page shows the facts side by side, without turning them into a score:
+
+| Fact | Shown as |
+|---|---|
+| Seen at / sent at | both times |
+| People in the area who tapped "ยืนยัน ฉันอยู่ที่นี่ เห็นจริง" | count (once per connection, never the reporter) |
+| Photo capture time vs the reported time | ✓ within 60 min, ⚠ otherwise, per photo and in total |
+| Photo location vs the pin | ✓ within 500 m, ⚠ otherwise |
+| Photos without time/location in the file | stated (normal for photos sent through chat apps) |
+| Water level over time | every reading with its time and who sent it |
+
+The page says plainly that file time and location are read on the sender's device and can be edited, so they support a judgement but do not certify anything.
+
+Photos are stored in Postgres (`citizen_report_photos`, ≤ 2.5 MB each, served from `/api/reports/photos/<id>` as inert images) and deleted after 90 days. Moving them to Supabase Storage would need `SUPABASE_SERVICE_ROLE_KEY`.
+
 ## Helping
 
-Each report has four buttons, plus "add information":
+Each report has buttons for "ยืนยัน ฉันอยู่ที่นี่ เห็นจริง" (confirm, does not change the status), "รายงานระดับน้ำล่าสุด" (a newer water level, for water hazards), and:
 
 | Button | Status after |
 |---|---|
@@ -25,7 +48,7 @@ The map and the list refresh every 15 seconds.
 
 ## Abuse controls (no accounts)
 
-- 5 reports and 20 updates per hour per connection (hashed IP; the raw IP is never stored).
+- 5 reports, 20 updates and 30 photos per hour per connection (hashed IP; the raw IP is never stored).
 - Anyone can flag a report as false or abusive; flags from 3 different connections hide it.
 - A honeypot field drops simple bots; text length limits; Thai phone format check; nothing is rendered as HTML.
 - The form puts 1669 / 191 / 199 / 1784 first and says plainly that it is not an emergency line.
@@ -33,6 +56,5 @@ The map and the list refresh every 15 seconds.
 
 ## Not done yet
 
-- Photos (needs object storage, e.g. a Supabase Storage bucket)
 - Notifications (LINE / push) to people who said they are on the way
 - Offline queue for sending when the connection returns

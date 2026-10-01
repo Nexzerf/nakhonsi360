@@ -80,6 +80,8 @@ export const OPEN_STATUSES = STATUSES.filter((s) => s.open).map((s) => s.id) as 
 
 /** What a helper (or the reporter) can say about a report. */
 export const UPDATE_ACTIONS = [
+  { id: 'confirm', th: 'ยืนยัน ฉันอยู่ที่นี่ เห็นจริง', en: "Confirm: I'm here and see it", status: null },
+  { id: 'level', th: 'รายงานระดับน้ำล่าสุด', en: 'Report the current water level', status: null },
   { id: 'on_the_way', th: 'ฉันกำลังไปช่วย', en: "I'm on my way", status: 'on_the_way' },
   { id: 'resolved', th: 'ช่วยเหลือแล้ว', en: 'Helped / resolved', status: 'resolved' },
   { id: 'still_need', th: 'ยังต้องการความช่วยเหลือ', en: 'Still needs help', status: 'new' },
@@ -102,7 +104,37 @@ export const LIMITS = {
   updatesPerHour: 20,
   /** Flags from different connections that hide a report. */
   flagsToHide: 3,
+  /** Photos per report or per update. */
+  photosPerItem: 4,
+  /** Photos per connection per hour. */
+  photosPerHour: 30,
+  /** Bytes per stored photo (the browser resizes to ~1600 px JPEG first). */
+  photoMaxBytes: 2_500_000,
+  /** How far back "when did you see it" may go. */
+  observedMaxAgeHours: 72,
 } as const;
+
+/** "When did you see it" shortcuts, in minutes before now. */
+export const OBSERVED_PRESETS = [
+  { minutes: 0, th: 'ตอนนี้', en: 'Now' },
+  { minutes: 30, th: '30 นาทีที่แล้ว', en: '30 min ago' },
+  { minutes: 60, th: '1 ชม.ที่แล้ว', en: '1 h ago' },
+  { minutes: 180, th: '3 ชม.ที่แล้ว', en: '3 h ago' },
+] as const;
+
+/**
+ * When the event was seen, as the reporter says. Must not be in the future
+ * (5 min clock slack) or older than LIMITS.observedMaxAgeHours.
+ */
+export function parseObserved(v: unknown, now = new Date()): Date | null | undefined {
+  if (v === undefined || v === null || v === '') return null;
+  if (typeof v !== 'string') return undefined;
+  const t = new Date(v);
+  if (Number.isNaN(t.getTime())) return undefined;
+  if (t.getTime() > now.getTime() + 5 * 60_000) return undefined;
+  if (t.getTime() < now.getTime() - LIMITS.observedMaxAgeHours * 3_600_000) return undefined;
+  return t;
+}
 
 export interface ReportInput {
   hazard: HazardId;
@@ -111,6 +143,8 @@ export interface ReportInput {
   lng: number;
   locationSource: 'gps' | 'map';
   gpsAccuracyM: number | null;
+  /** When it was seen; null = now. */
+  observedAt: string | null;
   placeNote: string | null;
   waterDepthCm: number | null;
   waterTrend: WaterTrend | null;
@@ -175,6 +209,8 @@ export function validateReport(body: unknown): ValidationResult {
   const locationSource = b.locationSource === 'gps' ? 'gps' : 'map';
   const acc = typeof b.gpsAccuracyM === 'number' && Number.isFinite(b.gpsAccuracyM) && b.gpsAccuracyM >= 0 ? Math.round(b.gpsAccuracyM) : null;
 
+  const observed = parseObserved(b.observedAt);
+  if (observed === undefined) errors.observedAt = 'observedAt';
   const placeNote = cleanText(b.placeNote, LIMITS.placeNote);
   if (placeNote === undefined) errors.placeNote = 'tooLong';
   const details = cleanText(b.details, LIMITS.details);
@@ -205,6 +241,7 @@ export function validateReport(body: unknown): ValidationResult {
       lng: Math.round(lng * 1e6) / 1e6,
       locationSource,
       gpsAccuracyM: locationSource === 'gps' ? acc : null,
+      observedAt: observed ? observed.toISOString() : null,
       placeNote: placeNote ?? null,
       waterDepthCm: waterDepthCm ?? null,
       waterTrend,
@@ -218,7 +255,15 @@ export function validateReport(body: unknown): ValidationResult {
   };
 }
 
-export type UpdateInput = { action: UpdateActionId; note: string | null; authorName: string | null; editToken: string | null };
+export type UpdateInput = {
+  action: UpdateActionId;
+  note: string | null;
+  authorName: string | null;
+  editToken: string | null;
+  waterDepthCm: number | null;
+  waterTrend: WaterTrend | null;
+  observedAt: string | null;
+};
 
 export function validateUpdate(body: unknown): { ok: true; value: UpdateInput } | { ok: false } {
   const b = (body && typeof body === 'object' ? body : {}) as Record<string, unknown>;
@@ -226,9 +271,17 @@ export function validateUpdate(body: unknown): { ok: true; value: UpdateInput } 
   const note = cleanText(b.note, LIMITS.updateNote);
   const authorName = cleanText(b.authorName, LIMITS.authorName);
   const editToken = typeof b.editToken === 'string' && /^[0-9a-f]{32}$/.test(b.editToken) ? b.editToken : null;
-  if (!action || note === undefined || authorName === undefined) return { ok: false };
+  const depth = intOrNull(b.waterDepthCm, 0, LIMITS.maxDepthCm);
+  const waterTrend = typeof b.waterTrend === 'string' && TREND_IDS.has(b.waterTrend) ? (b.waterTrend as WaterTrend) : null;
+  const observed = parseObserved(b.observedAt);
+  if (!action || note === undefined || authorName === undefined || depth === undefined || observed === undefined) return { ok: false };
   if (action === 'note' && !note) return { ok: false };
-  return { ok: true, value: { action, note, authorName, editToken } };
+  // A water-level update needs the level.
+  if (action === 'level' && depth === null) return { ok: false };
+  return {
+    ok: true,
+    value: { action, note, authorName, editToken, waterDepthCm: depth, waterTrend, observedAt: observed ? observed.toISOString() : null },
+  };
 }
 
 /**
@@ -254,19 +307,48 @@ export interface PublicReport {
   needs: NeedId[];
   details: string | null;
   status: StatusId;
+  /** When it was seen (reporter's statement); createdAt is when it reached us. */
+  observedAt: string;
   contactName: string | null;
   contactPhone: string | null;
   /** Latest update anyone posted, for the list. */
   lastUpdate: ReportUpdate | null;
   updateCount: number;
+  /** People (distinct connections, not the reporter) who said they are there and see it. */
+  confirmCount: number;
+  photoCount: number;
+  /** Newest water level from the report or any level update. */
+  latestDepthCm: number | null;
+  latestDepthAt: string | null;
   subdistrictTh: string | null;
   districtTh: string | null;
 }
 
 export interface ReportUpdate {
+  id: string;
   at: string;
   action: UpdateActionId;
   note: string | null;
   authorName: string | null;
   byReporter: boolean;
+  waterDepthCm: number | null;
+  waterTrend: WaterTrend | null;
+  observedAt: string | null;
+}
+
+/**
+ * A photo, with what its file said (read in the sender's browser before the
+ * metadata was stripped): when it was taken and how far from the pin.
+ * Coordinates themselves are never stored.
+ */
+export interface ReportPhoto {
+  id: string;
+  url: string;
+  width: number | null;
+  height: number | null;
+  createdAt: string;
+  /** null = attached to the report itself. */
+  updateId: string | null;
+  exifTakenAt: string | null;
+  exifDistanceM: number | null;
 }

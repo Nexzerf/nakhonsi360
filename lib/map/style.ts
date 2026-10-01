@@ -303,7 +303,7 @@ export function reportSource(origin: string): SourceSpecification {
  * Report markers: colour is the urgency the reporter chose; closed reports
  * are grey. Ring = still open.
  */
-export function reportLayers(layer: LayerDef, urgencyColors: Record<string, string>, openStatuses: string[]): LayerSpecification[] {
+export function reportLayers(layer: LayerDef, urgencyColors: Record<string, string>, openStatuses: string[], locale: Locale = 'th'): LayerSpecification[] {
   const source = overlaySourceId(layer.id);
   const id = (s: string) => `${OVERLAY_PREFIX}${layer.id}${s}`;
   const isOpen = ['in', ['get', 'status'], ['literal', openStatuses]];
@@ -326,6 +326,23 @@ export function reportLayers(layer: LayerDef, urgencyColors: Record<string, stri
         'circle-stroke-color': '#ffffff',
         'circle-stroke-width': 2,
       },
+    },
+    {
+      // Latest water level people reported here, e.g. "~100 ซม.".
+      id: id('-depth'),
+      type: 'symbol',
+      source,
+      minzoom: 11,
+      filter: ['all', isOpen, ['has', 'depth_cm'], ['!=', ['get', 'depth_cm'], null]] as never,
+      layout: {
+        'text-field': ['concat', '~', ['to-string', ['get', 'depth_cm']], locale === 'th' ? ' ซม.' : ' cm'],
+        'text-font': ['Noto Sans Regular'],
+        'text-size': 12,
+        'text-offset': [0, 1.3],
+        'text-anchor': 'top',
+        'text-optional': true,
+      },
+      paint: { 'text-color': '#0e5f73', 'text-halo-color': '#ffffff', 'text-halo-width': 1.6 },
     },
   ];
 }

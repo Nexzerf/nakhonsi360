@@ -89,3 +89,18 @@ test('emergency numbers page works without the map and dials directly', async ({
   await page.goto('/emergency?lang=en');
   await expect(page.getByRole('heading', { name: 'Emergency numbers', level: 1 })).toBeVisible();
 });
+
+test('photos are shrunk in the browser and show what their file says', async ({ page }) => {
+  await page.goto('/');
+  await page.getByRole('button', { name: 'รายงานเหตุ', exact: true }).first().click();
+  const panel = page.locator('#report-panel');
+  // Synthetic test image (not data): an EXIF capture time and GPS position.
+  await panel.getByLabel('เลือกรูปภาพ').setInputFiles('tests/e2e/fixtures/synthetic-flood.jpg');
+  await expect(panel.getByText('มีพิกัดในไฟล์')).toBeVisible({ timeout: 15_000 });
+  await expect(panel.getByRole('button', { name: /ถ่ายรูป \/ เลือกรูป \(1\/4\)/ })).toBeVisible();
+  await panel.getByRole('button', { name: 'เอารูปนี้ออก' }).click();
+  await expect(panel.getByText('มีพิกัดในไฟล์')).toHaveCount(0);
+  // "When did you see it" offers a custom time limited to the last 72 hours.
+  await panel.getByRole('button', { name: 'ระบุเวลาเอง' }).click();
+  await expect(panel.getByLabel('ระบุเวลาเอง', { exact: true }).last()).toHaveAttribute('type', 'datetime-local');
+});

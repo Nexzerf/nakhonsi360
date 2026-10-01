@@ -8,7 +8,8 @@ import { execFileSync } from 'node:child_process';
 import path from 'node:path';
 import postgres from 'postgres';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
-import { addUpdate, flagReport, getPublicReport, insertReport, listPublicReports } from '@/lib/reports/db';
+import { addPhoto, addUpdate, flagReport, getPhoto, getPublicReport, insertReport, listPublicReports } from '@/lib/reports/db';
+import type { UpdateInput } from '@/lib/reports/schema';
 import { LIMITS, validateReport, type ReportInput } from '@/lib/reports/schema';
 
 const { TEST_DATABASE_URL, CODAB_FILE } = process.env;
@@ -22,6 +23,19 @@ const input = (over: Record<string, unknown> = {}): ReportInput => {
   if (!r.ok) throw new Error(JSON.stringify(r.errors));
   return r.value;
 };
+
+const upd = (u: Partial<UpdateInput> & Pick<UpdateInput, 'action'>): UpdateInput => ({
+  note: null,
+  authorName: null,
+  editToken: null,
+  waterDepthCm: null,
+  waterTrend: null,
+  observedAt: null,
+  ...u,
+});
+
+// A real JPEG header is enough for storage tests (the browser makes the real image).
+const JPEG = Buffer.concat([Buffer.from([0xff, 0xd8, 0xff, 0xe0]), Buffer.alloc(200, 1), Buffer.from([0xff, 0xd9])]);
 
 async function created(sql: postgres.Sql, hash: string, over: Record<string, unknown> = {}) {
   const r = await insertReport(sql, input(over), hash);
@@ -59,7 +73,7 @@ suite('citizen reports (real boundaries, no sign-in)', () => {
     expect(json).not.toContain('hash-a');
     expect(json).not.toMatch(/edit_token|editToken/);
 
-    await addUpdate(sql, id, { action: 'resolved', note: null, authorName: null, editToken: null }, 'hash-x');
+    await addUpdate(sql, id, upd({ action: 'resolved', note: null, authorName: null, editToken: null }), 'hash-x');
     const closed = await getPublicReport(sql, id);
     expect(closed?.report.status).toBe('resolved');
     expect(closed?.report.contactPhone).toBeNull();
@@ -80,12 +94,12 @@ suite('citizen reports (real boundaries, no sign-in)', () => {
 
   it('lets anyone help, keeps every update on the timeline, and lets a wrong "helped" be reversed', async () => {
     const { id, editToken } = await created(sql, 'hash-d');
-    expect(await addUpdate(sql, id, { action: 'on_the_way', note: 'เรือ 2 ลำ ถึงใน 20 นาที', authorName: 'อาสาบ้านเรา', editToken: null }, 'hash-h1')).toMatchObject({ ok: true, status: 'on_the_way', byReporter: false });
-    expect(await addUpdate(sql, id, { action: 'resolved', note: null, authorName: null, editToken: null }, 'hash-h2')).toMatchObject({ status: 'resolved' });
+    expect(await addUpdate(sql, id, upd({ action: 'on_the_way', note: 'เรือ 2 ลำ ถึงใน 20 นาที', authorName: 'อาสาบ้านเรา', editToken: null }), 'hash-h1')).toMatchObject({ ok: true, status: 'on_the_way', byReporter: false });
+    expect(await addUpdate(sql, id, upd({ action: 'resolved', note: null, authorName: null, editToken: null }), 'hash-h2')).toMatchObject({ status: 'resolved' });
     // The reporter says they still need help: reopened, and labelled as the reporter.
-    expect(await addUpdate(sql, id, { action: 'still_need', note: 'ยังติดอยู่', authorName: 'ใครก็ได้', editToken }, 'hash-d')).toMatchObject({ status: 'new', byReporter: true });
+    expect(await addUpdate(sql, id, upd({ action: 'still_need', note: 'ยังติดอยู่', authorName: 'ใครก็ได้', editToken }), 'hash-d')).toMatchObject({ status: 'new', byReporter: true });
     // A wrong token is just an ordinary update.
-    expect(await addUpdate(sql, id, { action: 'note', note: 'น้ำขึ้นอีก', authorName: null, editToken: '0'.repeat(32) }, 'hash-h3')).toMatchObject({ byReporter: false });
+    expect(await addUpdate(sql, id, upd({ action: 'note', note: 'น้ำขึ้นอีก', authorName: null, editToken: '0'.repeat(32) }), 'hash-h3')).toMatchObject({ byReporter: false });
 
     const pub = await getPublicReport(sql, id);
     expect(pub?.report.status).toBe('new');
@@ -103,7 +117,7 @@ suite('citizen reports (real boundaries, no sign-in)', () => {
   it('limits updates per connection', async () => {
     const { id } = await created(sql, 'hash-e');
     const results = [];
-    for (let i = 0; i < LIMITS.updatesPerHour + 1; i++) results.push(await addUpdate(sql, id, { action: 'note', note: `n${i}`, authorName: null, editToken: null }, 'hash-spammer'));
+    for (let i = 0; i < LIMITS.updatesPerHour + 1; i++) results.push(await addUpdate(sql, id, upd({ action: 'note', note: `n${i}` }), 'hash-spammer'));
     expect(results.at(-1)).toEqual({ ok: false, reason: 'rate_limited' });
   });
 
@@ -113,6 +127,63 @@ suite('citizen reports (real boundaries, no sign-in)', () => {
     expect((await flagReport(sql, id, 'f3')).hidden).toBe(true);
     expect(await getPublicReport(sql, id)).toBeNull();
     expect((await listPublicReports(sql, { hours: 72, openOnly: false })).some((x) => x.id === id)).toBe(false);
+  });
+
+  it('keeps when it was seen apart from when it was sent', async () => {
+    const seen = new Date(Date.now() - 2 * 3_600_000).toISOString();
+    const { id } = await created(sql, 'hash-t', { observedAt: seen });
+    const pub = await getPublicReport(sql, id);
+    expect(pub?.report.observedAt).toBe(seen);
+    expect(new Date(pub!.report.createdAt).getTime()).toBeGreaterThan(new Date(seen).getTime());
+  });
+
+  it('tracks the newest water level from anyone, and counts each confirmation once (never the reporter)', async () => {
+    const { id, editToken } = await created(sql, 'hash-l', { waterDepthCm: 50, observedAt: new Date(Date.now() - 3_600_000).toISOString() });
+    expect((await getPublicReport(sql, id))?.report.latestDepthCm).toBe(50);
+    const later = new Date(Date.now() - 10 * 60_000).toISOString();
+    expect(await addUpdate(sql, id, upd({ action: 'level', waterDepthCm: 130, waterTrend: 'rising', observedAt: later }), 'hash-n1')).toMatchObject({ ok: true });
+    const pub = await getPublicReport(sql, id);
+    // The reading seen 10 min ago is newer than the report's own (seen 1 h ago).
+    expect(pub?.report).toMatchObject({ latestDepthCm: 130, latestDepthAt: later });
+    expect(pub?.updates.at(-1)).toMatchObject({ action: 'level', waterDepthCm: 130, waterTrend: 'rising', observedAt: later });
+
+    expect(await addUpdate(sql, id, upd({ action: 'confirm' }), 'hash-n1')).toMatchObject({ ok: true });
+    expect(await addUpdate(sql, id, upd({ action: 'confirm' }), 'hash-n1')).toEqual({ ok: false, reason: 'cannot_confirm' });
+    expect(await addUpdate(sql, id, upd({ action: 'confirm', editToken }), 'hash-other')).toEqual({ ok: false, reason: 'cannot_confirm' });
+    expect(await addUpdate(sql, id, upd({ action: 'confirm' }), 'hash-l')).toEqual({ ok: false, reason: 'cannot_confirm' });
+    expect(await addUpdate(sql, id, upd({ action: 'confirm' }), 'hash-n2')).toMatchObject({ ok: true });
+    expect((await getPublicReport(sql, id))?.report.confirmCount).toBe(2);
+  });
+
+  it('stores photos with the right token only, keeps a distance not coordinates, and limits them', async () => {
+    const { id, editToken } = await created(sql, 'hash-p');
+    // Reporter photo, taken ~120 m north of the pin.
+    const ok = await addPhoto(sql, id, { editToken }, { mime: 'image/jpeg', bytes: JPEG, width: 1600, height: 1200, exifTakenAt: new Date().toISOString(), exifLat: 8.4337, exifLng: 99.9633 }, 'hash-p');
+    expect(ok.ok).toBe(true);
+    expect(await addPhoto(sql, id, { editToken: '0'.repeat(32) }, { mime: 'image/jpeg', bytes: JPEG, width: null, height: null, exifTakenAt: null, exifLat: null, exifLng: null }, 'hash-p')).toEqual({ ok: false, reason: 'forbidden' });
+
+    // A helper's photo goes with their update, using that update's photo token.
+    const up = await addUpdate(sql, id, upd({ action: 'level', waterDepthCm: 100 }), 'hash-q');
+    if (!up.ok) throw new Error('update failed');
+    expect((await addPhoto(sql, id, { updateId: up.updateId, photoToken: up.photoToken }, { mime: 'image/jpeg', bytes: JPEG, width: 10, height: 10, exifTakenAt: null, exifLat: null, exifLng: null }, 'hash-q')).ok).toBe(true);
+    expect(await addPhoto(sql, id, { updateId: up.updateId, photoToken: '1'.repeat(32) }, { mime: 'image/jpeg', bytes: JPEG, width: 10, height: 10, exifTakenAt: null, exifLat: null, exifLng: null }, 'hash-q')).toEqual({ ok: false, reason: 'forbidden' });
+
+    const pub = await getPublicReport(sql, id);
+    expect(pub?.photos).toHaveLength(2);
+    const mineP = pub!.photos.find((p) => p.updateId === null)!;
+    expect(mineP.exifDistanceM).toBeGreaterThan(100);
+    expect(mineP.exifDistanceM).toBeLessThan(140);
+    expect(pub!.photos.find((p) => p.updateId === up.updateId)?.exifDistanceM).toBeNull();
+    expect(JSON.stringify(pub)).not.toContain('8.4337');
+    expect((await getPhoto(sql, mineP.id))?.bytes.equals(JPEG)).toBe(true);
+    expect(pub!.report.photoCount).toBe(2);
+
+    for (let i = 0; i < 3; i++) await addPhoto(sql, id, { editToken }, { mime: 'image/jpeg', bytes: JPEG, width: 1, height: 1, exifTakenAt: null, exifLat: null, exifLng: null }, 'hash-p');
+    expect(await addPhoto(sql, id, { editToken }, { mime: 'image/jpeg', bytes: JPEG, width: 1, height: 1, exifTakenAt: null, exifLat: null, exifLng: null }, 'hash-p')).toEqual({ ok: false, reason: 'too_many' });
+
+    // Photos of a hidden report are not served.
+    for (const h of ['x1', 'x2', 'x3']) await flagReport(sql, id, h);
+    expect(await getPhoto(sql, mineP.id)).toBeNull();
   });
 
   it('drops contact details of reports closed more than 30 days ago', async () => {

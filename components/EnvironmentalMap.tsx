@@ -262,7 +262,7 @@ export function EnvironmentalMap({ initialBounds }: { initialBounds: BBox | null
       }
       if (layer.reports) {
         if (!map.getSource(srcId)) map.addSource(srcId, reportSource(origin));
-        for (const spec of reportLayers(layer, URGENCY_COLORS, OPEN_STATUSES)) map.addLayer(spec);
+        for (const spec of reportLayers(layer, URGENCY_COLORS, OPEN_STATUSES, locale)) map.addLayer(spec);
         continue;
       }
       if (layer.hazardKind === 'earthquake') {

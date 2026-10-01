@@ -2,7 +2,7 @@
 
 import { useQuery } from '@tanstack/react-query';
 import { useEffect, useState } from 'react';
-import type { PublicReport, ReportUpdate } from '@/lib/reports/schema';
+import type { PublicReport, ReportPhoto, ReportUpdate } from '@/lib/reports/schema';
 
 /** How often open views re-check for new reports and status changes. */
 export const REPORTS_REFRESH_MS = 15_000;
@@ -24,7 +24,7 @@ export function useReports(opts: { hours?: number; enabled?: boolean } = {}) {
 }
 
 export function useReport(id: string | null) {
-  return useQuery<{ report: PublicReport; updates: ReportUpdate[] }>({
+  return useQuery<{ report: PublicReport; updates: ReportUpdate[]; photos: ReportPhoto[] }>({
     queryKey: ['report', id],
     queryFn: async ({ signal }) => {
       const r = await fetch(`/api/reports/${id}`, { signal });
