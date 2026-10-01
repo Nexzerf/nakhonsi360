@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { normalizePhone, validateReport, validateStatusUpdate, LIMITS } from '@/lib/reports/schema';
+import { normalizePhone, validateReport, validateUpdate, LIMITS } from '@/lib/reports/schema';
 import { EMERGENCY_CONTACTS, PRIMARY_EMERGENCY_IDS, telHref } from '@/lib/registry/emergency';
 import { dictionaries, leafKeys } from '@/lib/i18n';
 
@@ -43,11 +43,14 @@ describe('report validation', () => {
     expect(normalizePhone('')).toBeNull();
   });
 
-  it('validates responder updates', () => {
-    expect(validateStatusUpdate({ status: 'resolved' })).toMatchObject({ ok: true, status: 'resolved' });
-    expect(validateStatusUpdate({ note: 'ส่งเรือไปแล้ว' })).toMatchObject({ ok: true, note: 'ส่งเรือไปแล้ว' });
-    expect(validateStatusUpdate({ status: 'deleted' }).ok).toBe(false);
-    expect(validateStatusUpdate({}).ok).toBe(false);
+  it('validates helper updates', () => {
+    expect(validateUpdate({ action: 'on_the_way', authorName: ' อาสาบ้านเรา ' })).toMatchObject({ ok: true, value: { action: 'on_the_way', authorName: 'อาสาบ้านเรา', note: null } });
+    expect(validateUpdate({ action: 'note', note: 'น้ำขึ้นถึงหน้าต่าง' }).ok).toBe(true);
+    // A bare note needs text; unknown actions and bad tokens are refused or dropped.
+    expect(validateUpdate({ action: 'note' }).ok).toBe(false);
+    expect(validateUpdate({ action: 'delete' }).ok).toBe(false);
+    const t = validateUpdate({ action: 'resolved', editToken: 'not-a-token' });
+    expect(t.ok && t.value.editToken).toBeNull();
   });
 });
 
@@ -67,8 +70,8 @@ describe('emergency directory', () => {
 });
 
 describe('i18n for reports', () => {
-  it('has the same report, emergency and admin keys in Thai and English', () => {
-    const pick = (d: unknown) => leafKeys(d).filter((k) => /^(report|reports|emergency|admin|actions|panel)\./.test(k)).sort();
+  it('has the same report, emergency and help keys in Thai and English', () => {
+    const pick = (d: unknown) => leafKeys(d).filter((k) => /^(report|reports|emergency|help|actions|panel)\./.test(k)).sort();
     expect(pick(dictionaries.en)).toEqual(pick(dictionaries.th));
   });
 });

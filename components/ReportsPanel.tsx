@@ -2,8 +2,10 @@
 
 import { useEffect, useState } from 'react';
 import { formatDateTime, formatRelative } from '@/lib/freshness/format';
-import { HAZARDS, NEEDS, STATUSES, URGENCIES, WATER_DEPTH_PRESETS, WATER_TRENDS, type PublicReport } from '@/lib/reports/schema';
-import { REPORTS_REFRESH_MS, useMyReports, useReport, useReports } from '@/lib/reports/client';
+import { useQueryClient } from '@tanstack/react-query';
+import { HAZARDS, LIMITS, NEEDS, STATUSES, UPDATE_ACTIONS, URGENCIES, WATER_DEPTH_PRESETS, WATER_TRENDS, type PublicReport, type ReportUpdate, type UpdateActionId } from '@/lib/reports/schema';
+import { REPORTS_REFRESH_MS, editTokenFor, saveHelperName, savedHelperName, useMyReports, useReport, useReports } from '@/lib/reports/client';
+import { telHref } from '@/lib/registry/emergency';
 import { useMapStore, useT } from '@/lib/state/store';
 import { SidePanel } from '@/components/SidePanel';
 import { Icon } from '@/components/Icon';
@@ -42,7 +44,7 @@ function LiveLine({ updatedAt, failed }: { updatedAt: number; failed: boolean })
     <p role="status" className="flex items-center gap-1.5 text-xs text-fg-subtle">
       <span aria-hidden="true" className={`h-2 w-2 rounded-full ${failed ? 'bg-danger' : 'animate-pulse bg-ok'}`} />
       {failed ? t('reports.refreshFailed') : t('reports.live', { s: REPORTS_REFRESH_MS / 1000 })}
-      {updatedAt > 0 && <> · {t('reports.checked', { time: formatRelative(new Date(updatedAt), locale, now) })}</>}
+      {updatedAt > 0 && <> · {t('reports.checked', { time: formatRelative(new Date(updatedAt), locale, new Date(Math.max(now.getTime(), updatedAt))) })}</>}
     </p>
   );
 }
@@ -80,6 +82,11 @@ function ReportRow({ r, mine }: { r: PublicReport; mine: boolean }) {
           </span>
           <span className="block truncate text-xs text-fg-muted">{[place(r) || t('reports.noArea'), r.placeNote].filter(Boolean).join(' · ')}</span>
           {r.needs.length > 0 && <span className="block truncate text-xs text-fg-subtle">{t('reports.needs')}: {r.needs.map((n) => label(locale, NEEDS.find((x) => x.id === n))).join(', ')}</span>}
+          {r.lastUpdate && (
+            <span className="block truncate text-xs text-fg-muted">
+              ↳ {[r.lastUpdate.action !== 'note' ? label(locale, UPDATE_ACTIONS.find((a) => a.id === r.lastUpdate!.action)) : null, r.lastUpdate.note].filter(Boolean).join(': ')}
+            </span>
+          )}
           <span className="mt-1 flex flex-wrap items-center gap-2">
             <StatusChip status={r.status} />
             <span className="text-xs text-fg-subtle" title={formatDateTime(new Date(r.createdAt), locale)}>
@@ -164,11 +171,120 @@ function Field({ k, v }: { k: string; v: React.ReactNode }) {
   );
 }
 
+function UpdateLine({ up }: { up: ReportUpdate }) {
+  const t = useT();
+  const locale = useMapStore((s) => s.locale);
+  const action = UPDATE_ACTIONS.find((a) => a.id === up.action);
+  const who = up.byReporter ? t('reports.byReporter') : up.authorName ?? t('reports.anonymous');
+  return (
+    <>
+      <span className="block text-xs text-fg-subtle">
+        {formatDateTime(new Date(up.at), locale)} · {who}
+      </span>
+      {up.action !== 'note' && (
+        <span className="text-sm font-medium" style={{ color: statusOf(action?.status ?? '')?.color }}>
+          {label(locale, action)}
+        </span>
+      )}
+      {up.note && <p className="text-sm whitespace-pre-line">{up.note}</p>}
+    </>
+  );
+}
+
+/** Anyone can help: say what they are doing, so others can coordinate. */
+function HelpBox({ r, mine }: { r: PublicReport; mine: boolean }) {
+  const t = useT();
+  const locale = useMapStore((s) => s.locale);
+  const qc = useQueryClient();
+  const [action, setAction] = useState<UpdateActionId | null>(null);
+  const [note, setNote] = useState('');
+  const [name, setName] = useState('');
+  const [busy, setBusy] = useState(false);
+  const [msg, setMsg] = useState<{ ok: boolean; text: string } | null>(null);
+  useEffect(() => setName(savedHelperName()), []);
+
+  const open = statusOf(r.status)?.open ?? true;
+  const actions = UPDATE_ACTIONS.filter((a) => (open ? a.id !== 'still_need' : a.id === 'still_need' || a.id === 'note'));
+
+  const send = async () => {
+    if (!action) return;
+    setBusy(true);
+    setMsg(null);
+    try {
+      const res = await fetch(`/api/reports/${r.id}/updates`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action, note, authorName: mine ? null : name, editToken: mine ? editTokenFor(r.id) : null }),
+      });
+      if (res.ok) {
+        saveHelperName(name);
+        setAction(null);
+        setNote('');
+        setMsg({ ok: true, text: t('help.sent') });
+        qc.invalidateQueries({ queryKey: ['report', r.id] });
+        qc.invalidateQueries({ queryKey: ['reports'] });
+        window.dispatchEvent(new Event('n360-reports-changed'));
+      } else {
+        setMsg({ ok: false, text: res.status === 429 ? t('help.rateLimited') : res.status === 422 ? t('help.needNote') : t('help.failed') });
+      }
+    } catch {
+      setMsg({ ok: false, text: t('help.failed') });
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  return (
+    <section aria-labelledby="help-title" className="mt-4 rounded-lg border border-line p-3">
+      <h3 id="help-title" className="text-sm font-semibold">{mine ? t('help.titleMine') : t('help.title')}</h3>
+      <p className="mt-0.5 text-xs text-fg-subtle">{mine ? t('help.introMine') : t('help.intro')}</p>
+      <div className="mt-2 grid grid-cols-2 gap-1.5">
+        {actions.map((a) => (
+          <button
+            key={a.id}
+            type="button"
+            aria-pressed={action === a.id}
+            onClick={() => setAction(action === a.id ? null : a.id)}
+            className={`min-h-11 rounded-lg border px-2 text-sm ${action === a.id ? 'border-accent bg-surface-accent font-semibold' : 'border-line hover:border-line-strong'}`}
+          >
+            {mine && a.id === 'resolved' ? t('help.resolvedMine') : label(locale, a)}
+          </button>
+        ))}
+      </div>
+      {action && (
+        <div className="mt-2 space-y-1.5">
+          <textarea
+            value={note}
+            onChange={(e) => setNote(e.target.value)}
+            maxLength={LIMITS.updateNote}
+            rows={2}
+            className="block w-full rounded-md border border-line bg-surface px-3 py-2 text-sm"
+            placeholder={t(action === 'note' ? 'help.notePlaceholderRequired' : 'help.notePlaceholder')}
+            aria-label={t('help.note')}
+          />
+          {!mine && (
+            <input value={name} onChange={(e) => setName(e.target.value)} maxLength={LIMITS.authorName} className="min-h-11 w-full rounded-md border border-line bg-surface px-3 text-sm" placeholder={t('help.namePlaceholder')} aria-label={t('help.name')} />
+          )}
+          <button type="button" onClick={send} disabled={busy || (action === 'note' && !note.trim())} className="flex min-h-11 w-full items-center justify-center gap-2 rounded-lg bg-accent px-4 text-sm font-semibold text-on-accent disabled:opacity-50">
+            <Icon name="send" size={16} /> {busy ? t('report.sending') : t('help.send')}
+          </button>
+        </div>
+      )}
+      {msg && (
+        <p role="status" className={`mt-2 text-sm ${msg.ok ? 'text-ok' : 'text-danger'}`}>
+          {msg.text}
+        </p>
+      )}
+    </section>
+  );
+}
+
 function ReportDetail({ id }: { id: string }) {
   const t = useT();
   const locale = useMapStore((s) => s.locale);
   const q = useReport(id);
   const mine = useMyReports();
+  const [flagged, setFlagged] = useState(false);
   const back = () => useMapStore.getState().openReport(null);
   const r = q.data?.report;
 
@@ -181,7 +297,13 @@ function ReportDetail({ id }: { id: string }) {
   }
   const h = hazardOf(r.hazard);
   const u = urgencyOf(r.urgency);
+  const isMine = mine.has(r.id);
   const depthLabel = r.waterDepthCm !== null ? WATER_DEPTH_PRESETS.find((p) => p.cm === r.waterDepthCm) : undefined;
+  const flag = async () => {
+    if (!window.confirm(t('help.flagConfirm'))) return;
+    const res = await fetch(`/api/reports/${r.id}/flag`, { method: 'POST' }).catch(() => null);
+    if (res?.ok) setFlagged(true);
+  };
   return (
     <SidePanel id="reports-panel" title={label(locale, h)} onBack={back}>
       <LiveLine updatedAt={q.dataUpdatedAt} failed={q.isError} />
@@ -190,14 +312,15 @@ function ReportDetail({ id }: { id: string }) {
         <span className="chip" style={{ borderColor: u?.color, color: u?.color }}>
           {label(locale, u)}
         </span>
-        {mine.has(r.id) && <span className="chip border-accent text-accent">{t('reports.mine')}</span>}
+        {isMine && <span className="chip border-accent text-accent">{t('reports.mine')}</span>}
       </div>
-      {r.responderNote && (
-        <div className="mt-3 rounded-md border border-accent/40 bg-surface-accent px-3 py-2">
-          <p className="text-xs font-semibold text-accent">{t('reports.responderNote')}</p>
-          <p className="mt-0.5 text-sm">{r.responderNote}</p>
-        </div>
+
+      {r.contactPhone && !isMine && (
+        <a href={telHref(r.contactPhone)} className="mt-3 flex min-h-12 items-center justify-center gap-2 rounded-lg border border-accent px-4 font-semibold text-accent hover:bg-surface-accent">
+          <Icon name="phone" /> {t('reports.callReporter', { name: r.contactName ?? t('reports.reporter') })} <span className="tabular">{r.contactPhone}</span>
+        </a>
       )}
+
       <dl className="mt-3 divide-y divide-line">
         <Field k={t('reports.where')} v={<>{place(r) || t('reports.noArea')}{r.placeNote && <span className="block text-fg-muted">{r.placeNote}</span>}</>} />
         <Field
@@ -223,16 +346,17 @@ function ReportDetail({ id }: { id: string }) {
           k={t('reports.position')}
           v={
             <>
-              <span className="tabular">
-                {r.lat.toFixed(5)}, {r.lng.toFixed(5)}
-              </span>
+              <a href={`https://www.google.com/maps/dir/?api=1&destination=${r.lat},${r.lng}`} target="_blank" rel="noopener noreferrer" className="tabular inline-flex items-center gap-1 text-accent underline">
+                {r.lat.toFixed(5)}, {r.lng.toFixed(5)} <Icon name="external" size={13} />
+              </a>
               <span className="block text-xs text-fg-subtle">{r.locationSource === 'gps' ? t('reports.fromGps', { m: r.gpsAccuracyM ?? '?' }) : t('reports.fromMap')}</span>
             </>
           }
         />
-        <Field k={t('reports.contact')} v={r.hasContact ? t('reports.contactPrivate') : t('reports.noContact')} />
         <Field k={t('report.code')} v={<span className="tabular">{r.id}</span>} />
       </dl>
+
+      <HelpBox r={r} mine={isMine} />
 
       <h3 className="mt-4 text-sm font-semibold">{t('reports.timeline')}</h3>
       <ol className="mt-1 space-y-2 border-l border-line pl-3">
@@ -241,14 +365,20 @@ function ReportDetail({ id }: { id: string }) {
           {t('reports.created')}
         </li>
         {(q.data?.updates ?? []).map((up, i) => (
-          <li key={i} className="text-sm">
-            <span className="block text-xs text-fg-subtle">{formatDateTime(new Date(up.at), locale)}</span>
-            {up.status && <StatusChip status={up.status} />}
-            {up.note && <p className="mt-0.5">{up.note}</p>}
+          <li key={i}>
+            <UpdateLine up={up} />
           </li>
         ))}
       </ol>
       <p className="mt-4 text-xs text-fg-subtle">{t('reports.unverifiedNote')}</p>
+      {!isMine &&
+        (flagged ? (
+          <p className="mt-2 text-xs text-fg-subtle">{t('help.flagged')}</p>
+        ) : (
+          <button type="button" onClick={flag} className="mt-2 min-h-11 text-xs text-fg-subtle underline hover:text-danger">
+            {t('help.flag')}
+          </button>
+        ))}
     </SidePanel>
   );
 }

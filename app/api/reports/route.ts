@@ -3,7 +3,7 @@ import type * as GeoJSON from 'geojson';
 import { getDb, withTimeout } from '@/lib/db/client';
 import { insertReport, listPublicReports } from '@/lib/reports/db';
 import { HAZARDS, validateReport } from '@/lib/reports/schema';
-import { reporterHash } from '@/lib/reports/auth';
+import { reporterHash, sameOrigin } from '@/lib/reports/hash';
 
 export const dynamic = 'force-dynamic';
 
@@ -43,6 +43,7 @@ export async function GET(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
+  if (!sameOrigin(req)) return NextResponse.json({ error: 'forbidden' }, { status: 403 });
   const sql = getDb();
   if (!sql) return NextResponse.json({ error: 'database_not_configured' }, { status: 503 });
   const text = await req.text();
@@ -62,7 +63,8 @@ export async function POST(req: NextRequest) {
   try {
     const r = await withTimeout(insertReport(sql, v.value, reporterHash(req)), 8000);
     if (!r.ok) return NextResponse.json({ error: r.reason }, { status: r.reason === 'rate_limited' ? 429 : 422 });
-    return NextResponse.json({ id: r.id }, { status: 201 });
+    // The edit token lets this browser post updates marked "from the reporter".
+    return NextResponse.json({ id: r.id, editToken: r.editToken }, { status: 201 });
   } catch (err) {
     console.error('[api/reports] insert', err);
     return NextResponse.json({ error: 'save_failed' }, { status: 502 });

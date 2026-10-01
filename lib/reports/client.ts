@@ -39,31 +39,37 @@ export function useReport(id: string | null) {
 
 // ---------------------------------------------------------------- my reports (this browser only)
 
-const MINE_KEY = 'n360.myReports';
+const MINE_KEY = 'n360.myReports.v2';
 
-function readMine(): string[] {
+/** id → edit token for reports sent from this browser. */
+function readMine(): Record<string, string> {
   try {
-    const v = JSON.parse(localStorage.getItem(MINE_KEY) ?? '[]');
-    return Array.isArray(v) ? v.filter((x): x is string => typeof x === 'string').slice(0, 50) : [];
+    const v = JSON.parse(localStorage.getItem(MINE_KEY) ?? '{}');
+    return v && typeof v === 'object' && !Array.isArray(v) ? (v as Record<string, string>) : {};
   } catch {
-    return [];
+    return {};
   }
 }
 
-export function rememberMyReport(id: string) {
+export function rememberMyReport(id: string, editToken: string) {
   try {
-    localStorage.setItem(MINE_KEY, JSON.stringify([id, ...readMine().filter((x) => x !== id)].slice(0, 50)));
+    const all = Object.entries({ [id]: editToken, ...readMine() }).slice(0, 50);
+    localStorage.setItem(MINE_KEY, JSON.stringify(Object.fromEntries(all)));
     window.dispatchEvent(new Event('n360-my-reports'));
   } catch {
     // Storage unavailable (private mode): the report is still sent; it just is not remembered here.
   }
 }
 
+export function editTokenFor(id: string): string | null {
+  return readMine()[id] ?? null;
+}
+
 /** Ids of reports sent from this browser. */
 export function useMyReports(): Set<string> {
   const [mine, setMine] = useState<Set<string>>(new Set());
   useEffect(() => {
-    const load = () => setMine(new Set(readMine()));
+    const load = () => setMine(new Set(Object.keys(readMine())));
     load();
     window.addEventListener('n360-my-reports', load);
     window.addEventListener('storage', load);
@@ -73,4 +79,24 @@ export function useMyReports(): Set<string> {
     };
   }, []);
   return mine;
+}
+
+// ---------------------------------------------------------------- helper name (remembered for the next update)
+
+const NAME_KEY = 'n360.helperName';
+
+export function savedHelperName(): string {
+  try {
+    return localStorage.getItem(NAME_KEY) ?? '';
+  } catch {
+    return '';
+  }
+}
+
+export function saveHelperName(name: string) {
+  try {
+    if (name) localStorage.setItem(NAME_KEY, name);
+  } catch {
+    // ignore
+  }
 }

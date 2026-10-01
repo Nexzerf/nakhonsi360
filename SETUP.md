@@ -109,9 +109,9 @@ Keys stay server-side (never `NEXT_PUBLIC_`). None are needed in Phase 1.
 ## 8. Citizen reports and emergency numbers
 
 - Reports work as soon as the database is migrated (`npm run db:migrate`). They are stored in `citizen_reports`; see [REPORTS.md](REPORTS.md).
-- Set `REPORTS_ADMIN_TOKEN` (16+ characters) and give it only to responders (ปภ., อปพร., อบต., volunteers). They sign in at `/admin/reports` to see reporters' phone numbers, set status and post public replies.
+- No sign-in: anyone can report and anyone can help. Abuse is limited by per-connection limits and flags (see REPORTS.md).
 - Emergency numbers live in `lib/registry/emergency.ts`, each with its sources and check date. Edit that file to correct or add a number.
 
 ## 9. Deploy (Vercel)
 
-Import the repository in Vercel, set `DATABASE_URL` and `REPORTS_ADMIN_TOKEN` (and `NEXT_PUBLIC_PMTILES_BASE_URL` if used), and deploy. Run `npm run db:migrate` against that database once (and after each new migration). In Phase 2, test each live source from the deployment region; if a Thai server blocks it, run that ingest from GitHub Actions or a Thai-hosted runner and store the results in Postgres.
+Import the repository in Vercel, set `DATABASE_URL` (and `NEXT_PUBLIC_PMTILES_BASE_URL` if used), and deploy. Run `npm run db:migrate` against that database once (and after each new migration). In Phase 2, test each live source from the deployment region; if a Thai server blocks it, run that ingest from GitHub Actions or a Thai-hosted runner and store the results in Postgres.

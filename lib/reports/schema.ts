@@ -1,10 +1,11 @@
 /**
  * Citizen hazard reports: the fields people can send and their validation.
  *
- * Reports are what a member of the public says, not official data. They are
- * shown as "รายงานจากประชาชน ยังไม่ยืนยัน" until a responder updates them, and
- * never mixed with agency data. The contact name and phone are kept private:
- * only responders signed in to /admin/reports can see them.
+ * Reports and updates are what members of the public say, not official data,
+ * and are never mixed with agency data. There is no sign-in: anyone can
+ * report and anyone can say they are helping. The reporter's name and phone
+ * are shown publicly while the report is open (the form says so) and hidden
+ * once it is closed.
  */
 import type { IconId } from '@/lib/registry/layers';
 
@@ -67,27 +68,40 @@ export const WATER_TRENDS = [
 ] as const;
 export type WaterTrend = (typeof WATER_TRENDS)[number]['id'];
 
-/** Response status, set only by signed-in responders. */
+/** Where a report stands, from the latest update anyone posted. */
 export const STATUSES = [
-  { id: 'new', th: 'รายงานใหม่ ยังไม่ยืนยัน', en: 'New, unverified', color: '#64748b', open: true },
-  { id: 'acknowledged', th: 'รับเรื่องแล้ว', en: 'Acknowledged', color: '#2563eb', open: true },
-  { id: 'in_progress', th: 'กำลังช่วยเหลือ', en: 'Help on the way', color: '#d97706', open: true },
-  { id: 'resolved', th: 'ช่วยเหลือแล้ว / คลี่คลาย', en: 'Resolved', color: '#16a34a', open: false },
-  { id: 'duplicate', th: 'ซ้ำกับรายงานอื่น', en: 'Duplicate', color: '#9ca3af', open: false },
-  { id: 'unverifiable', th: 'ตรวจสอบไม่พบเหตุ', en: 'Could not be verified', color: '#9ca3af', open: false },
+  { id: 'new', th: 'ยังไม่มีคนรับเรื่อง', en: 'No one on it yet', color: '#64748b', open: true },
+  { id: 'on_the_way', th: 'มีคนกำลังไปช่วย', en: 'Someone is on the way', color: '#d97706', open: true },
+  { id: 'resolved', th: 'ช่วยเหลือแล้ว / คลี่คลาย', en: 'Helped / resolved', color: '#16a34a', open: false },
+  { id: 'unverifiable', th: 'ไปแล้วไม่พบเหตุ', en: 'Went there, nothing found', color: '#9ca3af', open: false },
 ] as const;
 export type StatusId = (typeof STATUSES)[number]['id'];
 export const OPEN_STATUSES = STATUSES.filter((s) => s.open).map((s) => s.id) as StatusId[];
+
+/** What a helper (or the reporter) can say about a report. */
+export const UPDATE_ACTIONS = [
+  { id: 'on_the_way', th: 'ฉันกำลังไปช่วย', en: "I'm on my way", status: 'on_the_way' },
+  { id: 'resolved', th: 'ช่วยเหลือแล้ว', en: 'Helped / resolved', status: 'resolved' },
+  { id: 'still_need', th: 'ยังต้องการความช่วยเหลือ', en: 'Still needs help', status: 'new' },
+  { id: 'unverifiable', th: 'ไปแล้วไม่พบเหตุ', en: 'Went there, nothing found', status: 'unverifiable' },
+  { id: 'note', th: 'เพิ่มข้อมูล', en: 'Add information', status: null },
+] as const satisfies readonly { id: string; th: string; en: string; status: StatusId | null }[];
+export type UpdateActionId = (typeof UPDATE_ACTIONS)[number]['id'];
 
 export const LIMITS = {
   placeNote: 200,
   details: 1000,
   contactName: 80,
-  responderNote: 500,
+  updateNote: 500,
+  authorName: 60,
   maxPeople: 100_000,
   maxDepthCm: 1000,
-  /** Reports per reporter (hashed IP) per hour. */
+  /** Reports per connection (hashed IP) per hour. */
   perHour: 5,
+  /** Updates per connection per hour. */
+  updatesPerHour: 20,
+  /** Flags from different connections that hide a report. */
+  flagsToHide: 3,
 } as const;
 
 export interface ReportInput {
@@ -204,17 +218,24 @@ export function validateReport(body: unknown): ValidationResult {
   };
 }
 
-export function validateStatusUpdate(body: unknown): { ok: true; status: StatusId | null; note: string | null; hidden: boolean | null } | { ok: false } {
+export type UpdateInput = { action: UpdateActionId; note: string | null; authorName: string | null; editToken: string | null };
+
+export function validateUpdate(body: unknown): { ok: true; value: UpdateInput } | { ok: false } {
   const b = (body && typeof body === 'object' ? body : {}) as Record<string, unknown>;
-  const status = b.status === undefined ? null : STATUSES.some((s) => s.id === b.status) ? (b.status as StatusId) : undefined;
-  const note = cleanText(b.note, LIMITS.responderNote);
-  const hidden = b.hidden === undefined ? null : typeof b.hidden === 'boolean' ? b.hidden : undefined;
-  if (status === undefined || note === undefined || hidden === undefined) return { ok: false };
-  if (status === null && note === null && hidden === null) return { ok: false };
-  return { ok: true, status, note, hidden };
+  const action = UPDATE_ACTIONS.find((a) => a.id === b.action)?.id;
+  const note = cleanText(b.note, LIMITS.updateNote);
+  const authorName = cleanText(b.authorName, LIMITS.authorName);
+  const editToken = typeof b.editToken === 'string' && /^[0-9a-f]{32}$/.test(b.editToken) ? b.editToken : null;
+  if (!action || note === undefined || authorName === undefined) return { ok: false };
+  if (action === 'note' && !note) return { ok: false };
+  return { ok: true, value: { action, note, authorName, editToken } };
 }
 
-/** Public shape of a report: never includes contact details or the reporter hash. */
+/**
+ * Public shape of a report. The reporter's name and phone are included only
+ * while the report is open (the form tells them so); the connection hash and
+ * edit token never leave the server.
+ */
 export interface PublicReport {
   id: string;
   createdAt: string;
@@ -233,21 +254,19 @@ export interface PublicReport {
   needs: NeedId[];
   details: string | null;
   status: StatusId;
-  /** Latest public note from a responder. */
-  responderNote: string | null;
+  contactName: string | null;
+  contactPhone: string | null;
+  /** Latest update anyone posted, for the list. */
+  lastUpdate: ReportUpdate | null;
+  updateCount: number;
   subdistrictTh: string | null;
   districtTh: string | null;
-  hasContact: boolean;
 }
 
 export interface ReportUpdate {
   at: string;
-  status: StatusId | null;
+  action: UpdateActionId;
   note: string | null;
-}
-
-export interface AdminReport extends PublicReport {
-  contactName: string | null;
-  contactPhone: string | null;
-  hidden: boolean;
+  authorName: string | null;
+  byReporter: boolean;
 }

@@ -36,6 +36,11 @@ jobs:
           cache: npm
       - run: npm ci
         if: steps.check.outputs.ready == 'true'
+      - name: Apply database migrations
+        if: steps.check.outputs.ready == 'true'
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+        run: npm run db:migrate
       - name: Ingest
         if: steps.check.outputs.ready == 'true'
         env:

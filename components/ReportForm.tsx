@@ -147,9 +147,9 @@ export function ReportForm() {
           website,
         }),
       });
-      const body = (await r.json().catch(() => ({}))) as { id?: string; error?: string; fields?: Record<string, string> };
+      const body = (await r.json().catch(() => ({}))) as { id?: string; editToken?: string; error?: string; fields?: Record<string, string> };
       if (r.status === 201 && body.id) {
-        rememberMyReport(body.id);
+        if (body.editToken) rememberMyReport(body.id, body.editToken);
         setSentId(body.id);
         useMapStore.getState().setDraftLocation(null);
         qc.invalidateQueries({ queryKey: ['reports'] });
