@@ -67,7 +67,9 @@ suite('phase 1 database (real source files)', () => {
   it('shows in the registry the same village count that is in the table', async () => {
     const imp = (await latestImports(sql)).get('dopa.villages')!;
     const [{ n } = { n: -1 }] = await sql<{ n: number }[]>`select count(*)::int as n from villages`;
-    expect(n).toBe(imp.importedCount);
+    const [{ u } = { u: -1 }] = await sql<{ u: number }[]>`select count(*)::int as u from villages_unlocated`;
+    expect(n + u).toBe(imp.importedCount);
+    expect(u).toBe(imp.unlocatedCount);
     expect(imp.importedCount + imp.rejectedCount).toBe(imp.sourceRecordCount);
   });
 

@@ -1,0 +1,17 @@
+{
+ "_about": "Real TMD NWP API (WRF model) responses saved unmodified on 2026-09-30T10:38Z. The OAuth token is sent in the Authorization header and appears nowhere here. Times are +07:00 as published. Units (TMD docs): tc/tc_max/tc_min °C, rh %, rain mm (hourly: per hour; daily: 24-h total), ws10m m/s (daily: maximum), wd10m degrees, cond 1-12 (see lib/adapters/tmdNwp.ts). Limits (TMD docs): 60 requests/min and 100,000 datapoints/hour per user; datapoints = locations x duration x fields.",
+ "files": {
+  "province_amphoes_hourly.json": {
+   "url": "https://data.tmd.go.th/nwpapi/v1/forecast/location/hourly/place?province=นครศรีธรรมราช&subarea=1&fields=tc&duration=1",
+   "sha256": "1a03e699d5b3243baa1b3c11918e484140e899242b5cb4fbc6fec835214a926e"
+  },
+  "chawang_tambons_hourly.json": {
+   "url": "https://data.tmd.go.th/nwpapi/v1/forecast/location/hourly/place?province=นครศรีธรรมราช&amphoe=ฉวาง&subarea=1&fields=tc,rh,rain,ws10m,wd10m,cond&duration=24",
+   "sha256": "d671c4ba44654d49f89d9be4a46e5d73b6e4d98fa96da8c620c7140103665b83"
+  },
+  "chawang_tambons_daily.json": {
+   "url": "https://data.tmd.go.th/nwpapi/v1/forecast/location/daily/place?province=นครศรีธรรมราช&amphoe=ฉวาง&subarea=1&fields=tc_max,tc_min,rh,rain,ws10m,wd10m,cond&duration=7",
+   "sha256": "159ee5b1d24b5137ed099af1a9970b5a68f87c6d80c358698f24b5306f7b2d98"
+  }
+ }
+}

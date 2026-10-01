@@ -86,6 +86,10 @@ export interface ImportRecord {
   sourceRecordCount: number;
   importedCount: number;
   rejectedCount: number;
+  /** Of importedCount: records whose published location was corrected (and verified) on import. */
+  correctedLocationCount: number;
+  /** Of importedCount: records kept without a usable location (not drawn on the map). */
+  unlocatedCount: number;
 }
 
 export interface SourceHealth {
@@ -108,6 +112,8 @@ export interface SourceRef {
   observedAt: string | null;
   /** When we fetched/imported it. */
   fetchedAt: string | null;
+  /** The source was checked at fetchedAt and reported nothing here (e.g. no hotspots): there is no observation time to show. */
+  checkedNothingFound?: boolean;
 }
 
 export type CardResult<T> =
@@ -140,6 +146,24 @@ export interface VillageHit {
   distanceM: number;
   /** Number of source records at this exact coordinate (1 = unique). */
   sharedLocationCount: number;
+  /** 'source' = as published; otherwise how the published value was corrected on import. */
+  locationMethod: VillageLocationMethod;
+  /** Approximate extra uncertainty from the correction, in metres (null when as published). */
+  locationUncertaintyM: number | null;
+}
+
+export type VillageLocationMethod = 'source' | 'utm47n_wgs84' | 'axes_swapped';
+
+/** A DOPA village whose published coordinate is not usable; located only by its DOPA subdistrict. */
+export interface UnlocatedVillage {
+  id: string;
+  nameTh: string;
+  nameEn: string | null;
+  moo: number | null;
+  subdistrictTh: string | null;
+  districtTh: string | null;
+  /** Why the published coordinate is not used, e.g. 'outside_province', 'projected_coordinates'. */
+  reason: string;
 }
 
 export type FeatureKind =
@@ -165,6 +189,47 @@ export interface AdminCard {
 
 export interface VillageCard {
   nearest: VillageHit[];
+  /** Villages of the subdistrict at this point that DOPA lists without a usable location. */
+  unlocated: UnlocatedVillage[];
+}
+
+export interface HazardsCard {
+  hotspotRadiusM: number;
+  hotspotDays: number;
+  /** One row per source with detections in the radius (sources are never merged). */
+  hotspots: Array<{ sourceId: string; count: number; latestObservedAt: string; nearestM: number }>;
+  floods: Array<{ sourceId: string; kind: string; observedAt: string; properties: Record<string, unknown> }>;
+  warnings: Array<{ sourceId: string; observedAt: string; validUntil: string | null; properties: Record<string, unknown> }>;
+  /** Connected hazard sources and when each last delivered successfully (an empty result is still a result). */
+  checked: Array<{ sourceId: string; lastSuccessAt: string }>;
+  /** Hazard sources that are planned but not connected yet. */
+  notConnected: string[];
+}
+
+/** Model forecast for the subdistrict at a point (never shown as a measurement). */
+export interface ForecastCard {
+  sourceId: string;
+  placeCode: string;
+  placeName: string | null;
+  /** The source's reference point for the place, and its distance from the selected point. */
+  refLng: number;
+  refLat: number;
+  refDistanceM: number;
+  fetchedAt: string;
+  hourly: Array<{ validAt: string; values: Record<string, number> }>;
+  daily: Array<{ validAt: string; values: Record<string, number> }>;
+}
+
+/** Land cover of the subdistrict at a point (satellite classification), plus mapped mangroves near the point. */
+export interface LandcoverCard {
+  sourceId: string;
+  pcode: string;
+  subdistrictTh: string;
+  /** Largest class first; share is of the subdistrict's classified area. */
+  classes: Array<{ code: number; areaKm2: number; share: number }>;
+  mangroveRadiusM: number;
+  /** Distance to the nearest mapped mangrove polygon (0 = inside), null if none within the radius. */
+  mangroveDistanceM: number | null;
 }
 
 export interface ContextCard {
@@ -213,7 +278,7 @@ export interface ConditionsCard {
   variables: VariableConditions[];
 }
 
-export type InspectSection = 'admin' | 'village' | 'context' | 'conditions' | 'hazards' | 'satellite';
+export type InspectSection = 'admin' | 'village' | 'context' | 'conditions' | 'forecast' | 'hazards' | 'landcover' | 'satellite';
 
 export interface InspectResponse {
   lat: number;
@@ -224,7 +289,9 @@ export interface InspectResponse {
     village: CardResult<VillageCard>;
     context: CardResult<ContextCard>;
     conditions: CardResult<ConditionsCard>;
-    hazards: CardResult<never>;
+    forecast: CardResult<ForecastCard>;
+    hazards: CardResult<HazardsCard>;
+    landcover: CardResult<LandcoverCard>;
     satellite: CardResult<never>;
   }>;
 }

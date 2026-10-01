@@ -4,6 +4,7 @@
  *   npm run ingest                       # every registered adapter, then retention purge
  *   npm run ingest -- --source thaiwater.rain24h
  *   npm run ingest -- --source thaiwater.rain24h --from-file data/samples/thaiwater.rain24h/rain_24h.json
+ *   npm run ingest -- --source tmd.nwp --force   # ignore the adapter's minimum interval
  *
  * Each source runs independently: one failure is logged in ingest_runs and
  * the others continue. Exit code is non-zero only if every source failed.
@@ -25,11 +26,20 @@ main(async () => {
   try {
     const results = [];
     for (const id of ids) {
+      const adapter = ADAPTERS[id]!;
+      if (adapter.minIntervalMinutes && !fromFile && !args.flag('force')) {
+        const [last] = await sql<{ age_min: number }[]>`
+          select extract(epoch from now() - max(started_at)) / 60 as age_min from ingest_runs where source_id = ${id} and status in ('ok', 'partial')`;
+        if (last?.age_min != null && last.age_min < adapter.minIntervalMinutes) {
+          console.log(`skip    ${id}: last successful run ${Math.round(last.age_min)} min ago (runs at most every ${adapter.minIntervalMinutes} min; --force to override)`);
+          continue;
+        }
+      }
       const raw = fromFile ? JSON.parse(await readFile(fromFile, 'utf8')) : undefined;
-      const r = await runIngest(sql, ADAPTERS[id]!, { raw });
+      const r = await runIngest(sql, adapter, { raw });
       results.push(r);
       console.log(
-        `${r.status.padEnd(7)} ${id}: stations ${r.stations} (outside area ${r.outsideArea}), new observations ${r.observations}, hazards ${r.hazards}, rejected ${r.rejected}${r.error ? ` — ${r.error}` : ''}`,
+        `${r.status.padEnd(7)} ${id}: stations ${r.stations} (outside area ${r.outsideArea}), new observations ${r.observations}, hazards ${r.hazards}, forecasts ${r.forecasts}, rejected ${r.rejected}${r.error ? ` — ${r.error}` : ''}`,
       );
     }
     if (!only) {

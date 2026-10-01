@@ -52,7 +52,7 @@ export const SOURCES: readonly DataSource[] = [
     verifiedAt: '2026-09-30',
     optional: false,
     phase: 1,
-    verificationNote: 'ตรวจสอบแล้ว: ไฟล์จริง (เผยแพร่ 5 ก.ย. 2566) ได้รับจากเจ้าของโครงการซึ่งดาวน์โหลดจาก URL ทางการ เพราะโฮสต์ opendata_tst.dopa.go.th เข้าถึงไม่ได้จากระบบ 1,636 ระเบียน นำเข้า 1,588 ปฏิเสธ 48 (พิกัดเป็นเมตร 7 จุด นอกจังหวัด 41 จุด ส่วนใหญ่ใช้พิกัดกรุงเทพฯ เป็นค่าแทน) — Verified with the real file (released 2023-09-05) supplied by the project owner from the official URL: 1,636 records, 1,588 imported, 48 rejected (7 projected coordinates, 41 outside the province, mostly a Bangkok placeholder point).',
+    verificationNote: 'ตรวจสอบแล้ว: ไฟล์จริง (เผยแพร่ 5 ก.ย. 2566) ได้รับจากเจ้าของโครงการซึ่งดาวน์โหลดจาก URL ทางการ เพราะโฮสต์ opendata_tst.dopa.go.th เข้าถึงไม่ได้จากระบบ มี 1,636 ระเบียน ทุกหมู่บ้านถูกนำเข้า: 7 หมู่บ้านใน ต.ห้วยปริก อ.ฉวาง ให้พิกัดเป็นเมตร (UTM สลับแกน) จึงแปลงเป็นโซน 47N/WGS 84 และยอมรับเพราะทุกจุดอยู่ใน ต.ห้วยปริก (คลาดเคลื่อนได้ราว 700 ม.) อีก 41 หมู่บ้านมีพิกัดนอกจังหวัด (24 จุดเป็นพิกัดกรุงเทพฯ ที่ใช้แทน) จึงเก็บไว้โดยไม่มีพิกัด ค้นหาได้และแสดงในตำบลตามที่ DOPA ระบุ — Verified with the real file (released 2023-09-05) supplied by the project owner: 1,636 records, all kept. 7 villages in ต.ห้วยปริก give metres (swapped-axis UTM); converted as zone 47N/WGS 84 and accepted because every point lands in ต.ห้วยปริก (±~700 m). 41 have a point outside the province (24 at a Bangkok placeholder): kept without a location, searchable and listed under their DOPA subdistrict.',
   },
   {
     id: 'osm.geofabrik',
@@ -169,6 +169,25 @@ export const SOURCES: readonly DataSource[] = [
     optional: false,
     phase: 2,
     verificationNote: 'ตรวจสอบแล้ว: ตัวอย่างจริงใน data/samples/thaiwater.rain24h/rain_24h.json เวลาในข้อมูลไม่มีเขตเวลา ถือเป็นเวลาไทย (+07:00) จากหลักฐานในข้อมูล (ต้องยืนยันกับ สสน.) — Verified with a real sample; timestamps have no timezone and are read as Thai time (+07:00), inferred from the data (confirm with HII).',
+  },
+  {
+    id: 'tmd.nwp',
+    organization: 'กรมอุตุนิยมวิทยา',
+    organizationEn: 'Thai Meteorological Department (TMD)',
+    datasetName: 'พยากรณ์อากาศจากแบบจำลอง WRF (NWP API) รายตำบล',
+    datasetNameEn: 'WRF model weather forecast (NWP API), per subdistrict',
+    kind: 'forecast',
+    license: 'TMD copyright; credit กรมอุตุนิยมวิทยา each time it is shown — verify terms',
+    attribution: 'พยากรณ์อากาศ: กรมอุตุนิยมวิทยา (แบบจำลอง WRF)',
+    endpoint: 'https://data.tmd.go.th/nwpapi/',
+    requiresKey: true,
+    expectedUpdateMinutes: 180,
+    coverage: 'Thailand; domain 2 (hourly, 72 h ahead) and domain 1 (daily, 10 days); forecast at each subdistrict\'s reference point',
+    verified: true,
+    verifiedAt: '2026-09-30',
+    optional: false,
+    phase: 2,
+    verificationNote: 'ตรวจสอบแล้ว: เรียก API จริงด้วย token ได้ 23 อำเภอและตำบลทั้งหมดของจังหวัด รหัส geocode ตรงกับรหัส HDX (800401 = TH800401) บันทึกคำตอบจริงใน data/samples/tmd.nwp เป็นค่าพยากรณ์จากแบบจำลอง ไม่ใช่ค่าตรวจวัด — Verified: real API calls with a token return the 23 districts and every subdistrict; geocodes equal HDX pcodes. Samples in data/samples/tmd.nwp. Model forecasts, not measurements.',
   },
   {
     id: 'tmd.weather',
@@ -296,15 +315,34 @@ export const SOURCES: readonly DataSource[] = [
     endpoint: 'https://firms.modaps.eosdis.nasa.gov/api/area/',
     requiresKey: true,
     expectedUpdateMinutes: 180,
-    coverage: 'Global',
-    verified: false,
-    verifiedAt: null,
+    coverage: 'Global; VIIRS (S-NPP, NOAA-20, NOAA-21, 375 m) and MODIS (Terra/Aqua, 1 km), near real time, several overpasses a day',
+    verified: true,
+    verifiedAt: '2026-09-30',
     optional: true,
     phase: 2,
-    verificationNote: NOT_STARTED,
+    verificationNote: 'ตรวจสอบแล้ว: เรียก Area API ด้วย MAP_KEY จริงสำหรับกรอบจังหวัด + 5 กม. ทั้ง 4 เซนเซอร์ บันทึกคำตอบจริงไว้ใน data/samples/firms.hotspots (ไม่มีคีย์) ช่วง 5 วันล่าสุดไม่มีจุดความร้อน (ฤดูฝน) ส่วนเดือน ก.ค.–ส.ค. 2569 พบ 208 จุด ค่าความเชื่อมั่นแสดงตามที่เผยแพร่ (VIIRS: l/n/h, MODIS: 0–100) — Verified: real Area API calls with a MAP_KEY for the province bbox + 5 km, all 4 sensors; responses saved in data/samples/firms.hotspots (key removed). No hotspots in the last 5 days (rainy season); 208 detections in Jul–Aug 2026. Confidence shown as published.',
   },
 
   // ---------------------------------------------------------------- Phase 3
+  {
+    id: 'esa.worldcover',
+    organization: 'European Space Agency (ESA) — WorldCover',
+    organizationEn: 'European Space Agency (ESA) — WorldCover project',
+    datasetName: 'สิ่งปกคลุมดินละเอียด 10 ม. จากดาวเทียม Sentinel-1/2 ปี 2564 (ESA WorldCover 2021 v200)',
+    datasetNameEn: 'ESA WorldCover 10 m land cover 2021 (v200), from Sentinel-1/2',
+    kind: 'satellite_derived',
+    license: 'CC BY 4.0 (WorldCover Product User Manual v2.0, section 5.1)',
+    attribution: 'สิ่งปกคลุมดิน: © ESA WorldCover project 2021 / Contains modified Copernicus Sentinel data (2021) processed by ESA WorldCover consortium',
+    endpoint: 'https://esa-worldcover.s3.eu-central-1.amazonaws.com/v200/2021/map/',
+    requiresKey: false,
+    expectedUpdateMinutes: null,
+    coverage: 'Global, 10 m; one map per reference year (2021 is the latest, v200). Classification of satellite imagery, not an official Thai land-use survey: plantations such as rubber and oil palm are counted as tree cover. Overall accuracy in Asia 82.1 ± 1.0% (PUM Table 4)',
+    verified: true,
+    verifiedAt: '2026-10-01',
+    optional: false,
+    phase: 3,
+    verificationNote: 'ตรวจสอบแล้ว: อ่านไฟล์ COG จริง 2 แผ่น (N06E099, N09E099) จาก S3 ของ ESA ตัดเฉพาะจังหวัด + 5 กม. และคำนวณพื้นที่ทุกพิกเซล 10 ม. ตามละติจูด ผลรวมรายตำบลตรงกับพื้นที่รูปตำบล HDX ต่างกันไม่เกิน 0.05% ใบอนุญาต CC BY 4.0 และนิยามชั้นข้อมูลจากคู่มือ PUM v2.0 — Verified: read the 2 real COG tiles from ESA\'s S3 bucket, clipped to the province + 5 km, summed every 10 m pixel\'s area from its latitude; per-subdistrict totals match the HDX polygon areas within 0.05%. Licence and class definitions from the PUM v2.0.',
+  },
   {
     id: 'gistda.soilmoisture',
     organization: 'GISTDA',
@@ -455,5 +493,5 @@ export function findSource(id: string): DataSource | undefined {
 }
 
 /** Static sources loaded into Postgres by the import scripts. */
-export const IMPORTED_SOURCE_IDS = ['hdx.cod-ab-tha', 'dopa.villages', 'osm.geofabrik'] as const;
+export const IMPORTED_SOURCE_IDS = ['hdx.cod-ab-tha', 'dopa.villages', 'osm.geofabrik', 'esa.worldcover'] as const;
 export type ImportedSourceId = (typeof IMPORTED_SOURCE_IDS)[number];

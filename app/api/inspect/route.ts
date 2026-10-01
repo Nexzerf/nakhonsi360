@@ -1,18 +1,20 @@
 import { NextResponse, type NextRequest } from 'next/server';
 import { getDb, withTimeout, TimeoutError } from '@/lib/db/client';
-import { connectedSources, inspectAdmin, latestAtStations, latestImports, nearestFeatures, nearestObservations, nearestVillages, waterwayNamesNear } from '@/lib/db/queries';
+import { connectedSources, forecastAt, hazardsAt, inspectAdmin, landcoverAt, latestAtStations, latestImports, nearestFeatures, nearestObservations, nearestVillages, unlocatedVillagesAt, waterwayNamesNear } from '@/lib/db/queries';
 import { CONDITION_VARIABLES } from '@/lib/registry/stationRules';
 import { buildVariableConditions } from '@/lib/inspect/conditions';
-import type { CardResult, ConditionsCard, ImportRecord, InspectResponse, InspectSection, SourceRef } from '@/lib/types';
+import type { CardResult, ConditionsCard, HazardsCard, ImportRecord, InspectResponse, InspectSection, SourceRef } from '@/lib/types';
 
 export const dynamic = 'force-dynamic';
 
 const CARD_TIMEOUT_MS = 4000;
 const CONTEXT_RADIUS_M = 30_000;
-const ALL_SECTIONS: InspectSection[] = ['admin', 'village', 'context', 'conditions', 'hazards', 'satellite'];
+const ALL_SECTIONS: InspectSection[] = ['admin', 'village', 'context', 'conditions', 'forecast', 'hazards', 'landcover', 'satellite'];
 
 /** Sections whose sources are built in later phases. */
-const PLANNED: Record<'conditions' | 'hazards' | 'satellite', { phase: number; sourceIds: string[] }> = {
+const PLANNED: Record<'conditions' | 'forecast' | 'hazards' | 'landcover' | 'satellite', { phase: number; sourceIds: string[] }> = {
+  landcover: { phase: 3, sourceIds: ['esa.worldcover', 'ldd.landuse'] },
+  forecast: { phase: 2, sourceIds: ['tmd.nwp'] },
   conditions: { phase: 2, sourceIds: ['thaiwater.rain24h', 'thaiwater.waterlevel', 'tmd.weather', 'air4thai.aqi'] },
   hazards: { phase: 2, sourceIds: ['gistda.flood', 'gistda.hotspots', 'firms.hotspots', 'dmr.landslide', 'dmcr.coast'] },
   satellite: { phase: 4, sourceIds: ['copernicus.sentinel2'] },
@@ -45,16 +47,15 @@ export async function GET(req: NextRequest) {
   const sql = getDb();
   const out: InspectResponse = { lat, lng, generatedAt: new Date().toISOString(), sections: {} };
 
-  for (const s of ['hazards', 'satellite'] as const) {
-    if (sections.includes(s)) out.sections[s] = { status: 'not_connected', ...PLANNED[s] };
-  }
+  if (sections.includes('satellite')) out.sections.satellite = { status: 'not_connected', ...PLANNED.satellite };
 
-  const wantDb = sections.filter((s) => s === 'admin' || s === 'village' || s === 'context' || s === 'conditions');
+  const wantDb = sections.filter((s) => s !== 'satellite');
   if (wantDb.length === 0) return NextResponse.json(out);
 
   if (!sql) {
+    const sections = out.sections as Partial<Record<InspectSection, CardResult<unknown>>>;
     for (const s of wantDb) {
-      out.sections[s] = s === 'conditions' ? { status: 'not_connected', ...PLANNED.conditions } : { status: 'unavailable', reason: 'database_not_configured' };
+      sections[s] = s in PLANNED ? { status: 'not_connected', ...PLANNED[s as keyof typeof PLANNED] } : { status: 'unavailable', reason: 'database_not_configured' };
     }
     return NextResponse.json(out);
   }
@@ -64,7 +65,8 @@ export async function GET(req: NextRequest) {
     imports = await withTimeout(latestImports(sql), CARD_TIMEOUT_MS);
   } catch (err) {
     console.error('[api/inspect] imports', err);
-    for (const s of wantDb) out.sections[s] = err instanceof TimeoutError ? { status: 'timeout' } : { status: 'error' };
+    const sections = out.sections as Partial<Record<InspectSection, CardResult<unknown>>>;
+    for (const s of wantDb) sections[s] = err instanceof TimeoutError ? { status: 'timeout' } : { status: 'error' };
     return NextResponse.json(out);
   }
   const hdx = imports.get('hdx.cod-ab-tha');
@@ -108,8 +110,8 @@ export async function GET(req: NextRequest) {
         out.sections.village = await guarded(async () => {
           const sources = [ref('dopa.villages', dopa)];
           if (await outside()) return { status: 'empty', reason: 'outside_study_area', sources };
-          const nearest = await nearestVillages(sql, lng, lat, 3);
-          return nearest.length ? { status: 'ok', data: { nearest }, sources } : { status: 'empty', reason: 'no_public_data', sources };
+          const [nearest, unlocated] = await Promise.all([nearestVillages(sql, lng, lat, 3), unlocatedVillagesAt(sql, lng, lat)]);
+          return nearest.length || unlocated.length ? { status: 'ok', data: { nearest, unlocated }, sources } : { status: 'empty', reason: 'no_public_data', sources };
         });
       })(),
     );
@@ -142,8 +144,68 @@ export async function GET(req: NextRequest) {
     );
   }
 
+  if (wantDb.includes('forecast')) {
+    tasks.push(
+      (async () => {
+        out.sections.forecast = await guarded(async () => {
+          const connected = await connectedSources(sql);
+          if (!PLANNED.forecast.sourceIds.some((id) => connected.has(id))) return { status: 'not_connected', ...PLANNED.forecast };
+          if (await outside()) return { status: 'empty', reason: 'outside_study_area', sources: [] };
+          const data = await forecastAt(sql, lng, lat, FORECAST_HOURS, FORECAST_DAYS);
+          if (!data) return { status: 'empty', reason: 'no_public_data', sources: [] };
+          return { status: 'ok', data, sources: [{ sourceId: data.sourceId, observedAt: null, fetchedAt: data.fetchedAt }] };
+        });
+      })(),
+    );
+  }
+
+  if (wantDb.includes('landcover')) {
+    tasks.push(
+      (async () => {
+        const wc = imports.get('esa.worldcover');
+        if (!wc) {
+          out.sections.landcover = { status: 'not_connected', ...PLANNED.landcover };
+          return;
+        }
+        out.sections.landcover = await guarded(async () => {
+          const sources = [ref('esa.worldcover', wc)];
+          if (await outside()) return { status: 'empty', reason: 'outside_study_area', sources };
+          const data = await landcoverAt(sql, lng, lat, MANGROVE_RADIUS_M);
+          return data ? { status: 'ok', data, sources } : { status: 'empty', reason: 'no_public_data', sources };
+        });
+      })(),
+    );
+  }
+
+  if (wantDb.includes('hazards')) {
+    tasks.push(
+      (async () => {
+        out.sections.hazards = await guarded(async () => hazardsCard(sql, lng, lat, await outside()));
+      })(),
+    );
+  }
+
   await Promise.all(tasks);
   return NextResponse.json(out, { headers: { 'Cache-Control': 'no-store' } });
+}
+
+const FORECAST_HOURS = 24;
+const FORECAST_DAYS = 7;
+const HOTSPOT_RADIUS_M = 5_000;
+const MANGROVE_RADIUS_M = 10_000;
+const HOTSPOT_DAYS = 7;
+
+async function hazardsCard(sql: NonNullable<ReturnType<typeof getDb>>, lng: number, lat: number, outsideArea: boolean): Promise<CardResult<HazardsCard>> {
+  const connected = await connectedSources(sql);
+  if (!PLANNED.hazards.sourceIds.some((id) => connected.has(id))) return { status: 'not_connected', ...PLANNED.hazards };
+  if (outsideArea) return { status: 'empty', reason: 'outside_study_area', sources: [] };
+  const data = await hazardsAt(sql, lng, lat, HOTSPOT_RADIUS_M, HOTSPOT_DAYS, PLANNED.hazards.sourceIds);
+  // Provenance: every checked source, with its latest detection here if any, else its last successful check.
+  const sources: SourceRef[] = data.checked.map((c) => {
+    const latest = data.hotspots.find((h) => h.sourceId === c.sourceId)?.latestObservedAt ?? null;
+    return { sourceId: c.sourceId, observedAt: latest, fetchedAt: c.lastSuccessAt, checkedNothingFound: latest === null };
+  });
+  return { status: 'ok', data, sources };
 }
 
 async function conditionsCard(sql: NonNullable<ReturnType<typeof getDb>>, lng: number, lat: number, outsideArea: boolean): Promise<CardResult<ConditionsCard>> {

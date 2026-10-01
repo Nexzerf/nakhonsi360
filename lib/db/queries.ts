@@ -11,8 +11,13 @@ import type {
   ImportRecord,
   NearbyFeature,
   SearchHit,
+  ForecastCard,
   GazetteerType,
+  HazardsCard,
+  LandcoverCard,
+  UnlocatedVillage,
   VillageHit,
+  VillageLocationMethod,
 } from '@/lib/types';
 
 type Sql = postgres.Sql;
@@ -40,11 +45,14 @@ export async function latestImports(sql: Sql): Promise<Map<string, ImportRecord>
       source_record_count: number;
       imported_count: number;
       rejected_count: number;
+      corrected_location_count: number | null;
+      unlocated_count: number | null;
     }[]
   >`
     select distinct on (source_id)
            source_id, imported_at, source_file, source_url, source_sha256, source_version,
-           source_date, source_record_count, imported_count, rejected_count
+           source_date, source_record_count, imported_count, rejected_count,
+           corrected_location_count, unlocated_count
       from dataset_imports
      order by source_id, imported_at desc`;
   return new Map(
@@ -60,6 +68,8 @@ export async function latestImports(sql: Sql): Promise<Map<string, ImportRecord>
         sourceRecordCount: r.source_record_count,
         importedCount: r.imported_count,
         rejectedCount: r.rejected_count,
+        correctedLocationCount: r.corrected_location_count ?? 0,
+        unlocatedCount: r.unlocated_count ?? 0,
       },
     ]),
   );
@@ -110,6 +120,8 @@ export async function nearestVillages(sql: Sql, lng: number, lat: number, limit 
       lat: number;
       distance_m: number;
       shared_location_count: number;
+      location_method: VillageLocationMethod;
+      location_uncertainty_m: number | null;
     }[]
   >`select * from nearest_villages(${lng}, ${lat}, ${limit})`;
   return rows.map((r) => ({
@@ -124,7 +136,17 @@ export async function nearestVillages(sql: Sql, lng: number, lat: number, limit 
     lat: r.lat,
     distanceM: r.distance_m,
     sharedLocationCount: r.shared_location_count ?? 1,
+    locationMethod: r.location_method ?? 'source',
+    locationUncertaintyM: r.location_uncertainty_m,
   }));
+}
+
+/** DOPA villages of the subdistrict at this point whose published location is not usable (never drawn on the map). */
+export async function unlocatedVillagesAt(sql: Sql, lng: number, lat: number): Promise<UnlocatedVillage[]> {
+  const rows = await sql<
+    { id: string; name_th: string; name_en: string | null; moo: number | null; subdistrict_th: string | null; district_th: string | null; reason: string }[]
+  >`select * from unlocated_villages_at(${lng}, ${lat})`;
+  return rows.map((r) => ({ id: r.id, nameTh: r.name_th, nameEn: r.name_en, moo: r.moo, subdistrictTh: r.subdistrict_th, districtTh: r.district_th, reason: r.reason }));
 }
 
 export async function nearestFeatures(sql: Sql, lng: number, lat: number, radiusM: number): Promise<NearbyFeature[]> {
@@ -200,7 +222,7 @@ const TILE_LAYERS: Record<string, TileLayerSql> = {
   'admin-province': { sourceLayer: 'admin_province', from: 'admin_areas', where: 'level = 1', props: 'pcode, name_th, name_en', polygon: true },
   'admin-district': { sourceLayer: 'admin_district', from: 'admin_areas', where: 'level = 2', props: 'pcode, name_th, name_en', polygon: true },
   'admin-subdistrict': { sourceLayer: 'admin_subdistrict', from: 'admin_areas', where: 'level = 3', props: 'pcode, name_th, name_en', polygon: true },
-  villages: { sourceLayer: 'villages', from: 'villages', where: 'true', props: 'id, name_th, name_en, moo', polygon: false },
+  villages: { sourceLayer: 'villages', from: 'villages', where: 'true', props: 'id, name_th, name_en, moo, location_method', polygon: false },
   'water-rivers': { sourceLayer: 'rivers', from: 'osm_features', where: "kind = 'river'", props: 'osm_id, kind, subkind, name_th, name_en', polygon: false },
   'water-streams': { sourceLayer: 'streams', from: 'osm_features', where: "kind = 'stream'", props: 'osm_id, kind, subkind, name_th, name_en', polygon: false },
   'water-canals': { sourceLayer: 'canals', from: 'osm_features', where: "kind in ('canal', 'drain')", props: 'osm_id, kind, subkind, name_th, name_en', polygon: false },
@@ -208,6 +230,7 @@ const TILE_LAYERS: Record<string, TileLayerSql> = {
   'water-bodies': { sourceLayer: 'water_bodies', from: 'osm_features', where: "kind = 'water'", props: 'osm_id, kind, subkind, name_th, name_en', polygon: true },
   roads: { sourceLayer: 'roads', from: 'osm_features', where: "(kind = 'road_major' or ($1 >= 14 and kind = 'road_minor'))", props: 'osm_id, kind, subkind, name_th, name_en', polygon: false },
   coastline: { sourceLayer: 'coastline', from: 'osm_features', where: "kind = 'coastline'", props: 'osm_id', polygon: false },
+  mangroves: { sourceLayer: 'mangroves', from: 'landcover_features', where: "source_id = 'esa.worldcover' and class_code = 95", props: 'id, class_code, area_m2', polygon: true },
 };
 
 export function isTileLayer(id: string): boolean {
@@ -324,4 +347,97 @@ export interface StationFeatureRow {
 
 export async function latestStationReadings(sql: Sql, variable: string): Promise<StationFeatureRow[]> {
   return sql<StationFeatureRow[]>`select * from latest_station_readings(${variable})`;
+}
+
+// ---------------------------------------------------------------- hazards
+
+export interface HazardPointRow {
+  source_id: string;
+  kind: string;
+  observed_at: Date;
+  properties: Record<string, unknown>;
+  lng: number;
+  lat: number;
+}
+
+/** Point hazards (e.g. hotspots) of one kind from the given sources, observed within `days`. */
+export async function hazardPoints(sql: Sql, kind: string, sourceIds: string[], days: number): Promise<HazardPointRow[]> {
+  return sql<HazardPointRow[]>`
+    select source_id, kind, observed_at, properties, st_x(geom) as lng, st_y(geom) as lat
+      from hazard_features
+     where kind = ${kind} and source_id in ${sql(sourceIds)} and geometrytype(geom) = 'POINT'
+       and observed_at >= now() - make_interval(days => ${days})
+     order by observed_at desc
+     limit 5000`;
+}
+
+/** Hotspots near a point per source, flood polygons covering it, warnings in force covering it. */
+export async function hazardsAt(
+  sql: Sql, lng: number, lat: number, hotspotRadiusM: number, hotspotDays: number, sourceIds: string[],
+): Promise<HazardsCard> {
+  const [hot, floods, warnings, ok] = await Promise.all([
+    sql<{ source_id: string; hotspot_count: number; latest_observed_at: Date; nearest_m: number }[]>`
+      select * from hotspots_near(${lng}, ${lat}, ${hotspotRadiusM}, ${hotspotDays})`,
+    sql<{ source_id: string; kind: string; observed_at: Date; properties: Record<string, unknown> }[]>`select * from floods_at(${lng}, ${lat})`,
+    sql<{ source_id: string; observed_at: Date; valid_until: Date | null; properties: Record<string, unknown> }[]>`select * from warnings_at(${lng}, ${lat})`,
+    sql<{ source_id: string; last_ok: Date }[]>`
+      select source_id, max(finished_at) as last_ok from ingest_runs
+       where status in ('ok', 'partial') and source_id in ${sql(sourceIds)} group by source_id`,
+  ]);
+  const checked = ok.map((r) => ({ sourceId: r.source_id, lastSuccessAt: toIso(r.last_ok)! }));
+  return {
+    hotspotRadiusM,
+    hotspotDays,
+    hotspots: hot.map((r) => ({ sourceId: r.source_id, count: r.hotspot_count, latestObservedAt: toIso(r.latest_observed_at)!, nearestM: r.nearest_m })),
+    floods: floods.map((r) => ({ sourceId: r.source_id, kind: r.kind, observedAt: toIso(r.observed_at)!, properties: r.properties })),
+    warnings: warnings.map((r) => ({ sourceId: r.source_id, observedAt: toIso(r.observed_at)!, validUntil: toIso(r.valid_until), properties: r.properties })),
+    checked,
+    notConnected: sourceIds.filter((id) => !checked.some((c) => c.sourceId === id)),
+  };
+}
+
+// ---------------------------------------------------------------- forecasts
+
+/** Hourly and daily model forecast for the subdistrict containing the point; null when none is stored. */
+export async function forecastAt(sql: Sql, lng: number, lat: number, hours: number, days: number): Promise<ForecastCard | null> {
+  type Row = { source_id: string; place_code: string; place_name: string | null; valid_at: Date; fetched_at: Date; vals: Record<string, number>; ref_lng: number; ref_lat: number; distance_m: number };
+  const [hourly, daily] = await Promise.all([
+    sql<Row[]>`select * from forecast_at(${lng}, ${lat}, 'hourly', ${hours})`,
+    sql<Row[]>`select * from forecast_at(${lng}, ${lat}, 'daily', ${days})`,
+  ]);
+  const first = hourly[0] ?? daily[0];
+  if (!first) return null;
+  const fetched = [...hourly, ...daily].map((r) => new Date(r.fetched_at).getTime());
+  return {
+    sourceId: first.source_id,
+    placeCode: first.place_code,
+    placeName: first.place_name,
+    refLng: first.ref_lng,
+    refLat: first.ref_lat,
+    refDistanceM: first.distance_m,
+    // The oldest fetch among the rows shown, so the card never looks newer than its data.
+    fetchedAt: new Date(Math.min(...fetched)).toISOString(),
+    hourly: hourly.map((r) => ({ validAt: toIso(r.valid_at)!, values: r.vals })),
+    daily: daily.map((r) => ({ validAt: toIso(r.valid_at)!, values: r.vals })),
+  };
+}
+
+// ---------------------------------------------------------------- land cover
+
+export async function landcoverAt(sql: Sql, lng: number, lat: number, mangroveRadiusM: number): Promise<LandcoverCard | null> {
+  const [rows, near] = await Promise.all([
+    sql<{ source_id: string; pcode: string; subdistrict_th: string; class_code: number; area_km2: number; share: number }[]>`
+      select * from landcover_at(${lng}, ${lat})`,
+    sql<{ distance_m: number }[]>`select distance_m from landcover_feature_near(${lng}, ${lat}, 95::smallint, ${mangroveRadiusM})`,
+  ]);
+  const first = rows[0];
+  if (!first) return null;
+  return {
+    sourceId: first.source_id,
+    pcode: first.pcode,
+    subdistrictTh: first.subdistrict_th,
+    classes: rows.map((r) => ({ code: r.class_code, areaKm2: r.area_km2, share: r.share })),
+    mangroveRadiusM,
+    mangroveDistanceM: near[0]?.distance_m ?? null,
+  };
 }

@@ -29,7 +29,8 @@ export function validateThaiPoint(lng: number | null, lat: number | null): { ok:
   if (SENTINELS.has(lng) || SENTINELS.has(lat)) return { ok: false, reason: 'sentinel_value' };
   if (bboxContains(THAILAND_ENVELOPE, lng, lat)) return { ok: true };
   if (bboxContains(THAILAND_ENVELOPE, lat, lng)) return { ok: false, reason: 'swapped_lat_lng' };
-  // Metres (e.g. UTM) in degree fields. Not converted: the datum (WGS84 vs Indian 1975) is not stated.
+  // Metres (e.g. UTM) in degree fields. Not converted here: the datum is not stated. The village
+  // importer may accept a conversion only when it lands in the subdistrict the source names.
   if (Math.abs(lng) > 1000 && Math.abs(lat) > 1000) return { ok: false, reason: 'projected_coordinates' };
   return { ok: false, reason: 'outside_thailand' };
 }

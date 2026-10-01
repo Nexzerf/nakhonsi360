@@ -100,7 +100,18 @@ export function overlayLayers(layer: LayerDef, locale: Locale): LayerSpecificati
       return [{ ...base, id: id(''), type: 'line', paint: { 'line-color': COLORS.subdistrict, 'line-width': 1, 'line-dasharray': [2, 2] } }];
     case 'villages':
       return [
-        { ...base, id: id(''), type: 'circle', paint: { 'circle-radius': ['interpolate', ['linear'], ['zoom'], 12, 3.5, 16, 6], 'circle-color': COLORS.village, 'circle-stroke-color': '#ffffff', 'circle-stroke-width': 1.5 } },
+        // A location corrected on import (see villages.location_method) is drawn hollow: approximate, not as published.
+        {
+          ...base,
+          id: id(''),
+          type: 'circle',
+          paint: {
+            'circle-radius': ['interpolate', ['linear'], ['zoom'], 12, 3.5, 16, 6],
+            'circle-color': ['case', ['==', ['coalesce', ['get', 'location_method'], 'source'], 'source'], COLORS.village, '#ffffff'],
+            'circle-stroke-color': ['case', ['==', ['coalesce', ['get', 'location_method'], 'source'], 'source'], '#ffffff', COLORS.village],
+            'circle-stroke-width': ['case', ['==', ['coalesce', ['get', 'location_method'], 'source'], 'source'], 1.5, 2],
+          },
+        },
         {
           ...base,
           id: id('-label'),
@@ -139,6 +150,11 @@ export function overlayLayers(layer: LayerDef, locale: Locale): LayerSpecificati
       return [
         { ...base, id: id(''), type: 'fill', paint: { 'fill-color': '#7fb3e0', 'fill-opacity': 0.6 } },
         { ...base, id: id('-outline'), type: 'line', paint: { 'line-color': COLORS.waterOutline, 'line-width': 1 } },
+      ];
+    case 'mangroves':
+      return [
+        { ...base, id: id(''), type: 'fill', paint: { 'fill-color': '#00cf75', 'fill-opacity': 0.55 } },
+        { ...base, id: id('-outline'), type: 'line', minzoom: 11, paint: { 'line-color': '#047857', 'line-width': 0.75 } },
       ];
     case 'water-bodies':
       return [
@@ -181,6 +197,34 @@ export function selectionLayers(): LayerSpecification[] {
   return [
     { id: `${OVERLAY_PREFIX}selection-halo`, type: 'circle', source: SELECTION_SOURCE, paint: { 'circle-radius': 12, 'circle-color': '#1d4ed8', 'circle-opacity': 0.18 } },
     { id: `${OVERLAY_PREFIX}selection`, type: 'circle', source: SELECTION_SOURCE, paint: { 'circle-radius': 6, 'circle-color': '#1d4ed8', 'circle-stroke-color': '#ffffff', 'circle-stroke-width': 2 } },
+  ];
+}
+
+/** GeoJSON source for a live hazard layer (not clustered: each detection is shown). */
+export function hazardSource(layer: LayerDef, origin: string): SourceSpecification {
+  return { type: 'geojson', data: `${origin}/api/layers/${layer.id}` };
+}
+
+/**
+ * Hazard point layers (hotspots). One colour: a detection is a detection, and
+ * the sources' own confidence scales differ (VIIRS l/n/h, MODIS 0–100), so no
+ * colour scale is invented. Size grows with zoom only.
+ */
+export function hazardLayers(layer: LayerDef): LayerSpecification[] {
+  const color = layer.legend.type === 'circle' ? layer.legend.color : '#dc2626';
+  return [
+    {
+      id: `${OVERLAY_PREFIX}${layer.id}`,
+      type: 'circle',
+      source: overlaySourceId(layer.id),
+      paint: {
+        'circle-radius': ['interpolate', ['linear'], ['zoom'], 7, 3, 12, 5, 15, 8],
+        'circle-color': color,
+        'circle-opacity': 0.85,
+        'circle-stroke-color': '#ffffff',
+        'circle-stroke-width': 1,
+      },
+    },
   ];
 }
 

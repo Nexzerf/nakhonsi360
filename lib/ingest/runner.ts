@@ -20,6 +20,7 @@ export interface IngestResult {
   stations: number;
   observations: number;
   hazards: number;
+  forecasts: number;
   rejected: number;
   outsideArea: number;
   error?: string;
@@ -56,7 +57,19 @@ export function validateBatch(batch: ParsedBatch, now = new Date()): ParsedBatch
     if (bad) rejections.push({ reason: bad, ref: h.featureKey });
     return !bad;
   });
-  return { stations, observations, hazards, rejections };
+  const forecasts = (batch.forecasts ?? []).filter((f) => {
+    const t = new Date(f.validAt);
+    const bad = Number.isNaN(t.getTime())
+      ? 'bad_timestamp'
+      : !Number.isFinite(f.lng) || !Number.isFinite(f.lat)
+        ? 'bad_coordinates'
+        : Object.values(f.values).some((v) => !Number.isFinite(v))
+          ? 'not_a_number'
+          : null;
+    if (bad) rejections.push({ reason: bad, ref: `${f.placeCode}/${f.resolution}/${f.validAt}` });
+    return !bad;
+  });
+  return { stations, observations, hazards, forecasts, rejections };
 }
 
 export async function runIngest(
@@ -66,7 +79,7 @@ export async function runIngest(
 ): Promise<IngestResult> {
   const [run] = await sql<{ id: string }[]>`insert into ingest_runs (source_id, status) values (${adapter.sourceId}, 'running') returning id`;
   const runId = Number(run!.id);
-  const base = { sourceId: adapter.sourceId, runId, stations: 0, observations: 0, hazards: 0, rejected: 0, outsideArea: 0 };
+  const base = { sourceId: adapter.sourceId, runId, stations: 0, observations: 0, hazards: 0, forecasts: 0, rejected: 0, outsideArea: 0 };
 
   const fail = async (error: string): Promise<IngestResult> => {
     await sql`update ingest_runs set status = 'error', finished_at = now(), error = ${error.slice(0, 2000)} where id = ${runId}`;
@@ -88,7 +101,7 @@ export async function runIngest(
     }
     const fetchedAt = new Date().toISOString();
     const batch = validateBatch(adapter.parse(raw, fetchedAt));
-    const fetchedCount = batch.stations.length + batch.observations.length + batch.hazards.length + batch.rejections.length;
+    const fetchedCount = batch.stations.length + batch.observations.length + batch.hazards.length + (batch.forecasts?.length ?? 0) + batch.rejections.length;
 
     const counts = await sql.begin(async (tx) => {
       // Stations inside the province + buffer only; others are not stored (not an error).
@@ -160,7 +173,26 @@ export async function runIngest(
                 properties = excluded.properties, geom = excluded.geom`;
         hazInserted += r.count;
       }
-      return { stations: keptIds.size, outsideArea: stationRows.length - keptIds.size, observations: obsInserted, hazards: hazInserted };
+      // Forecasts: places whose reference point is inside the province + buffer; the latest run replaces earlier values.
+      const fcRows = (batch.forecasts ?? []).map((f) => ({
+        place_code: f.placeCode, place_name: f.placeName, resolution: f.resolution, valid_at: f.validAt, lng: f.lng, lat: f.lat, vals: f.values,
+      }));
+      let fcInserted = 0;
+      for (let i = 0; i < fcRows.length; i += 1000) {
+        const r = await tx`
+          insert into forecasts (source_id, place_code, place_name, admin_pcode, resolution, valid_at, fetched_at, vals, geom)
+          select ${adapter.sourceId}, r.place_code, r.place_name,
+                 (select a.pcode from admin_areas a where a.pcode = 'TH' || r.place_code),
+                 r.resolution, r.valid_at, ${fetchedAt}, r.vals, st_setsrid(st_makepoint(r.lng, r.lat), 4326)
+            from jsonb_to_recordset(${tx.json(fcRows.slice(i, i + 1000) as never)}::jsonb)
+              as r(place_code text, place_name text, resolution text, valid_at timestamptz, lng float8, lat float8, vals jsonb)
+           where exists (select 1 from province_extent pe where st_covers(pe.buffered, st_setsrid(st_makepoint(r.lng, r.lat), 4326)))
+          on conflict (source_id, resolution, place_code, valid_at) do update
+            set place_name = excluded.place_name, admin_pcode = excluded.admin_pcode, fetched_at = excluded.fetched_at,
+                vals = excluded.vals, geom = excluded.geom`;
+        fcInserted += r.count;
+      }
+      return { stations: keptIds.size, outsideArea: stationRows.length - keptIds.size, observations: obsInserted, hazards: hazInserted, forecasts: fcInserted };
     });
 
     // A few bad records are normal; flag the run only when more than 10% were rejected.
@@ -169,7 +201,7 @@ export async function runIngest(
     for (const r of batch.rejections) reasons[r.reason] = (reasons[r.reason] ?? 0) + 1;
     await sql`
       update ingest_runs
-         set status = ${status}, finished_at = now(), rows = ${counts.observations + counts.hazards},
+         set status = ${status}, finished_at = now(), rows = ${counts.observations + counts.hazards + counts.forecasts},
              fetched_count = ${fetchedCount}, rejected = ${batch.rejections.length},
              details = ${sql.json({ ...counts, rejectionReasons: reasons, rejectionSample: batch.rejections.slice(0, 50) } as never)}
        where id = ${runId}`;

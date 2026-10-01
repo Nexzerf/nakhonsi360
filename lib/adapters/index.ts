@@ -6,11 +6,15 @@
  * Sources still pending are listed below with the reason in DATA_SOURCES.md.
  */
 import type { IngestAdapter } from '@/lib/ingest/types';
+import { firmsHotspots } from '@/lib/adapters/firms';
 import { thaiwaterRain24h, thaiwaterWaterlevel } from '@/lib/adapters/thaiwater';
+import { tmdNwp } from '@/lib/adapters/tmdNwp';
 
 export const ADAPTERS: Record<string, IngestAdapter> = {
   [thaiwaterWaterlevel.sourceId]: thaiwaterWaterlevel,
   [thaiwaterRain24h.sourceId]: thaiwaterRain24h,
+  [firmsHotspots.sourceId]: firmsHotspots,
+  [tmdNwp.sourceId]: tmdNwp,
 };
 
 /** Live sources that still need a verified sample before an adapter can be written. */
@@ -21,5 +25,4 @@ export const PENDING_ADAPTERS = [
   'air4thai.aqi',
   'gistda.flood',
   'gistda.hotspots',
-  'firms.hotspots',
 ] as const;

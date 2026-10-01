@@ -36,6 +36,16 @@ export function formatDate(date: Date, locale: Locale): string {
   }).format(date);
 }
 
+/** Hour of day in Bangkok time: "14:00". */
+export function formatHour(date: Date, locale: Locale): string {
+  return new Intl.DateTimeFormat(locale === 'th' ? 'th-TH' : 'en-GB', { timeZone: TZ, hour: '2-digit', minute: '2-digit', hour12: false }).format(date);
+}
+
+/** Short day label in Bangkok time: "พ. 1 ต.ค." / "Wed 1 Oct". */
+export function formatDay(date: Date, locale: Locale): string {
+  return new Intl.DateTimeFormat(locale === 'th' ? 'th-TH-u-ca-buddhist' : 'en-GB', { timeZone: TZ, weekday: 'short', day: 'numeric', month: 'short' }).format(date);
+}
+
 /** Distance with unit: "850 ม." / "3.2 กม.". */
 export function formatDistance(meters: number, locale: Locale): string {
   if (meters < 1000) {

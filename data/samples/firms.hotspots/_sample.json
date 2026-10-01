@@ -1,0 +1,20 @@
+{
+ "_about": "Real NASA FIRMS Area API responses for the province bbox + 5 km (from province_extent), saved unmodified. The MAP_KEY is removed from the URLs. Fetched 2026-09-30 (UTC). acq_time is HHMM UTC without zero padding (e.g. 856 = 08:56). With a DATE, the API returns DATE .. DATE+DAY_RANGE-1.",
+ "files": {
+  "VIIRS_NOAA21_NRT_2026-08-10.csv": {
+   "url": "https://firms.modaps.eosdis.nasa.gov/api/area/csv/<MAP_KEY>/VIIRS_NOAA21_NRT/99.18899890348249,7.792817018585533,100.38191460162172,9.371316856786684/5/2026-08-10",
+   "sha256": "fa9470782d3f7b69f0edc99177e5692dc1f634536c4b2b0b2757cf0426b9fdcb",
+   "rows": 29
+  },
+  "VIIRS_SNPP_NRT_latest-empty.csv": {
+   "url": "https://firms.modaps.eosdis.nasa.gov/api/area/csv/<MAP_KEY>/VIIRS_SNPP_NRT/99.18899890348249,7.792817018585533,100.38191460162172,9.371316856786684/5",
+   "sha256": "2b11a44667d05367ecf77651b95fd3d34c545c7ec154856094b91245e41ae697",
+   "rows": 0
+  },
+  "MODIS_NRT_2026-07-31.csv": {
+   "url": "https://firms.modaps.eosdis.nasa.gov/api/area/csv/<MAP_KEY>/MODIS_NRT/99.18899890348249,7.792817018585533,100.38191460162172,9.371316856786684/5/2026-07-31",
+   "sha256": "16bfd9c5bc7236621fbd42293f93b1d0f39013cdc36a381b570ec77fee991d1f",
+   "rows": 1
+  }
+ }
+}

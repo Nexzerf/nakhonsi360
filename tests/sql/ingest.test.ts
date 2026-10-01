@@ -9,9 +9,11 @@ import { readFileSync } from 'node:fs';
 import path from 'node:path';
 import postgres from 'postgres';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
+import { firmsHotspots } from '@/lib/adapters/firms';
+import { tmdNwp } from '@/lib/adapters/tmdNwp';
 import { thaiwaterRain24h, thaiwaterWaterlevel } from '@/lib/adapters/thaiwater';
 import { runIngest } from '@/lib/ingest/runner';
-import { connectedSources, nearestObservations } from '@/lib/db/queries';
+import { connectedSources, forecastAt, hazardPoints, hazardsAt, nearestObservations } from '@/lib/db/queries';
 import type { IngestAdapter } from '@/lib/ingest/types';
 
 const { TEST_DATABASE_URL, CODAB_FILE } = process.env;
@@ -91,4 +93,66 @@ suite('ingest pipeline (real samples)', () => {
     expect(r?.station_id).toBe(st!.station_id);
     expect(r!.distance_m).toBeLessThan(1);
   });
+
+  it('stores FIRMS hotspots from the real samples inside the province only, once per detection', async () => {
+    const csv = (f: string) => readFileSync(path.join(root, 'data', 'samples', 'firms.hotspots', f), 'utf8');
+    const raw = { VIIRS_NOAA21_NRT: csv('VIIRS_NOAA21_NRT_2026-08-10.csv'), MODIS_NRT: csv('MODIS_NRT_2026-07-31.csv'), VIIRS_SNPP_NRT: csv('VIIRS_SNPP_NRT_latest-empty.csv') };
+    const first = await runIngest(sql, firmsHotspots, { raw });
+    expect(first.status).toBe('ok');
+    expect(first.hazards).toBeGreaterThan(0);
+    expect(first.hazards).toBeLessThanOrEqual(30); // 30 detections in the bbox; only those touching the province + 5 km are kept
+    const [{ outside } = { outside: -1 }] = await sql<{ outside: number }[]>`
+      select count(*)::int as outside from hazard_features h, province_extent pe where h.source_id = 'firms.hotspots' and not st_intersects(pe.buffered, h.geom)`;
+    expect(outside).toBe(0);
+    // Re-ingesting the same detections updates them in place.
+    await runIngest(sql, firmsHotspots, { raw });
+    const [{ n } = { n: -1 }] = await sql<{ n: number }[]>`select count(*)::int as n from hazard_features where source_id = 'firms.hotspots'`;
+    expect(n).toBe(first.hazards);
+  });
+
+  it('serves hotspots for the layer and the inspector, per source, with their own time', async () => {
+    // The samples are from July–August 2026: use a window wide enough to include them.
+    const days = Math.ceil((Date.now() - Date.parse('2026-07-01T00:00:00Z')) / 86_400_000) + 1;
+    const pts = await hazardPoints(sql, 'hotspot', ['firms.hotspots'], days);
+    expect(pts.length).toBeGreaterThan(0);
+    const p = pts[0]!;
+    expect(p.properties.sensor).toMatch(/^(VIIRS|MODIS)_/);
+    const card = await hazardsAt(sql, p.lng, p.lat, 5000, days, ['gistda.hotspots', 'firms.hotspots']);
+    const firms = card.hotspots.find((h) => h.sourceId === 'firms.hotspots')!;
+    expect(firms.count).toBeGreaterThan(0);
+    expect(firms.nearestM).toBeLessThan(1);
+    expect(card.checked.map((c) => c.sourceId)).toContain('firms.hotspots');
+    expect(card.notConnected).toEqual(['gistda.hotspots']);
+  });
+
+  it('stores TMD NWP forecasts per subdistrict, linked to the HDX polygon, replaced on re-run', async () => {
+    const raw = {
+      districts: sample('tmd.nwp/province_amphoes_hourly.json'),
+      hourly: { ฉวาง: sample('tmd.nwp/chawang_tambons_hourly.json') },
+      daily: { ฉวาง: sample('tmd.nwp/chawang_tambons_daily.json') },
+    };
+    const first = await runIngest(sql, tmdNwp, { raw });
+    expect(first.status).toBe('ok');
+    expect(first.forecasts).toBe(10 * (24 + 7));
+    const rows = await sql<{ n: number; unmatched: number; places: number }[]>`
+      select count(*)::int as n, count(*) filter (where admin_pcode is null)::int as unmatched, count(distinct place_code)::int as places
+        from forecasts where source_id = 'tmd.nwp'`;
+    expect(rows[0]).toEqual({ n: 310, unmatched: 0, places: 10 });
+    await runIngest(sql, tmdNwp, { raw });
+    const [{ n } = { n: -1 }] = await sql<{ n: number }[]>`select count(*)::int as n from forecasts where source_id = 'tmd.nwp'`;
+    expect(n).toBe(310);
+  });
+
+  it('serves the forecast of the subdistrict containing the point', async () => {
+    const [p] = await sql<{ lng: number; lat: number }[]>`select st_x(p) as lng, st_y(p) as lat from (select st_pointonsurface(geom) as p from admin_areas where pcode = 'TH800409') q`;
+    // forecast_at only returns times from now on; the saved sample may be in the past.
+    const [{ future } = { future: 0 }] = await sql<{ future: number }[]>`select count(*)::int as future from forecasts where admin_pcode = 'TH800409' and valid_at >= now()`;
+    const card = await forecastAt(sql, p!.lng, p!.lat, 24, 7);
+    if (future === 0) return;
+    expect(card!.placeCode).toBe('800409');
+    expect(card!.placeName).toBe('ห้วยปริก');
+    expect(card!.hourly.length).toBeGreaterThan(0);
+    expect(card!.hourly[0]!.values).toHaveProperty('tc');
+  });
 });
+

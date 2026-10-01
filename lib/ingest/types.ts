@@ -24,6 +24,24 @@ export interface HazardRecord {
   properties?: Record<string, unknown>;
 }
 
+/**
+ * A model forecast for one place and one valid time, exactly as published.
+ * Kept apart from observations: a forecast is never shown as a measurement.
+ */
+export interface ForecastRecord {
+  /** The source's own place code (TMD geocode, e.g. '800401'). */
+  placeCode: string;
+  placeName: string | null;
+  /** Reference point the source computed the forecast for. */
+  lng: number;
+  lat: number;
+  resolution: 'hourly' | 'daily';
+  /** Start of the hour / day the values are for (ISO with offset). */
+  validAt: string;
+  /** Published fields and values, unmodified. */
+  values: Record<string, number>;
+}
+
 export interface Rejection {
   reason: string;
   ref?: string;
@@ -33,6 +51,7 @@ export interface ParsedBatch {
   stations: StationRecord[];
   observations: Observation[];
   hazards: HazardRecord[];
+  forecasts?: ForecastRecord[];
   rejections: Rejection[];
 }
 
@@ -54,6 +73,11 @@ export interface IngestAdapter {
   requiredEnv?: string[];
   /** Fetch the raw response exactly as the source returns it. */
   fetchRaw(ctx: FetchContext): Promise<unknown>;
+  /**
+   * Minimum minutes between successful runs (the scheduled job runs every 15 min).
+   * Used for sources with tight quotas or slow updates, e.g. model forecasts.
+   */
+  minIntervalMinutes?: number;
   /** Turn a raw response into normalised records. Must not throw on one bad record. */
   parse(raw: unknown, fetchedAt: string): ParsedBatch;
 }

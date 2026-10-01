@@ -13,7 +13,7 @@ const keys = [...new Set(records.flatMap((r) => Object.keys(r.properties)))];
 
 describe('DOPA villages (real excerpt)', () => {
   it('detects the verified field names without overrides', () => {
-    expect(detectVillageFields(keys)).toEqual({ id: 'mcode', nameTh: 'mname', lat: 'oct_side15_lat', lng: 'oct_side15_lon', subdistrict: 'tname', district: 'aname' });
+    expect(detectVillageFields(keys)).toEqual({ id: 'mcode', nameTh: 'mname', lat: 'oct_side15_lat', lng: 'oct_side15_lon', subdistrictCode: 'tcode', subdistrict: 'tname', district: 'aname' });
   });
 
   it('keeps names, codes and coordinates exactly as published', () => {
@@ -27,10 +27,20 @@ describe('DOPA villages (real excerpt)', () => {
     expect(v.moo).toBeNull(); // the file has no หมู่ที่ field; it is not derived from the code
   });
 
-  it('rejects projected (UTM-like) coordinates instead of converting them', () => {
-    const { rejections } = parseVillages(records, detectVillageFields(keys));
+  it('keeps villages with projected (UTM-like) coordinates, unconverted and flagged, instead of rejecting them', () => {
+    const { villages, unusable, rejections } = parseVillages(records, detectVillageFields(keys));
     const projected = sample.records.filter((r: { oct_side15_lat: string }) => Math.abs(Number(r.oct_side15_lat)) > 1000);
     expect(projected).toHaveLength(7);
-    expect(rejections.filter((r) => r.reason === 'projected_coordinates')).toHaveLength(7);
+    expect(rejections).toHaveLength(0);
+    expect(villages).toHaveLength(sample.records.length - 7);
+    expect(unusable.map((u) => u.id).sort()).toEqual(projected.map((r: { mcode: string }) => r.mcode).sort());
+    for (const u of unusable) {
+      const src = projected.find((r: { mcode: string }) => r.mcode === u.id);
+      expect(u.reason).toBe('projected_coordinates');
+      // The published numbers, unmodified; the parser does not convert them.
+      expect(u.latValue).toBe(Number(src.oct_side15_lat));
+      expect(u.lonValue).toBe(Number(src.oct_side15_lon));
+      expect(u.subdistrictCode).toBe(src.tcode);
+    }
   });
 });
