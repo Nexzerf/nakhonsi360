@@ -1,0 +1,28 @@
+name: Probe keyed sources (temporary)
+
+# Fetches real responses from GISTDA and NASA FIRMS with the repository
+# secrets and prints their structure (keys are masked), so adapters can be
+# written against real data. Runs only on this development branch; to be
+# removed once the adapters exist.
+on:
+  push:
+    branches: [claude/sweet-gates-9vmjt7]
+    paths: [.github/workflows/probe-keyed.yml, scripts/probe-keyed.mjs]
+
+permissions:
+  contents: read
+
+jobs:
+  probe:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Probe
+        env:
+          GISTDA_API_KEY: ${{ secrets.GISTDA_API_KEY }}
+          FIRMS_MAP_KEY: ${{ secrets.FIRMS_MAP_KEY }}
+        run: node scripts/probe-keyed.mjs
