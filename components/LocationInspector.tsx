@@ -2,13 +2,13 @@
 
 import { useQuery } from '@tanstack/react-query';
 import { useEffect, useRef, useState } from 'react';
-import { formatCoord, formatDistance } from '@/lib/freshness/format';
+import { formatCoord, formatDateTime, formatDistance, formatRelative } from '@/lib/freshness/format';
 import { placeName } from '@/lib/i18n';
 import { findSource } from '@/lib/registry/sources';
 import { COLORS, type IconId } from '@/lib/registry/layers';
 import { useIsMobile } from '@/lib/hooks';
 import { useMapStore, useT, type SheetSnap } from '@/lib/state/store';
-import type { AdminCard, CardResult, ConditionReading, ConditionsCard, ContextCard, FeatureKind, InspectResponse, InspectSection, SourceRef, VariableConditions, VillageCard } from '@/lib/types';
+import type { AdminCard, CardResult, ConditionReading, ConditionsCard, ContextCard, EarthquakeEvent, FeatureKind, HazardsCard, InspectResponse, InspectSection, SourceRef, VariableConditions, VillageCard } from '@/lib/types';
 import { CONDITION_VARIABLES } from '@/lib/registry/stationRules';
 import { DataFreshness } from '@/components/DataFreshness';
 import { GeoBreadcrumb } from '@/components/GeoBreadcrumb';
@@ -39,7 +39,7 @@ type SectionQuery<T> = ReturnType<typeof useSection<T>>;
 
 function Card({ id, title, icon, aside, children }: { id: string; title: string; icon: IconId | 'info'; aside?: React.ReactNode; children: React.ReactNode }) {
   return (
-    <section aria-labelledby={id} className="rounded-lg border border-line bg-surface">
+    <section aria-labelledby={id} className="tile lift bg-surface">
       <header className="flex items-center gap-2.5 px-3.5 pt-3 pb-2">
         <span aria-hidden="true" className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-surface-sunken text-fg-muted">
           <Icon name={icon} size={16} />
@@ -401,6 +401,112 @@ function ConditionsCardView({ q }: { q: SectionQuery<ConditionsCard> }) {
   );
 }
 
+// ---------------------------------------------------------------- hazards
+
+function Quake({ e }: { e: EarthquakeEvent }) {
+  const t = useT();
+  const locale = useMapStore((s) => s.locale);
+  const when = new Date(e.observedAt);
+  const fmt = (v: number, d: number) => v.toLocaleString(locale === 'th' ? 'th-TH' : 'en-GB', { minimumFractionDigits: d, maximumFractionDigits: d });
+  return (
+    <div className="flex items-center gap-1">
+      <div className="min-w-0 flex-1">
+        <RowButton
+          onClick={() => {
+            const s = useMapStore.getState();
+            s.flyTo({ center: [e.lng, e.lat], zoom: 6 });
+            s.select({ lat: e.lat, lng: e.lng, label: [`M${e.mag.toFixed(1)}`, e.place].filter(Boolean).join(' · '), kind: 'earthquake' });
+          }}
+        >
+          <span className="tabular flex h-8 min-w-10 shrink-0 items-center justify-center rounded-md px-1 text-xs font-semibold" style={{ background: 'color-mix(in srgb, #7c3aed 12%, transparent)', color: '#6d28d9' }}>
+            M{fmt(e.mag, 1)}
+          </span>
+          <span className="min-w-0 flex-1">
+            <span className="block truncate text-sm" lang="en">{e.place ?? e.id}</span>
+            <span className="block truncate text-xs text-fg-subtle" title={[formatDateTime(when, locale), e.magType ? `M${e.magType}` : null].filter(Boolean).join(' · ')}>
+              {[formatRelative(when, locale), e.depthKm !== null ? t('hazards.depth', { depth: fmt(e.depthKm, 0) }) : null, e.status === 'reviewed' ? t('hazards.reviewed') : e.status === 'automatic' ? t('hazards.automatic') : e.status]
+                .filter(Boolean)
+                .join(' · ')}
+            </span>
+          </span>
+          {e.distanceM < 1000 ? <span className="chip">{t('inspector.features.inside')}</span> : <Distance meters={e.distanceM} />}
+        </RowButton>
+      </div>
+      {e.url?.startsWith('https://earthquake.usgs.gov/') && (
+        <a href={e.url} target="_blank" rel="noopener noreferrer" className="icon-btn shrink-0 text-fg-subtle hover:text-accent" aria-label={`${t('hazards.eventPage')}: ${e.place ?? e.id}`} title={t('hazards.eventPage')}>
+          <Icon name="external" size={16} />
+        </a>
+      )}
+    </div>
+  );
+}
+
+function HazardsCardView({ q }: { q: SectionQuery<HazardsCard> }) {
+  const t = useT();
+  const locale = useMapStore((s) => s.locale);
+  const r = q.data;
+  if (r?.status === 'not_connected') {
+    return (
+      <Card id="card-hazards" title={t('inspector.sections.hazards')} icon="warning" aside={<span className="chip">{t('layers.plannedPhase', { phase: r.phase })}</span>}>
+        <EmptyState main={t('empty.noPublicData')} reason={`${t('inspector.plannedLabel')}: ${t('inspector.planned.hazards')}`} />
+      </Card>
+    );
+  }
+  if (r?.status !== 'ok') {
+    return (
+      <Card id="card-hazards" title={t('inspector.sections.hazards')} icon="warning">
+        <CardState q={q} />
+      </Card>
+    );
+  }
+  const eq = r.data.earthquakes;
+  const vars = eq ? { mag: eq.minMagnitude, radius: eq.radiusKm.toLocaleString(locale === 'th' ? 'th-TH' : 'en-GB'), days: eq.windowDays } : null;
+  const nearestShown = eq?.nearest && eq.recent.some((e) => e.id === eq.nearest!.id);
+  return (
+    <Card id="card-hazards" title={t('inspector.sections.hazards')} icon="warning">
+      {eq && vars && (
+        <div>
+          <div className="mb-1 flex items-baseline justify-between gap-2">
+            <span className="flex items-center gap-1.5 text-xs font-semibold text-fg-muted">
+              <Icon name="earthquake" size={14} /> {t('hazards.earthquakes')}
+            </span>
+            {eq.total > 0 && <span className="tabular text-xs text-fg-subtle">{t('hazards.count', { n: eq.total })}</span>}
+          </div>
+          <p className="mb-1 text-xs text-fg-subtle">{t('hazards.scope', vars)}</p>
+          {eq.total === 0 ? (
+            <EmptyState main={t('hazards.none', vars)} />
+          ) : (
+            <>
+              <p className="mt-2 text-[11px] text-fg-subtle">{t('hazards.recent')}</p>
+              <ul>
+                {eq.recent.map((e) => (
+                  <li key={e.id}>
+                    <Quake e={e} />
+                  </li>
+                ))}
+              </ul>
+              {eq.nearest && !nearestShown && (
+                <>
+                  <p className="mt-2 text-[11px] text-fg-subtle">{t('hazards.nearest')}</p>
+                  <Quake e={eq.nearest} />
+                </>
+              )}
+            </>
+          )}
+          <p className="mt-1 text-xs text-fg-subtle">{t('hazards.placeNote')}</p>
+          <p className="mt-0.5 text-xs text-fg-subtle">{t('hazards.smallNote')}</p>
+        </div>
+      )}
+      {r.data.pendingSourceIds.length > 0 && (
+        <p className="mt-2 border-t border-line pt-2 text-xs text-fg-subtle">
+          {t('hazards.pending')}: {[...new Set(r.data.pendingSourceIds.map((id) => findSource(id)?.[locale === 'en' ? 'datasetNameEn' : 'datasetName'] ?? id))].join(', ')}
+        </p>
+      )}
+      <SourceFooter refs={r.sources} />
+    </Card>
+  );
+}
+
 const PLANNED_ICON: Record<'hazards' | 'satellite', IconId> = { hazards: 'warning', satellite: 'satellite' };
 
 function PlannedCard({ section, sel }: { section: 'hazards' | 'satellite'; sel: Sel }) {
@@ -420,7 +526,8 @@ function PlannedCard({ section, sel }: { section: 'hazards' | 'satellite'; sel: 
 
 // ---------------------------------------------------------------- inspector
 
-const SNAP_HEIGHT: Record<SheetSnap, string> = { peek: '132px', half: '52vh', full: 'calc(100dvh - 72px)' };
+// Mobile sheet sits above the tab bar (84 px) and below the search bar (68 px).
+const SNAP_HEIGHT: Record<SheetSnap, string> = { peek: '132px', half: '46vh', full: 'calc(100dvh - 68px - 84px)' };
 
 export function LocationInspector() {
   const t = useT();
@@ -436,6 +543,7 @@ export function LocationInspector() {
   const village = useSection<VillageCard>('village', selection);
   const context = useSection<ContextCard>('context', selection);
   const conditions = useSection<ConditionsCard>('conditions', selection);
+  const hazards = useSection<HazardsCard>('hazards', selection);
 
   // Highlight the containing subdistrict when the user clicked a bare point.
   useEffect(() => {
@@ -459,7 +567,7 @@ export function LocationInspector() {
   const crumbLevels = levels.filter((l) => l.level <= maxLevel);
   const villageCrumb = isVillage && selection.label ? { name: selection.label, lng: selection.lng, lat: selection.lat } : undefined;
 
-  const allRefs = [conditions, admin, village, context].flatMap((q) => (q.data && 'sources' in q.data ? q.data.sources : []));
+  const allRefs = [conditions, hazards, admin, village, context].flatMap((q) => (q.data && 'sources' in q.data ? q.data.sources : []));
   const uniqueRefs = [...new Map(allRefs.map((r) => [r.sourceId, r])).values()];
 
   const copy = async () => {
@@ -494,8 +602,8 @@ export function LocationInspector() {
     const vh = window.innerHeight;
     const snaps: Array<[SheetSnap, number]> = [
       ['peek', 132],
-      ['half', vh * 0.52],
-      ['full', vh - 72],
+      ['half', vh * 0.46],
+      ['full', vh - 68 - 84],
     ];
     const nearest = snaps.reduce((a, b) => (Math.abs(b[1] - h) < Math.abs(a[1] - h) ? b : a));
     useMapStore.getState().setSheetSnap(nearest[0]);
@@ -508,8 +616,8 @@ export function LocationInspector() {
       aria-labelledby="inspector-title"
       className={
         isMobile
-          ? 'panel rise fixed inset-x-0 bottom-0 z-30 flex flex-col overflow-hidden rounded-b-none transition-[height] duration-200 ease-out'
-          : 'panel rise absolute top-[72px] right-3 bottom-16 z-20 flex w-[400px] max-w-[calc(100vw-24px)] flex-col overflow-hidden'
+          ? 'panel anim-slide-up fixed inset-x-2 bottom-[calc(84px+env(safe-area-inset-bottom))] z-30 flex flex-col overflow-hidden transition-[height] duration-200 ease-out'
+          : 'panel anim-slide-right absolute top-[76px] right-3 bottom-[72px] z-20 flex w-[400px] max-w-[calc(100vw-24px)] flex-col overflow-hidden'
       }
       style={isMobile ? { height: SNAP_HEIGHT[snap] } : undefined}
     >
@@ -526,10 +634,11 @@ export function LocationInspector() {
         </button>
       )}
 
+      <div aria-hidden="true" className="thai-band" />
       <header className="flex items-start gap-2 border-b border-line bg-surface pt-2 pr-1.5 pb-3 pl-4 md:pt-3.5">
         <div className="min-w-0 flex-1">
           {kind !== title && <p className="eyebrow">{kind}</p>}
-          <h2 id="inspector-title" className="mt-0.5 text-xl leading-snug font-semibold tracking-tight" tabIndex={-1}>
+          <h2 id="inspector-title" className="font-display mt-0.5 text-xl leading-snug font-semibold" tabIndex={-1}>
             {title}
           </h2>
           {crumbLevels.length > 0 && (
@@ -553,9 +662,9 @@ export function LocationInspector() {
         </button>
       </header>
 
-      <div className="scroll-thin flex-1 space-y-2.5 overflow-y-auto overscroll-contain bg-surface-subtle p-2.5 pb-6">
+      <div className="stagger scroll-thin flex-1 space-y-2.5 overflow-y-auto overscroll-contain bg-surface-subtle/60 p-2.5 pb-6">
         <ConditionsCardView q={conditions} />
-        <PlannedCard section="hazards" sel={selection} />
+        <HazardsCardView q={hazards} />
         <VillageCardView q={village} />
         <ContextCardView q={context} />
         <AdminCardView q={admin} />

@@ -1,6 +1,6 @@
 name: Ingest live data
 
-# Pulls live sources (ThaiWater water level + 24-h rain, more as adapters are
+# Pulls live sources (ThaiWater water level + 24-h rain, USGS earthquakes, more as adapters are
 # verified) into the database every 15 minutes, then applies retention.
 # Requires the DATABASE_URL repository secret; without it the job is skipped.
 on:
@@ -36,6 +36,11 @@ jobs:
           cache: npm
       - run: npm ci
         if: steps.check.outputs.ready == 'true'
+      - name: Apply database migrations
+        if: steps.check.outputs.ready == 'true'
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+        run: npm run db:migrate
       - name: Ingest
         if: steps.check.outputs.ready == 'true'
         env:

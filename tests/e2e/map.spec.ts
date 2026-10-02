@@ -62,3 +62,45 @@ test('touch targets are at least 44px', async ({ page }) => {
     expect(Math.max(b.width, b.height), await buttons.nth(i).getAttribute('aria-label') ?? `button ${i}`).toBeGreaterThanOrEqual(44);
   }
 });
+
+test('report form: emergency numbers first, clear errors for missing answers', async ({ page }) => {
+  await page.goto('/');
+  await page.getByRole('button', { name: 'รายงานเหตุ', exact: true }).first().click();
+  const panel = page.locator('#report-panel');
+  await expect(panel).toBeVisible();
+  await expect(panel.getByRole('link', { name: /โทร 1669/ })).toHaveAttribute('href', 'tel:1669');
+  await panel.getByRole('button', { name: 'ส่งรายงาน' }).click();
+  await expect(panel.getByText('เลือกประเภทเหตุ')).toBeVisible();
+  await panel.getByRole('button', { name: 'น้ำท่วม', exact: true }).click();
+  await expect(panel.getByText('เลือกประเภทเหตุ')).toHaveCount(0);
+  // Water depth only appears for water hazards.
+  await expect(panel.getByRole('group', { name: 'น้ำกำลัง' })).toBeVisible();
+  await panel.getByRole('button', { name: 'ไฟไหม้ / ไฟป่า' }).click();
+  await expect(panel.getByRole('group', { name: 'น้ำกำลัง' })).toHaveCount(0);
+  expect(await panel.innerText()).not.toMatch(FORBIDDEN);
+});
+
+test('emergency numbers page works without the map and dials directly', async ({ page }) => {
+  await page.goto('/emergency');
+  await expect(page.getByRole('heading', { name: 'เบอร์ฉุกเฉิน', level: 1 })).toBeVisible();
+  for (const n of ['1669', '191', '199', '1784', '075-358440']) {
+    await expect(page.locator(`a[href="tel:${n.replace(/-/g, '')}"]`).first()).toBeVisible();
+  }
+  await page.goto('/emergency?lang=en');
+  await expect(page.getByRole('heading', { name: 'Emergency numbers', level: 1 })).toBeVisible();
+});
+
+test('photos are shrunk in the browser and show what their file says', async ({ page }) => {
+  await page.goto('/');
+  await page.getByRole('button', { name: 'รายงานเหตุ', exact: true }).first().click();
+  const panel = page.locator('#report-panel');
+  // Synthetic test image (not data): an EXIF capture time and GPS position.
+  await panel.getByLabel('เลือกรูปภาพ').setInputFiles('tests/e2e/fixtures/synthetic-flood.jpg');
+  await expect(panel.getByText('มีพิกัดในไฟล์')).toBeVisible({ timeout: 15_000 });
+  await expect(panel.getByRole('button', { name: /ถ่ายรูป \/ เลือกรูป \(1\/4\)/ })).toBeVisible();
+  await panel.getByRole('button', { name: 'เอารูปนี้ออก' }).click();
+  await expect(panel.getByText('มีพิกัดในไฟล์')).toHaveCount(0);
+  // "When did you see it" offers a custom time limited to the last 72 hours.
+  await panel.getByRole('button', { name: 'ระบุเวลาเอง' }).click();
+  await expect(panel.getByLabel('ระบุเวลาเอง', { exact: true }).last()).toHaveAttribute('type', 'datetime-local');
+});

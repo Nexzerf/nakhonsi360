@@ -110,7 +110,7 @@ export function LocationSearch() {
       <div className="panel flex h-12 items-center overflow-hidden focus-within:border-accent focus-within:ring-2 focus-within:ring-[color-mix(in_srgb,var(--accent)_25%,transparent)]">
         <Link href="/about-data" className="flex h-full shrink-0 items-center gap-2 pr-3 pl-2.5 hover:bg-surface-subtle" title={t('app.tagline')}>
           <LogoMark size={26} />
-          <span className="hidden text-[15px] font-semibold tracking-tight text-fg sm:inline">{t('app.name')}</span>
+          <span className="font-display hidden text-[16px] font-semibold tracking-tight text-fg sm:inline">{t('app.name')}</span>
           <span className="sr-only sm:hidden">{t('app.name')}</span>
         </Link>
         <span aria-hidden="true" className="h-6 w-px shrink-0 bg-line" />

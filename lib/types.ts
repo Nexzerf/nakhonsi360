@@ -2,7 +2,7 @@ import type * as GeoJSON from 'geojson';
 
 export type Freshness = 'LIVE' | 'RECENT' | 'HISTORICAL' | 'ARCHIVED';
 export type Quality = 'CURRENT' | 'OFFICIAL_HISTORICAL' | 'DELAYED' | 'NO_OBSERVATION';
-export type DataKind = 'station_observation' | 'satellite_derived' | 'survey' | 'reference' | 'forecast' | 'warning';
+export type DataKind = 'station_observation' | 'satellite_derived' | 'survey' | 'reference' | 'forecast' | 'warning' | 'community';
 
 /** [minLng, minLat, maxLng, maxLat] in EPSG:4326. */
 export type BBox = [number, number, number, number];
@@ -213,6 +213,43 @@ export interface ConditionsCard {
   variables: VariableConditions[];
 }
 
+/** One earthquake as published by the source (USGS); nothing derived except distance. */
+export interface EarthquakeEvent {
+  sourceId: string;
+  id: string;
+  mag: number;
+  magType: string | null;
+  place: string | null;
+  depthKm: number | null;
+  /** Source review status, e.g. USGS 'automatic' or 'reviewed'. */
+  status: string | null;
+  url: string | null;
+  lng: number;
+  lat: number;
+  observedAt: string;
+  fetchedAt: string;
+  /** From the selected point. */
+  distanceM: number;
+}
+
+export interface EarthquakeSummary {
+  /** Query region as the adapter requests it (around the province centre). */
+  radiusKm: number;
+  minMagnitude: number;
+  windowDays: number;
+  total: number;
+  /** Newest first. */
+  recent: EarthquakeEvent[];
+  /** Nearest to the selected point within the window. */
+  nearest: EarthquakeEvent | null;
+}
+
+export interface HazardsCard {
+  earthquakes: EarthquakeSummary | null;
+  /** Hazard sources not connected yet. */
+  pendingSourceIds: string[];
+}
+
 export type InspectSection = 'admin' | 'village' | 'context' | 'conditions' | 'hazards' | 'satellite';
 
 export interface InspectResponse {
@@ -224,7 +261,7 @@ export interface InspectResponse {
     village: CardResult<VillageCard>;
     context: CardResult<ContextCard>;
     conditions: CardResult<ConditionsCard>;
-    hazards: CardResult<never>;
+    hazards: CardResult<HazardsCard>;
     satellite: CardResult<never>;
   }>;
 }

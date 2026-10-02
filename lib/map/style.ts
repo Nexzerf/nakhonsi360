@@ -169,18 +169,18 @@ export function highlightLayers(layer: LayerDef, key: string, value: string | nu
   const base = { source: overlaySourceId(layer.id), 'source-layer': layer.sourceLayer!, filter: ['==', ['get', key], value] as never };
   const id = `${OVERLAY_PREFIX}highlight-${layer.id}`;
   if (layer.legend.type === 'circle') {
-    return [{ ...base, id, type: 'circle', paint: { 'circle-radius': 9, 'circle-color': 'rgba(0,0,0,0)', 'circle-stroke-color': '#1d4ed8', 'circle-stroke-width': 3 } }];
+    return [{ ...base, id, type: 'circle', paint: { 'circle-radius': 9, 'circle-color': 'rgba(0,0,0,0)', 'circle-stroke-color': '#b8892e', 'circle-stroke-width': 3 } }];
   }
   return [
-    { ...base, id: `${id}-fill`, type: 'fill', paint: { 'fill-color': '#1d4ed8', 'fill-opacity': 0.08 } },
-    { ...base, id, type: 'line', paint: { 'line-color': '#1d4ed8', 'line-width': 3 } },
+    { ...base, id: `${id}-fill`, type: 'fill', paint: { 'fill-color': '#b8892e', 'fill-opacity': 0.08 } },
+    { ...base, id, type: 'line', paint: { 'line-color': '#b8892e', 'line-width': 3 } },
   ];
 }
 
 export function selectionLayers(): LayerSpecification[] {
   return [
-    { id: `${OVERLAY_PREFIX}selection-halo`, type: 'circle', source: SELECTION_SOURCE, paint: { 'circle-radius': 12, 'circle-color': '#1d4ed8', 'circle-opacity': 0.18 } },
-    { id: `${OVERLAY_PREFIX}selection`, type: 'circle', source: SELECTION_SOURCE, paint: { 'circle-radius': 6, 'circle-color': '#1d4ed8', 'circle-stroke-color': '#ffffff', 'circle-stroke-width': 2 } },
+    { id: `${OVERLAY_PREFIX}selection-halo`, type: 'circle', source: SELECTION_SOURCE, paint: { 'circle-radius': 12, 'circle-color': '#b8892e', 'circle-opacity': 0.18 } },
+    { id: `${OVERLAY_PREFIX}selection`, type: 'circle', source: SELECTION_SOURCE, paint: { 'circle-radius': 6, 'circle-color': '#b8892e', 'circle-stroke-color': '#ffffff', 'circle-stroke-width': 2 } },
   ];
 }
 
@@ -249,4 +249,161 @@ export function stationLayers(layer: LayerDef, locale: Locale): LayerSpecificati
       paint: { 'text-color': '#111827', 'text-halo-color': '#ffffff', 'text-halo-width': 1.5 },
     },
   ];
+}
+
+/** GeoJSON source for a live hazard-event layer (not clustered: events are few and far apart). */
+export function hazardSource(layer: LayerDef, origin: string): SourceSpecification {
+  return { type: 'geojson', data: `${origin}/api/layers/${layer.id}` };
+}
+
+/**
+ * Earthquake epicentres. Circle size follows the magnitude USGS publishes;
+ * one colour, because no severity class is published with the event.
+ */
+export function earthquakeLayers(layer: LayerDef): LayerSpecification[] {
+  const source = overlaySourceId(layer.id);
+  const id = (s: string) => `${OVERLAY_PREFIX}${layer.id}${s}`;
+  const color = layer.legend.type === 'circle' ? layer.legend.color : '#7c3aed';
+  return [
+    {
+      id: id(''),
+      type: 'circle',
+      source,
+      paint: {
+        'circle-radius': ['interpolate', ['linear'], ['coalesce', ['get', 'mag'], 4], 4, 4, 5, 7, 6, 11, 7, 16, 8, 22],
+        'circle-color': color,
+        'circle-opacity': 0.55,
+        'circle-stroke-color': color,
+        'circle-stroke-width': 1.5,
+      },
+    },
+    {
+      id: id('-label'),
+      type: 'symbol',
+      source,
+      layout: {
+        'text-field': ['concat', 'M', ['number-format', ['get', 'mag'], { 'min-fraction-digits': 1, 'max-fraction-digits': 1 }]],
+        'text-font': ['Noto Sans Regular'],
+        'text-size': 11,
+        'text-offset': [0, 1.3],
+        'text-anchor': 'top',
+        'text-optional': true,
+      },
+      paint: { 'text-color': '#4c1d95', 'text-halo-color': '#ffffff', 'text-halo-width': 1.5 },
+    },
+  ];
+}
+
+/** Citizen reports (polled; not clustered so urgent reports stay visible). */
+export function reportSource(origin: string): SourceSpecification {
+  return { type: 'geojson', data: `${origin}/api/reports?format=geojson&hours=72` };
+}
+
+/**
+ * Report markers: colour is the urgency the reporter chose; closed reports
+ * are grey. Ring = still open.
+ */
+export function reportLayers(layer: LayerDef, urgencyColors: Record<string, string>, openStatuses: string[], locale: Locale = 'th'): LayerSpecification[] {
+  const source = overlaySourceId(layer.id);
+  const id = (s: string) => `${OVERLAY_PREFIX}${layer.id}${s}`;
+  const isOpen = ['in', ['get', 'status'], ['literal', openStatuses]];
+  const color = ['case', isOpen, ['match', ['get', 'urgency'], ...Object.entries(urgencyColors).flat(), '#64748b'], '#9ca3af'];
+  return [
+    {
+      id: id('-halo'),
+      type: 'circle',
+      source,
+      filter: isOpen as never,
+      paint: { 'circle-radius': ['interpolate', ['linear'], ['zoom'], 8, 9, 14, 14], 'circle-color': color as never, 'circle-opacity': 0.22 },
+    },
+    {
+      id: id(''),
+      type: 'circle',
+      source,
+      paint: {
+        'circle-radius': ['interpolate', ['linear'], ['zoom'], 8, 5, 14, 8],
+        'circle-color': color as never,
+        'circle-stroke-color': '#ffffff',
+        'circle-stroke-width': 2,
+      },
+    },
+    {
+      // Latest water level people reported here, e.g. "~100 ซม.".
+      id: id('-depth'),
+      type: 'symbol',
+      source,
+      minzoom: 11,
+      filter: ['all', isOpen, ['has', 'depth_cm'], ['!=', ['get', 'depth_cm'], null]] as never,
+      layout: {
+        'text-field': ['concat', '~', ['to-string', ['get', 'depth_cm']], locale === 'th' ? ' ซม.' : ' cm'],
+        'text-font': ['Noto Sans Regular'],
+        'text-size': 12,
+        'text-offset': [0, 1.3],
+        'text-anchor': 'top',
+        'text-optional': true,
+      },
+      paint: { 'text-color': '#0e5f73', 'text-halo-color': '#ffffff', 'text-halo-width': 1.6 },
+    },
+  ];
+}
+
+export const DRAFT_SOURCE = `${OVERLAY_PREFIX}report-draft`;
+
+/** Where the report being written will be placed. */
+export function draftLayers(): LayerSpecification[] {
+  return [
+    { id: `${OVERLAY_PREFIX}report-draft-halo`, type: 'circle', source: DRAFT_SOURCE, paint: { 'circle-radius': 16, 'circle-color': '#dc2626', 'circle-opacity': 0.2 } },
+    { id: `${OVERLAY_PREFIX}report-draft`, type: 'circle', source: DRAFT_SOURCE, paint: { 'circle-radius': 7, 'circle-color': '#dc2626', 'circle-stroke-color': '#ffffff', 'circle-stroke-width': 2.5 } },
+  ];
+}
+
+// ---------------------------------------------------------------- 3D view
+
+export const TERRAIN_SOURCE = 'n3d-terrain';
+export const HILLSHADE_SOURCE = 'n3d-hillshade-dem';
+export const BUILDINGS_SOURCE = 'n3d-buildings';
+export const BUILDINGS_LAYER = 'n3d-buildings';
+export const HILLSHADE_LAYER = 'n3d-hillshade';
+
+const TERRARIUM_TILES = ['https://s3.amazonaws.com/elevation-tiles-prod/terrarium/{z}/{x}/{y}.png'];
+
+/** Elevation (Mapzen Terrain Tiles on AWS Open Data). Two copies: one drives the 3D surface, one the hillshade. */
+export function terrainSource(): SourceSpecification {
+  return { type: 'raster-dem', tiles: TERRARIUM_TILES, encoding: 'terrarium', tileSize: 256, maxzoom: 14 };
+}
+
+/** OpenStreetMap buildings in the OpenMapTiles schema, served by OpenFreeMap. */
+export function buildingsSource(): SourceSpecification {
+  return { type: 'vector', url: 'https://tiles.openfreemap.org/planet' };
+}
+
+export function hillshadeLayer(): LayerSpecification {
+  return {
+    id: HILLSHADE_LAYER,
+    type: 'hillshade',
+    source: HILLSHADE_SOURCE,
+    paint: { 'hillshade-exaggeration': 0.45, 'hillshade-shadow-color': '#3b2f1d', 'hillshade-highlight-color': '#fff8e8' },
+  };
+}
+
+/**
+ * Buildings extruded to the height OSM gives (render_height), else one
+ * storey. Warm stone, like the city's old walls; heights are as mapped, not
+ * modelled.
+ */
+export function buildingsLayer(dark: boolean): LayerSpecification {
+  return {
+    id: BUILDINGS_LAYER,
+    type: 'fill-extrusion',
+    source: BUILDINGS_SOURCE,
+    'source-layer': 'building',
+    minzoom: 13,
+    filter: ['!=', ['get', 'hide_3d'], true],
+    paint: {
+      'fill-extrusion-color': dark ? '#5a4c37' : '#e6d9bf',
+      'fill-extrusion-height': ['interpolate', ['linear'], ['zoom'], 13, 0, 14.5, ['coalesce', ['get', 'render_height'], 4]],
+      'fill-extrusion-base': ['coalesce', ['get', 'render_min_height'], 0],
+      'fill-extrusion-opacity': 0.88,
+    },
+  };
 }

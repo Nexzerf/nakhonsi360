@@ -8,13 +8,23 @@ import { translate } from '@/lib/i18n';
 
 export type SheetSnap = 'peek' | 'half' | 'full';
 
+/** Left-side task panels (reports, emergency numbers). */
+export type PanelId = 'report' | 'reports' | 'emergency';
+
+export interface DraftLocation {
+  lat: number;
+  lng: number;
+  source: 'gps' | 'map';
+  accuracyM?: number;
+}
+
 export interface Selection {
   lat: number;
   lng: number;
   /** Title from a search result or clicked feature; otherwise the inspector derives one. */
   label?: string;
   /** What was selected: drives the inspector's eyebrow and breadcrumb depth. */
-  kind?: 'point' | 'province' | 'district' | 'subdistrict' | 'village' | 'station' | 'water' | 'road' | 'place';
+  kind?: 'point' | 'province' | 'district' | 'subdistrict' | 'village' | 'station' | 'earthquake' | 'water' | 'road' | 'place';
   /** Feature to highlight, when the selection came from a feature. */
   highlight?: { layerId: string; key: string; value: string | number };
 }
@@ -40,6 +50,16 @@ interface MapState {
   /** Vector layers whose tiles failed to load, with the time of the failure. */
   layerErrors: Record<string, number>;
   basemapFailed: boolean;
+  panel: PanelId | null;
+  /** Report shown in detail inside the reports panel. */
+  reportId: string | null;
+  /** Waiting for a map tap to place the report. */
+  picking: boolean;
+  draftLocation: DraftLocation | null;
+  /** 3D view: terrain relief and extruded buildings, tilted camera. */
+  view3d: boolean;
+  /** Dashboard cards (left column on desktop, a sheet on mobile). */
+  overviewOpen: boolean;
 
   setLocale: (l: Locale) => void;
   setBasemap: (b: BasemapId) => void;
@@ -54,6 +74,12 @@ interface MapState {
   reportLayerError: (layerId: string) => void;
   clearLayerError: (layerId: string) => void;
   setBasemapFailed: (failed: boolean) => void;
+  openPanel: (p: PanelId | null) => void;
+  openReport: (id: string | null) => void;
+  setPicking: (picking: boolean) => void;
+  setDraftLocation: (l: DraftLocation | null) => void;
+  setView3d: (on: boolean) => void;
+  setOverviewOpen: (open: boolean) => void;
 }
 
 let cameraSeq = 0;
@@ -71,6 +97,13 @@ export const useMapStore = create<MapState>((set) => ({
   zoom: 8,
   layerErrors: {},
   basemapFailed: false,
+  panel: null,
+  reportId: null,
+  picking: false,
+  draftLocation: null,
+  view3d: false,
+  // Opened on wide screens after mount (MapApp), so server and client render the same.
+  overviewOpen: false,
 
   setLocale: (locale) => set({ locale }),
   setBasemap: (basemap) => set({ basemap }),
@@ -78,9 +111,9 @@ export const useMapStore = create<MapState>((set) => ({
     set((s) => ({
       enabledLayers: s.enabledLayers.includes(id) ? s.enabledLayers.filter((x) => x !== id) : [...s.enabledLayers, id],
     })),
-  select: (selection) => set({ selection, sheetSnap: 'half' }),
+  select: (selection) => set((s) => ({ selection, sheetSnap: 'half', ...(selection ? { panel: s.picking ? s.panel : null, layerPanelOpen: false } : {}) })),
   setSheetSnap: (sheetSnap) => set({ sheetSnap }),
-  setLayerPanelOpen: (layerPanelOpen) => set({ layerPanelOpen }),
+  setLayerPanelOpen: (layerPanelOpen) => set((s) => ({ layerPanelOpen, panel: layerPanelOpen ? null : s.panel })),
   showInfo: (infoLayerId, infoSourceId) => set({ infoLayerId, infoSourceId }),
   flyTo: (c) => set({ camera: { ...c, id: ++cameraSeq } }),
   setZoom: (zoom) => set({ zoom }),
@@ -94,6 +127,12 @@ export const useMapStore = create<MapState>((set) => ({
       return { layerErrors: rest };
     }),
   setBasemapFailed: (basemapFailed) => set({ basemapFailed }),
+  openPanel: (panel) => set({ panel, picking: false, ...(panel ? { layerPanelOpen: false } : {}), ...(panel !== 'reports' ? { reportId: null } : {}) }),
+  openReport: (reportId) => set({ panel: 'reports', reportId, picking: false, layerPanelOpen: false }),
+  setPicking: (picking) => set({ picking }),
+  setDraftLocation: (draftLocation) => set({ draftLocation, picking: false }),
+  setView3d: (view3d) => set({ view3d }),
+  setOverviewOpen: (overviewOpen) => set({ overviewOpen }),
 }));
 
 /** Translation hook bound to the current UI locale. */

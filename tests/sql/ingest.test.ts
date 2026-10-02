@@ -10,8 +10,9 @@ import path from 'node:path';
 import postgres from 'postgres';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { thaiwaterRain24h, thaiwaterWaterlevel } from '@/lib/adapters/thaiwater';
+import { usgsEarthquakes } from '@/lib/adapters/usgs';
 import { runIngest } from '@/lib/ingest/runner';
-import { connectedSources, nearestObservations } from '@/lib/db/queries';
+import { connectedSources, earthquakesNear, nearestObservations, recentEarthquakes } from '@/lib/db/queries';
 import type { IngestAdapter } from '@/lib/ingest/types';
 
 const { TEST_DATABASE_URL, CODAB_FILE } = process.env;
@@ -90,5 +91,50 @@ suite('ingest pipeline (real samples)', () => {
     const [r] = await nearestObservations(sql, st!.lng, st!.lat, 'water_level', 1);
     expect(r?.station_id).toBe(st!.station_id);
     expect(r!.distance_m).toBeLessThan(1);
+  });
+});
+
+suite('earthquakes (real USGS sample)', () => {
+  let sql: postgres.Sql;
+  const raw = sample('usgs.earthquakes/query.geojson');
+
+  beforeAll(() => {
+    const u = new URL(TEST_DATABASE_URL!);
+    u.pathname = `/${DB}`;
+    sql = postgres(u.toString(), { max: 2, onnotice: () => {} });
+  });
+
+  afterAll(async () => {
+    await sql?.end();
+  });
+
+  it('keeps regional events outside the province (the query sets the region)', async () => {
+    const r = await runIngest(sql, usgsEarthquakes, { raw });
+    expect(r.status).toBe('ok');
+    expect(r.hazards).toBe(raw.features.length);
+    const [{ n } = { n: -1 }] = await sql<{ n: number }[]>`
+      select count(*)::int as n from hazard_features h, province_extent pe where h.kind = 'earthquake' and not st_intersects(pe.buffered, h.geom)`;
+    expect(n).toBe(raw.features.length);
+  });
+
+  it('updates in place and removes events the source no longer lists in its window', async () => {
+    const again = await runIngest(sql, usgsEarthquakes, { raw });
+    expect(again.hazardsRemoved).toBe(0);
+    const [first, ...rest] = raw.features;
+    const smaller = { ...raw, features: rest };
+    const r = await runIngest(sql, usgsEarthquakes, { raw: smaller });
+    expect(r.hazardsRemoved).toBe(1);
+    const left = await sql<{ feature_key: string }[]>`select feature_key from hazard_features where source_id = 'usgs.earthquakes'`;
+    expect(left.map((x) => x.feature_key)).not.toContain(first.id);
+    expect(left).toHaveLength(raw.features.length - 1);
+  });
+
+  it('serves distance from a point', async () => {
+    await sql`update hazard_features set observed_at = now() - interval '1 day' where source_id = 'usgs.earthquakes'`;
+    const [st] = await sql<{ lng: number; lat: number; feature_key: string }[]>`
+      select st_x(geom) as lng, st_y(geom) as lat, feature_key from hazard_features where source_id = 'usgs.earthquakes' limit 1`;
+    const rows = await earthquakesNear(sql, st!.lng, st!.lat, 30);
+    expect(rows.find((x) => x.feature_key === st!.feature_key)!.distance_m).toBeLessThan(1);
+    expect((await recentEarthquakes(sql)).length).toBe(raw.features.length - 1);
   });
 });

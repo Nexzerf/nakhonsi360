@@ -9,6 +9,10 @@ An interactive environmental map of Nakhon Si Thammarat Province, Thailand. It b
 - No fake data: a missing value is shown as "ไม่มีข้อมูลสาธารณะสำหรับพื้นที่นี้". The repository contains no demo data.
 - Every value carries its source, observation time and freshness.
 - Free-first, and no AI features.
+- Anyone can report a hazard at a point (flood depth, what they need, …); anyone can mark that they are on the way or that help arrived, with no sign-in; reports update live. See [REPORTS.md](REPORTS.md).
+- Emergency numbers for the province and the country, each with its source: in the app and at `/emergency`.
+- Installable as an app (PWA). The emergency numbers work offline; live data is never served from cache, so offline the app says so instead of showing old values as current.
+- Typeface: LINE Seed Sans TH (© LINE, SIL OFL 1.1; `app/fonts/LICENSE-OFL.txt`).
 
 ## Status
 

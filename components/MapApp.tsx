@@ -6,13 +6,18 @@ import { useMapStore, useT } from '@/lib/state/store';
 import { useIsMobile } from '@/lib/hooks';
 import type { BBox } from '@/lib/types';
 import { LocationSearch } from '@/components/LocationSearch';
-import { LayerButton, LayerControl } from '@/components/LayerControl';
+import { LayerControl } from '@/components/LayerControl';
 import { LocationInspector } from '@/components/LocationInspector';
 import { MapLegend } from '@/components/MapLegend';
 import { StatusBar } from '@/components/StatusBar';
 import { DataProvenanceDialog } from '@/components/DataProvenance';
 import { MapErrorBoundary } from '@/components/MapErrorBoundary';
 import { Icon } from '@/components/Icon';
+import { TaskPanels } from '@/components/ActionBar';
+import { MobileTabBar, ModeSwitch, ReportButton, TopNav } from '@/components/Chrome';
+import { KpiChips, OverviewCards } from '@/components/Overview';
+import { SidePanel } from '@/components/SidePanel';
+import { InstallButton, OfflineNotice, PwaSetup } from '@/components/Pwa';
 
 // MapLibre needs the browser (WebGL); never render it on the server.
 const EnvironmentalMap = dynamic(() => import('@/components/EnvironmentalMap').then((m) => m.EnvironmentalMap), {
@@ -24,11 +29,33 @@ export function MapApp({ initialBounds }: { initialBounds: BBox | null }) {
   const t = useT();
   const locale = useMapStore((s) => s.locale);
   const selection = useMapStore((s) => s.selection);
+  const panel = useMapStore((s) => s.panel);
+  const picking = useMapStore((s) => s.picking);
   const isMobile = useIsMobile();
 
   useEffect(() => {
     document.documentElement.lang = locale;
   }, [locale]);
+
+  const overviewOpen = useMapStore((s) => s.overviewOpen);
+  const layerPanelOpen = useMapStore((s) => s.layerPanelOpen);
+
+  // Wide screens start with the overview column open (after mount, so SSR and client agree).
+  useEffect(() => {
+    if (window.matchMedia('(min-width: 1024px)').matches) useMapStore.getState().setOverviewOpen(true);
+  }, []);
+
+  const langButton = (
+    <button
+      type="button"
+      className="panel pointer-events-auto flex h-11 min-w-11 shrink-0 items-center justify-center px-3 text-sm font-bold text-fg-muted hover:text-fg"
+      onClick={() => useMapStore.getState().setLocale(locale === 'th' ? 'en' : 'th')}
+      aria-label={`${t('app.language')}: ${t('app.switchLanguage')}`}
+      lang={locale === 'th' ? 'en' : 'th'}
+    >
+      {locale === 'th' ? 'EN' : 'ไทย'}
+    </button>
+  );
 
   return (
     <main className="fixed inset-0 overflow-hidden">
@@ -44,44 +71,79 @@ export function MapApp({ initialBounds }: { initialBounds: BBox | null }) {
         <EnvironmentalMap initialBounds={initialBounds} />
       </MapErrorBoundary>
 
-      {/* Top-left: logo + search. Top-right: layers + language. */}
-      <div className="pointer-events-none absolute inset-x-0 top-0 z-30 flex items-start gap-2 p-3">
-        <div className="pointer-events-auto w-full max-w-[26rem]">
-          <LocationSearch />
-        </div>
-        <div className="panel pointer-events-auto ml-auto flex h-12 shrink-0 items-center overflow-hidden">
-          <LayerButton />
-          <span aria-hidden="true" className="h-6 w-px bg-line" />
-          <button
-            type="button"
-            className="flex h-full min-w-12 items-center justify-center px-3 text-sm font-semibold text-fg-muted hover:bg-surface-subtle hover:text-fg"
-            onClick={() => useMapStore.getState().setLocale(locale === 'th' ? 'en' : 'th')}
-            aria-label={`${t('app.language')}: ${t('app.switchLanguage')}`}
-            lang={locale === 'th' ? 'en' : 'th'}
-          >
-            {locale === 'th' ? 'EN' : 'ไทย'}
-          </button>
-        </div>
-      </div>
+      {isMobile ? (
+        <>
+          {/* Mobile: search + live numbers on top, tab bar at the bottom, panels as sheets. */}
+          <div className="pointer-events-none absolute inset-x-0 top-0 z-30 space-y-2 p-3">
+            <div className="flex items-start gap-2">
+              <div className="pointer-events-auto min-w-0 flex-1">
+                <LocationSearch />
+              </div>
+              <InstallButton compact />
+              {langButton}
+            </div>
+            <OfflineNotice />
+            {!panel && !selection && !layerPanelOpen && !overviewOpen && <KpiChips />}
+          </div>
+          {!panel && !selection && !layerPanelOpen && !overviewOpen && !picking && (
+            <div className="anim-fade-up pointer-events-none absolute inset-x-0 bottom-[calc(84px+env(safe-area-inset-bottom))] z-10 flex justify-center">
+              <ModeSwitch />
+            </div>
+          )}
+          {overviewOpen && !panel && !layerPanelOpen && (
+            <SidePanel id="overview-panel" title={t('overview.title')} onClose={() => useMapStore.getState().setOverviewOpen(false)}>
+              <OverviewCards />
+              <div className="mt-3 space-y-2.5">
+                <MapLegend />
+                <StatusBar />
+              </div>
+            </SidePanel>
+          )}
+          {!picking && <MobileTabBar />}
+        </>
+      ) : (
+        <>
+          {/* Desktop: search (left), navigation (centre), report action + language (right). */}
+          <div className="pointer-events-none absolute inset-x-0 top-0 z-30 flex items-start gap-2 p-3">
+            <div className="anim-fade-down pointer-events-auto w-full max-w-[22rem] space-y-2 lg:max-w-[26rem]">
+              <LocationSearch />
+              <OfflineNotice />
+            </div>
+            <div className="anim-fade-down absolute top-3 left-1/2 -translate-x-1/2 [animation-delay:80ms]">
+              <TopNav />
+            </div>
+            <div className="anim-fade-down ml-auto flex items-center gap-2 [animation-delay:140ms]">
+              <InstallButton />
+              <ReportButton />
+              {langButton}
+            </div>
+          </div>
+          {overviewOpen && (
+            <aside className="anim-slide-left scroll-thin pointer-events-auto absolute top-[76px] bottom-3 left-3 z-20 w-[320px] overflow-y-auto overscroll-contain pb-16" aria-label={t('overview.title')}>
+              <OverviewCards />
+              <div className="mt-2.5">
+                <MapLegend />
+              </div>
+            </aside>
+          )}
+          <div className="pointer-events-none absolute inset-x-0 bottom-0 z-10 flex items-end justify-between gap-2 p-3">
+            <div className="hidden md:block">{!overviewOpen && <MapLegend />}</div>
+            <div className="anim-fade-up absolute bottom-3 left-1/2 -translate-x-1/2 [animation-delay:200ms]">{!picking && <ModeSwitch />}</div>
+            <div className="ml-auto">
+              <StatusBar />
+            </div>
+          </div>
+        </>
+      )}
 
       <NoExtentNotice show={!initialBounds} />
 
       <LayerControl />
-      <LocationInspector />
-
-      {/* Bottom: legend (left) and data status (right). Hidden behind the mobile sheet when it is open. */}
-      {!(isMobile && selection) && (
-        <div className="pointer-events-none absolute inset-x-0 bottom-0 z-10 flex items-end justify-between gap-2 p-3 pb-[max(0.75rem,env(safe-area-inset-bottom))]">
-          <div className="hidden sm:block">
-            <MapLegend />
-          </div>
-          <div className="ml-auto">
-            <StatusBar />
-          </div>
-        </div>
-      )}
+      {!panel && !layerPanelOpen && <LocationInspector />}
+      <TaskPanels />
 
       <DataProvenanceDialog />
+      <PwaSetup />
     </main>
   );
 }

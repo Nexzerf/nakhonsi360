@@ -8,6 +8,7 @@ The machine-readable registry is `lib/registry/sources.ts`; this file is the ver
 
 - 2026-09-29: the build environment's network policy denied every source host; nothing verified.
 - 2026-09-30: DOPA village file obtained through the project owner (see below).
+- 2026-10-01: USGS earthquake catalog (FDSN event service) verified with a real response; adapter connected. `www.usgs.gov` (licence policy page) is denied by the build environment's proxy, so the licence is recorded as stated by USGS policy, to confirm.
 - 2026-09-30: network access opened for most hosts. Verified with real downloads: HDX COD-AB, ThaiWater water level, ThaiWater 24-h rain, OpenFreeMap. Still blocked from the build environment: `opendata_tst.dopa.go.th` (DOPA file host), `download.geofabrik.de` (connection reset upstream), `air4thai.pcd.go.th` (http not allowlisted; https certificate chain does not verify), `api-gateway.gistda.or.th` (upstream 502). Keyed sources (TMD, FIRMS, GISTDA) need their keys.
 
 ## Phase 1 — base geography
@@ -27,6 +28,7 @@ The machine-readable registry is `lib/registry/sources.ts`; this file is the ver
 |---|---|---|---|---|---|---|
 | `thaiwater.waterlevel` | สสน. (HII), aggregating HII, ชป. (RID), พพภ and others | `https://api-v3.thaiwater.net/api/v1/thaiwater30/public/waterlevel_load` | No | ~10 min–2 h per station | 2026-09-30 | ✅ adapter `lib/adapters/thaiwater.ts`; ~806 stations nationwide, 28 within province + 5 km. Uses `waterlevel_data` (telemetry); `waterlevel_manual_data` not ingested (no NST records in the sample). Official status = `situation_level` mapped to the `scale` published in the same response (text + colour). `storage_percent` stored as `water_level_bank_pct` (can be negative). Sample: `data/samples/thaiwater.waterlevel/` |
 | `thaiwater.rain24h` | สสน. (HII), aggregating ทน. (DWR), ชป., สสน., ปภ., อต., กฟผ. | `…/thaiwater30/public/rain_24h` | No | hourly | 2026-09-30 | ✅ adapter; ~4,400 stations, 163 within province + 5 km; each value credits its operating agency. Sample: `data/samples/thaiwater.rain24h/` |
+| `usgs.earthquakes` | U.S. Geological Survey (ComCat, with contributing networks) | `https://earthquake.usgs.gov/fdsnws/event/1/query?format=geojson&eventtype=earthquake&starttime=<now − 30 d>&latitude=8.58&longitude=99.79&maxradiuskm=2000&minmagnitude=4&orderby=time` (centre = province extent centre) | No | Events within minutes; ingested every 15 min | 2026-10-01 | ✅ adapter `lib/adapters/usgs.ts`; 21 events M4.0–6.5 in the sample (Sumatra, Java, Andaman, Myanmar, Vietnam), all `reviewed`. Times are epoch ms UTC (no timezone inference). Stored as returned (regional, **not** clipped to the province). Magnitude, magnitude type, place (English), depth, review status and event URL are USGS's own; no intensity or risk is derived. Each run removes events in the 30-day window that USGS no longer lists (deleted or merged under another id). Smaller local events are usually missing from this catalog; TMD remains the primary source. Licence: U.S. public domain per USGS policy (policy page blocked from the build environment — confirm). Acceptance check on 2026-10-01: all 21 events served by `/api/layers/earthquake` equal a direct USGS request (id, magnitude, place, time, coordinates). Sample: `data/samples/usgs.earthquakes/` |
 | `tmd.weather`, `tmd.warnings`, `tmd.earthquake` | กรมอุตุนิยมวิทยา | `https://data.tmd.go.th/api/…` | Yes (free) | — | — | ⚪ host reachable; needs `TMD_UID`/`TMD_UKEY`. Must credit "กรมอุตุนิยมวิทยา" every time shown |
 | `air4thai.aqi` | กรมควบคุมมลพิษ | `http://air4thai.pcd.go.th/services/getNewAQI_JSON.php` | No | — | — | ⚪ blocked: http host not allowlisted; https certificate chain does not verify |
 | `gistda.flood`, `gistda.hotspots` | GISTDA | `https://api-gateway.gistda.or.th/api/2.0/resources` | Yes | — | — | ⚪ upstream 502 from the build environment (possibly non-Thai IPs blocked); needs `GISTDA_API_KEY` |
@@ -35,6 +37,13 @@ The machine-readable registry is `lib/registry/sources.ts`; this file is the ver
 **Timezone (ThaiWater).** Timestamps such as `2026-09-30 04:00` carry no timezone. They are read as Thai time (+07:00): a response fetched at 21:17 UTC contained readings stamped 04:00, which would be 7 hours in the future if read as UTC, and later fetches at 12:40 Bangkok showed readings stamped 12:20. This is inferred from the data, not from documentation; confirm with HII. Readings more than 1 h in the future are rejected, so a wrong assumption would show up as rejections rather than wrong values.
 
 **Verification against the source (acceptance check).** On 2026-09-30 every station served by `/api/layers/water-stations` (28) and `/api/layers/rain-24h` (163) had the same value as a direct ThaiWater request for the same observation time.
+
+## Not from agencies
+
+| Source id | What | Status |
+|---|---|---|
+| `community.reports` | Hazard reports from the public, stored in `citizen_reports` | Live. Always labelled unverified until a responder updates the status. Not merged with any agency value. See [REPORTS.md](REPORTS.md) |
+| Emergency numbers | `lib/registry/emergency.ts` | Checked 2026-10-01 against the Government Public Relations Department notice "รวมเบอร์โทรศัพท์สำคัญ ช่วยเหลือเหตุอุทกภัยภาคใต้" (prd.go.th) and several publications that list the same numbers. Agency websites and news sites were blocked from the build environment, so the pages themselves were not opened and no number is marked confirmed with the agency. Hospital and district-office numbers were left out because no consistent published number was found |
 
 ## Phase 3–4 (not started)
 

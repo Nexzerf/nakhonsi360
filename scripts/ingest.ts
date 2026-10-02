@@ -29,7 +29,7 @@ main(async () => {
       const r = await runIngest(sql, ADAPTERS[id]!, { raw });
       results.push(r);
       console.log(
-        `${r.status.padEnd(7)} ${id}: stations ${r.stations} (outside area ${r.outsideArea}), new observations ${r.observations}, hazards ${r.hazards}, rejected ${r.rejected}${r.error ? ` — ${r.error}` : ''}`,
+        `${r.status.padEnd(7)} ${id}: stations ${r.stations} (outside area ${r.outsideArea}), new observations ${r.observations}, hazards ${r.hazards} (removed at source ${r.hazardsRemoved}), rejected ${r.rejected}${r.error ? ` — ${r.error}` : ''}`,
       );
     }
     if (!only) {

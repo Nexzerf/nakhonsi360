@@ -325,3 +325,21 @@ export interface StationFeatureRow {
 export async function latestStationReadings(sql: Sql, variable: string): Promise<StationFeatureRow[]> {
   return sql<StationFeatureRow[]>`select * from latest_station_readings(${variable})`;
 }
+
+export interface EarthquakeRow {
+  source_id: string;
+  feature_key: string;
+  lng: number;
+  lat: number;
+  observed_at: Date;
+  fetched_at: Date;
+  properties: Record<string, unknown>;
+}
+
+export async function recentEarthquakes(sql: Sql, days = 30): Promise<EarthquakeRow[]> {
+  return sql<EarthquakeRow[]>`select * from recent_earthquakes(${days})`;
+}
+
+export async function earthquakesNear(sql: Sql, lng: number, lat: number, days = 30): Promise<(EarthquakeRow & { distance_m: number })[]> {
+  return sql<(EarthquakeRow & { distance_m: number })[]>`select * from earthquakes_near(${lng}, ${lat}, ${days})`;
+}

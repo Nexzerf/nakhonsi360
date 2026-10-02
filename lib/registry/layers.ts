@@ -4,7 +4,7 @@
  * are listed (so users see what is planned) but cannot be switched on.
  */
 
-export type LayerGroupId = 'admin' | 'water' | 'reference' | 'weather' | 'air' | 'hazards' | 'coast' | 'environment' | 'satellite';
+export type LayerGroupId = 'community' | 'admin' | 'water' | 'reference' | 'weather' | 'air' | 'hazards' | 'coast' | 'environment' | 'satellite';
 
 export interface LayerGroup {
   id: LayerGroupId;
@@ -13,6 +13,7 @@ export interface LayerGroup {
 }
 
 export const LAYER_GROUPS: readonly LayerGroup[] = [
+  { id: 'community', th: 'รายงานจากประชาชน', en: 'Public reports' },
   { id: 'admin', th: 'เขตปกครอง', en: 'Administrative' },
   { id: 'water', th: 'น้ำ', en: 'Water' },
   { id: 'reference', th: 'ถนนและชายฝั่ง', en: 'Roads & coastline' },
@@ -55,6 +56,10 @@ export interface LayerDef {
   sourceLayer?: string;
   /** Live station layers: the observation variable served by /api/layers/:id as GeoJSON. */
   variable?: string;
+  /** Live hazard-event layers: the hazard_features kind served by /api/layers/:id as GeoJSON. */
+  hazardKind?: 'earthquake';
+  /** Citizen reports, served by /api/reports?format=geojson. */
+  reports?: true;
   /** Short note on zoom behaviour for the ⓘ panel. */
   zoomNoteTh?: string;
   zoomNoteEn?: string;
@@ -84,6 +89,15 @@ export const COLORS = {
 } as const;
 
 export const LAYERS: readonly LayerDef[] = [
+  // Public reports — not official data
+  {
+    id: 'citizen-reports', group: 'community', th: 'รายงานเหตุจากประชาชน', en: 'Reports from the public', icon: 'warning',
+    sourceIds: ['community.reports'], phase: 2, defaultOn: true, minzoom: 0, reports: true,
+    zoomNoteTh: 'รายงาน 72 ชั่วโมงล่าสุด สีตามความเร่งด่วนที่ผู้แจ้งเลือก ยังไม่ยืนยันจนกว่าเจ้าหน้าที่อัปเดตสถานะ',
+    zoomNoteEn: 'Reports from the last 72 hours, coloured by the urgency the reporter chose; unverified until a responder updates them.',
+    legend: { type: 'circle', color: '#ea580c', stroke: '#fff', radius: 6 },
+  },
+
   // Administrative — HDX COD-AB + DOPA
   {
     id: 'admin-province', group: 'admin', th: 'จังหวัด', en: 'Province', icon: 'province',
@@ -103,7 +117,7 @@ export const LAYERS: readonly LayerDef[] = [
   },
   {
     id: 'villages', group: 'admin', th: 'หมู่บ้าน (จุดที่ตั้ง)', en: 'Villages (points)', icon: 'village',
-    sourceIds: ['dopa.villages'], phase: 1, defaultOn: true, minzoom: 12, sourceLayer: 'villages',
+    sourceIds: ['dopa.villages'], phase: 1, defaultOn: false, minzoom: 12, sourceLayer: 'villages',
     legend: { type: 'circle', color: COLORS.village, stroke: '#ffffff', radius: 4 },
     zoomNoteTh: 'แสดงเมื่อซูมระดับ 12 ขึ้นไป หมู่บ้านเป็นจุดที่ตั้ง ไม่มีขอบเขต', zoomNoteEn: 'Shown from zoom 12. Villages are points; they have no official boundary.',
   },
@@ -175,7 +189,13 @@ export const LAYERS: readonly LayerDef[] = [
   { id: 'soil-moisture', group: 'hazards', th: 'ภัยแล้ง / ความชื้นในดิน', en: 'Drought / soil moisture', icon: 'drought', sourceIds: ['gistda.soilmoisture'], phase: 3, defaultOn: false, minzoom: 0, legend: { type: 'fill', color: '#fed7aa', outline: COLORS.drought } },
   { id: 'hotspots', group: 'hazards', th: 'จุดความร้อน', en: 'Hotspots', icon: 'fire', sourceIds: ['gistda.hotspots', 'firms.hotspots'], phase: 2, defaultOn: false, minzoom: 0, legend: { type: 'circle', color: COLORS.fire, stroke: '#fff', radius: 4 } },
   { id: 'landslide', group: 'hazards', th: 'ดินถล่ม', en: 'Landslide risk', icon: 'landslide', sourceIds: ['dmr.landslide'], phase: 3, defaultOn: false, minzoom: 0, legend: { type: 'fill', color: '#fecaca', outline: COLORS.danger, pattern: 'dots' } },
-  { id: 'earthquake', group: 'hazards', th: 'แผ่นดินไหว', en: 'Earthquakes', icon: 'earthquake', sourceIds: ['tmd.earthquake'], phase: 2, defaultOn: false, minzoom: 0, legend: { type: 'circle', color: '#7c3aed', stroke: '#fff', radius: 5 } },
+  {
+    id: 'earthquake', group: 'hazards', th: 'แผ่นดินไหว', en: 'Earthquakes', icon: 'earthquake',
+    sourceIds: ['usgs.earthquakes', 'tmd.earthquake'], phase: 2, defaultOn: false, minzoom: 0, hazardKind: 'earthquake',
+    zoomNoteTh: 'แผ่นดินไหว M4 ขึ้นไปในรัศมี 2,000 กม. ช่วง 30 วัน ส่วนใหญ่อยู่นอกจังหวัด ซูมออกเพื่อดู ขนาดวงกลมตามขนาดแผ่นดินไหว',
+    zoomNoteEn: 'M4+ earthquakes within 2,000 km in the last 30 days; most are outside the province, zoom out to see them. Circle size follows magnitude.',
+    legend: { type: 'circle', color: '#7c3aed', stroke: '#fff', radius: 5 },
+  },
 
   // Coast — Phase 3
   { id: 'shoreline-change', group: 'coast', th: 'การเปลี่ยนแปลงแนวชายฝั่ง', en: 'Shoreline change', icon: 'coastline', sourceIds: ['dmr.shoreline'], phase: 3, defaultOn: false, minzoom: 0, legend: { type: 'line', color: COLORS.coastline, width: 2 } },

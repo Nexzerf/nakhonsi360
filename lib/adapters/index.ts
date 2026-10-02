@@ -7,10 +7,12 @@
  */
 import type { IngestAdapter } from '@/lib/ingest/types';
 import { thaiwaterRain24h, thaiwaterWaterlevel } from '@/lib/adapters/thaiwater';
+import { usgsEarthquakes } from '@/lib/adapters/usgs';
 
 export const ADAPTERS: Record<string, IngestAdapter> = {
   [thaiwaterWaterlevel.sourceId]: thaiwaterWaterlevel,
   [thaiwaterRain24h.sourceId]: thaiwaterRain24h,
+  [usgsEarthquakes.sourceId]: usgsEarthquakes,
 };
 
 /** Live sources that still need a verified sample before an adapter can be written. */
