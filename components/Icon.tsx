@@ -1,6 +1,6 @@
 import type { IconId } from '@/lib/registry/layers';
 
-type UiIcon = 'search' | 'layers' | 'close' | 'info' | 'plus' | 'minus' | 'locate' | 'compass' | 'copy' | 'chevron' | 'retry' | 'pin' | 'external' | 'check' | 'alert' | 'phone' | 'list' | 'send' | 'megaphone' | 'camera' | 'shield';
+type UiIcon = 'search' | 'layers' | 'close' | 'info' | 'plus' | 'minus' | 'locate' | 'compass' | 'copy' | 'chevron' | 'retry' | 'pin' | 'external' | 'check' | 'alert' | 'phone' | 'list' | 'send' | 'megaphone' | 'camera' | 'shield' | 'dashboard' | 'globe' | 'cube';
 
 /** Simple stroked 24×24 icons. Decorative unless a label is given. */
 const PATHS: Record<IconId | UiIcon, string> = {
@@ -57,6 +57,9 @@ const PATHS: Record<IconId | UiIcon, string> = {
   megaphone: 'M3 11v2a1 1 0 001 1h3l5 4V6L7 10H4a1 1 0 00-1 1zM16 8a5 5 0 010 8M19 5a9 9 0 010 14',
   camera: 'M4 8h3l2-3h6l2 3h3v11H4zM12 10a3.5 3.5 0 100 7 3.5 3.5 0 000-7z',
   shield: 'M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6zM8.5 12l2.5 2.5 4.5-5',
+  dashboard: 'M4 4h7v7H4zM13 4h7v4h-7zM13 10h7v10h-7zM4 13h7v7H4z',
+  globe: 'M12 3a9 9 0 100 18 9 9 0 000-18zM3 12h18M12 3c2.5 2.5 3.8 5.5 3.8 9s-1.3 6.5-3.8 9c-2.5-2.5-3.8-5.5-3.8-9S9.5 5.5 12 3z',
+  cube: 'M12 3l8 4.5v9L12 21l-8-4.5v-9zM12 12l8-4.5M12 12v9M12 12L4 7.5',
 };
 
 export function Icon({ name, size = 20, label, className }: { name: IconId | UiIcon; size?: number; label?: string; className?: string }) {

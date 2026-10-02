@@ -10,11 +10,13 @@ import { Icon } from '@/components/Icon';
  * (not unmounted) while the user picks a location on the map, so a
  * half-filled form is kept.
  */
-export function SidePanel({ id, title, onBack, children }: { id: string; title: string; onBack?: () => void; children: React.ReactNode }) {
+export function SidePanel({ id, title, onBack, onClose, children }: { id: string; title: string; onBack?: () => void; onClose?: () => void; children: React.ReactNode }) {
   const t = useT();
   const isMobile = useIsMobile();
   const picking = useMapStore((s) => s.picking);
   const headingRef = useRef<HTMLHeadingElement>(null);
+  const onCloseRef = useRef(onClose);
+  onCloseRef.current = onClose;
 
   useEffect(() => {
     headingRef.current?.focus();
@@ -22,7 +24,7 @@ export function SidePanel({ id, title, onBack, children }: { id: string; title: 
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape' && !useMapStore.getState().picking) useMapStore.getState().openPanel(null);
+      if (e.key === 'Escape' && !useMapStore.getState().picking) (onCloseRef.current ?? (() => useMapStore.getState().openPanel(null)))();
     };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
@@ -35,8 +37,8 @@ export function SidePanel({ id, title, onBack, children }: { id: string; title: 
       hidden={picking}
       className={
         isMobile
-          ? 'panel rise fixed inset-x-0 top-[68px] bottom-0 z-40 flex flex-col overflow-hidden rounded-b-none'
-          : 'panel rise absolute top-[72px] bottom-16 left-3 z-20 flex w-[400px] max-w-[calc(100vw-24px)] flex-col overflow-hidden'
+          ? 'panel anim-slide-up fixed inset-x-2 top-[68px] bottom-[calc(84px+env(safe-area-inset-bottom))] z-40 flex flex-col overflow-hidden'
+          : 'panel anim-slide-right absolute top-[76px] right-3 bottom-[72px] z-20 flex w-[400px] max-w-[calc(100vw-24px)] flex-col overflow-hidden'
       }
     >
       <div aria-hidden="true" className="thai-band" />
@@ -49,7 +51,7 @@ export function SidePanel({ id, title, onBack, children }: { id: string; title: 
         <h2 id={`${id}-title`} ref={headingRef} tabIndex={-1} className={`font-display flex-1 text-lg font-semibold ${onBack ? '' : 'pl-2'}`}>
           {title}
         </h2>
-        <button type="button" onClick={() => useMapStore.getState().openPanel(null)} className="icon-btn shrink-0" aria-label={t('panel.close')}>
+        <button type="button" onClick={onClose ?? (() => useMapStore.getState().openPanel(null))} className="icon-btn shrink-0" aria-label={t('panel.close')}>
           <Icon name="close" />
         </button>
       </header>

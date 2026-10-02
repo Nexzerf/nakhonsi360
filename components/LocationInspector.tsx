@@ -39,7 +39,7 @@ type SectionQuery<T> = ReturnType<typeof useSection<T>>;
 
 function Card({ id, title, icon, aside, children }: { id: string; title: string; icon: IconId | 'info'; aside?: React.ReactNode; children: React.ReactNode }) {
   return (
-    <section aria-labelledby={id} className="rounded-lg border border-line bg-surface">
+    <section aria-labelledby={id} className="tile lift bg-surface">
       <header className="flex items-center gap-2.5 px-3.5 pt-3 pb-2">
         <span aria-hidden="true" className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-surface-sunken text-fg-muted">
           <Icon name={icon} size={16} />
@@ -526,7 +526,8 @@ function PlannedCard({ section, sel }: { section: 'hazards' | 'satellite'; sel: 
 
 // ---------------------------------------------------------------- inspector
 
-const SNAP_HEIGHT: Record<SheetSnap, string> = { peek: '132px', half: '52vh', full: 'calc(100dvh - 72px)' };
+// Mobile sheet sits above the tab bar (84 px) and below the search bar (68 px).
+const SNAP_HEIGHT: Record<SheetSnap, string> = { peek: '132px', half: '46vh', full: 'calc(100dvh - 68px - 84px)' };
 
 export function LocationInspector() {
   const t = useT();
@@ -601,8 +602,8 @@ export function LocationInspector() {
     const vh = window.innerHeight;
     const snaps: Array<[SheetSnap, number]> = [
       ['peek', 132],
-      ['half', vh * 0.52],
-      ['full', vh - 72],
+      ['half', vh * 0.46],
+      ['full', vh - 68 - 84],
     ];
     const nearest = snaps.reduce((a, b) => (Math.abs(b[1] - h) < Math.abs(a[1] - h) ? b : a));
     useMapStore.getState().setSheetSnap(nearest[0]);
@@ -615,8 +616,8 @@ export function LocationInspector() {
       aria-labelledby="inspector-title"
       className={
         isMobile
-          ? 'panel rise fixed inset-x-0 bottom-0 z-30 flex flex-col overflow-hidden rounded-b-none transition-[height] duration-200 ease-out'
-          : 'panel rise absolute top-[72px] right-3 bottom-16 z-20 flex w-[400px] max-w-[calc(100vw-24px)] flex-col overflow-hidden'
+          ? 'panel anim-slide-up fixed inset-x-2 bottom-[calc(84px+env(safe-area-inset-bottom))] z-30 flex flex-col overflow-hidden transition-[height] duration-200 ease-out'
+          : 'panel anim-slide-right absolute top-[76px] right-3 bottom-[72px] z-20 flex w-[400px] max-w-[calc(100vw-24px)] flex-col overflow-hidden'
       }
       style={isMobile ? { height: SNAP_HEIGHT[snap] } : undefined}
     >
@@ -661,7 +662,7 @@ export function LocationInspector() {
         </button>
       </header>
 
-      <div className="scroll-thin flex-1 space-y-2.5 overflow-y-auto overscroll-contain bg-surface-subtle p-2.5 pb-6">
+      <div className="stagger scroll-thin flex-1 space-y-2.5 overflow-y-auto overscroll-contain bg-surface-subtle/60 p-2.5 pb-6">
         <ConditionsCardView q={conditions} />
         <HazardsCardView q={hazards} />
         <VillageCardView q={village} />

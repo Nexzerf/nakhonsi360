@@ -28,7 +28,13 @@
   --info: #1557c0;
   --gold: #b8892e;
   --niello: #1d1912;
-  --map-bg: #ece8df;
+  --map-bg: #e8e9ec;
+  --glass: rgb(255 255 255 / 0.78);
+  --glass-strong: rgb(255 255 255 / 0.9);
+  --glass-border: rgb(255 255 255 / 0.75);
+  --glass-line: rgb(29 25 18 / 0.08);
+  --float-shadow: 0 10px 34px rgb(28 30 40 / 0.12), 0 2px 6px rgb(28 30 40 / 0.06);
+  --radius-card: 18px;
   --shadow: 0 1px 2px rgb(40 30 10 / 0.06), 0 4px 14px rgb(40 30 10 / 0.09);
   --shadow-sm: 0 1px 2px rgb(40 30 10 / 0.08);
   color-scheme: light;
@@ -58,6 +64,16 @@
     --gold: #e2b65c;
     --niello: #0f0d09;
     --map-bg: #14110c;
+  --glass: rgb(29 25 18 / 0.78);
+  --glass-strong: rgb(29 25 18 / 0.9);
+  --glass-border: rgb(255 255 255 / 0.08);
+  --glass-line: rgb(255 255 255 / 0.08);
+  --float-shadow: 0 10px 34px rgb(0 0 0 / 0.45), 0 2px 6px rgb(0 0 0 / 0.3);
+    --glass: rgb(29 25 18 / 0.78);
+    --glass-strong: rgb(29 25 18 / 0.9);
+    --glass-border: rgb(255 255 255 / 0.08);
+    --glass-line: rgb(255 255 255 / 0.08);
+    --float-shadow: 0 10px 34px rgb(0 0 0 / 0.45), 0 2px 6px rgb(0 0 0 / 0.3);
     --shadow: 0 1px 2px rgb(0 0 0 / 0.4), 0 4px 14px rgb(0 0 0 / 0.35);
     --shadow-sm: 0 1px 2px rgb(0 0 0 / 0.45);
     color-scheme: dark;
@@ -106,12 +122,12 @@
   --color-accent-strong: var(--accent-strong);
   --color-gold: var(--gold);
   --color-niello: var(--niello);
-  --font-display: var(--font-serif-thai), 'Noto Serif Thai', var(--font-plex), serif;
+  --font-display: var(--font-line-seed), 'LINE Seed Sans TH', 'Noto Sans Thai', sans-serif;
   --color-on-accent: var(--on-accent);
   --color-ok: var(--ok);
   --color-warn: var(--warn);
   --color-danger: var(--danger);
-  --font-sans: var(--font-plex), 'IBM Plex Sans Thai', 'Noto Sans Thai', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-sans: var(--font-line-seed), 'LINE Seed Sans TH', 'Noto Sans Thai', system-ui, -apple-system, 'Segoe UI', sans-serif;
 }
 
 html,
@@ -137,10 +153,86 @@ body {
 /* ---------------------------------------------------------------- surfaces */
 
 .panel {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  box-shadow: var(--shadow);
+  background: var(--glass-strong);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-card);
+  box-shadow: var(--float-shadow);
+  -webkit-backdrop-filter: blur(18px) saturate(1.4);
+  backdrop-filter: blur(18px) saturate(1.4);
+}
+
+/* Small inner cards on a glass panel (KPI tiles, rows). */
+.tile {
+  background: var(--glass);
+  border: 1px solid var(--glass-line);
+  border-radius: 14px;
+}
+
+/* Dark segmented control (as in the reference designs): the active item is niello on light, gold on dark. */
+.seg {
+  display: inline-flex;
+  gap: 2px;
+  padding: 4px;
+  border-radius: 14px;
+  background: var(--glass-strong);
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--float-shadow);
+  -webkit-backdrop-filter: blur(18px) saturate(1.4);
+  backdrop-filter: blur(18px) saturate(1.4);
+}
+.seg > button,
+.seg > a {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-height: 40px;
+  min-width: 44px;
+  padding: 0 12px;
+  border-radius: 10px;
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: var(--fg-muted);
+  transition: background-color 120ms, color 120ms;
+}
+.seg > button:hover {
+  color: var(--fg);
+  background: var(--surface-sunken);
+}
+.seg > button[aria-pressed='true'],
+.seg > button[aria-current='true'] {
+  background: var(--niello);
+  color: #fff;
+}
+:root[data-theme='dark'] .seg > button[aria-pressed='true'],
+:root[data-theme='dark'] .seg > button[aria-current='true'] {
+  background: var(--gold);
+  color: var(--niello);
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) .seg > button[aria-pressed='true'],
+  :root:not([data-theme='light']) .seg > button[aria-current='true'] {
+    background: var(--gold);
+    color: var(--niello);
+  }
+}
+
+/* Primary dark pill button (e.g. แจ้งเหตุ). */
+.btn-dark {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 0 16px;
+  border-radius: 14px;
+  background: var(--niello);
+  color: #fff;
+  font-weight: 700;
+  box-shadow: var(--float-shadow);
+}
+.btn-dark:hover {
+  filter: brightness(1.25);
 }
 
 .icon-btn {
@@ -293,7 +385,7 @@ body {
 
 /* Keep the scale bar and attribution clear of the action bar and status bar (mobile: stacked; wider: legend left, actions centre). */
 .maplibregl-ctrl-bottom-left {
-  bottom: 124px;
+  bottom: calc(136px + env(safe-area-inset-bottom));
 }
 @media (min-width: 768px) {
   .maplibregl-ctrl-bottom-left {
@@ -325,4 +417,100 @@ body {
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='6' viewBox='0 0 12 6'%3E%3Cpath d='M6 0.6 L7.4 3 L6 5.4 L4.6 3 Z M0.6 3 L3 1.6 L5.4 3 L3 4.4 Z M6.6 3 L9 1.6 L11.4 3 L9 4.4 Z' fill='%23d9ab52'/%3E%3Ccircle cx='6' cy='3' r='0.7' fill='%231d1912'/%3E%3C/svg%3E");
   background-repeat: repeat-x;
   background-size: 12px 6px;
+}
+
+/* ---------------------------------------------------------------- motion
+ * Entrances: panels slide from the side they live on, sheets rise, content
+ * fades up in a short stagger. Hover: cards lift. All of it is switched off
+ * by the prefers-reduced-motion rule above.
+ */
+@keyframes slide-in-right {
+  from { opacity: 0; transform: translateX(24px); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes slide-in-left {
+  from { opacity: 0; transform: translateX(-24px); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes slide-up {
+  from { opacity: 0; transform: translateY(32px); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes fade-up {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes fade-down {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes pop {
+  0% { transform: scale(0.92); }
+  60% { transform: scale(1.04); }
+  100% { transform: scale(1); }
+}
+@keyframes pulse-ring {
+  0% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--danger) 45%, transparent); }
+  100% { box-shadow: 0 0 0 14px color-mix(in srgb, var(--danger) 0%, transparent); }
+}
+
+.anim-slide-right { animation: slide-in-right 320ms cubic-bezier(0.22, 1, 0.36, 1) backwards; }
+.anim-slide-left { animation: slide-in-left 320ms cubic-bezier(0.22, 1, 0.36, 1) backwards; }
+.anim-slide-up { animation: slide-up 360ms cubic-bezier(0.22, 1, 0.36, 1) backwards; }
+.anim-fade-up { animation: fade-up 420ms cubic-bezier(0.22, 1, 0.36, 1) backwards; }
+.anim-fade-down { animation: fade-down 420ms cubic-bezier(0.22, 1, 0.36, 1) backwards; }
+.anim-pop { animation: pop 420ms cubic-bezier(0.34, 1.56, 0.64, 1) backwards; }
+.anim-pulse { animation: pulse-ring 1.8s ease-out infinite; }
+
+/* Children fade up one after another (up to 12 items). */
+.stagger > * { animation: fade-up 460ms cubic-bezier(0.22, 1, 0.36, 1) backwards; }
+.stagger > *:nth-child(1) { animation-delay: 40ms; }
+.stagger > *:nth-child(2) { animation-delay: 90ms; }
+.stagger > *:nth-child(3) { animation-delay: 140ms; }
+.stagger > *:nth-child(4) { animation-delay: 190ms; }
+.stagger > *:nth-child(5) { animation-delay: 240ms; }
+.stagger > *:nth-child(6) { animation-delay: 290ms; }
+.stagger > *:nth-child(7) { animation-delay: 330ms; }
+.stagger > *:nth-child(8) { animation-delay: 370ms; }
+.stagger > *:nth-child(n + 9) { animation-delay: 400ms; }
+
+/* Hover lift for cards, rows and the dark button. */
+.lift {
+  transition: transform 200ms cubic-bezier(0.22, 1, 0.36, 1), box-shadow 200ms ease, border-color 200ms ease, background-color 200ms ease;
+}
+@media (hover: hover) {
+  .lift:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 16px 40px rgb(28 30 40 / 0.16), 0 3px 8px rgb(28 30 40 / 0.08);
+  }
+  .tile.lift:hover {
+    border-color: var(--border-strong);
+    background: var(--glass-strong);
+  }
+}
+.lift:active,
+.btn-dark:active,
+.seg > button:active {
+  transform: scale(0.97);
+}
+.btn-dark {
+  transition: transform 160ms ease, filter 160ms ease, box-shadow 200ms ease;
+}
+@media (hover: hover) {
+  .btn-dark:hover { transform: translateY(-1px); }
+}
+.seg > button {
+  transition: background-color 200ms ease, color 200ms ease, transform 160ms ease;
+}
+
+@keyframes bar-grow {
+  from { transform: scaleY(0); }
+  to { transform: scaleY(1); }
+}
+.bar-grow {
+  transform-origin: bottom;
+  animation: bar-grow 520ms cubic-bezier(0.22, 1, 0.36, 1) backwards;
+}
+@media (min-width: 768px) {
+  .md\:anim-slide-right { animation: slide-in-right 320ms cubic-bezier(0.22, 1, 0.36, 1) backwards; }
 }

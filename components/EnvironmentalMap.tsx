@@ -63,6 +63,15 @@ const REPORT_REFRESH_MS = 15_000;
 
 let protocolRegistered = false;
 
+/**
+ * The style itself is parsed and ready for layers. Unlike isStyleLoaded(),
+ * this does not wait for every basemap tile, which on a slow connection
+ * would skip adding the overlays until something else changed.
+ */
+function styleReady(map: MlMap): boolean {
+  return Boolean((map.style as unknown as { _loaded?: boolean } | undefined)?._loaded);
+}
+
 const reducedMotion = () => typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
 async function fetchStyle(url: string, timeoutMs = 8000): Promise<StyleSpecification> {
@@ -93,6 +102,8 @@ export function EnvironmentalMap({ initialBounds }: { initialBounds: BBox | null
   const camera = useMapStore((s) => s.camera);
   const draft = useMapStore((s) => s.draftLocation);
   const view3d = useMapStore((s) => s.view3d);
+  // Something occupies the right column on desktop (inspector, task panel or layers).
+  const rightPanelOpen = useMapStore((s) => Boolean(s.selection || s.panel || s.layerPanelOpen));
   const panel = useMapStore((s) => s.panel);
   const { data: sources } = useSources();
   const isMobile = useIsMobile();
@@ -245,7 +256,7 @@ export function EnvironmentalMap({ initialBounds }: { initialBounds: BBox | null
   // ---------------------------------------------------------------- overlays
   const syncOverlays = useCallback(() => {
     const map = mapRef.current;
-    if (!map || !map.isStyleLoaded()) return;
+    if (!map || !styleReady(map)) return;
     const origin = window.location.origin;
 
     for (const l of map.getStyle().layers ?? []) if (l.id.startsWith(OVERLAY_PREFIX)) map.removeLayer(l.id);
@@ -310,6 +321,8 @@ export function EnvironmentalMap({ initialBounds }: { initialBounds: BBox | null
       if (attributionRef.current) map.removeControl(attributionRef.current.ctrl);
       const ctrl = new maplibregl.AttributionControl({ compact: true, customAttribution: attributions });
       map.addControl(ctrl, 'bottom-left');
+      // Start collapsed (the ⓘ button opens it) so the credits do not cover the map on phones.
+      map.getContainer().querySelector('.maplibregl-ctrl-attrib')?.classList.remove('maplibregl-compact-show');
       attributionRef.current = { key, ctrl };
     }
   }, [enabledLayers, sources, selection, locale, draft, panel, view3d]);
@@ -359,8 +372,7 @@ export function EnvironmentalMap({ initialBounds }: { initialBounds: BBox | null
         console.warn('[map] 3D view unavailable', err);
       }
     };
-    // isStyleLoaded() stays false while tiles load; wait for the style itself, not the tiles.
-    if (map.style && (map.style as unknown as { _loaded?: boolean })._loaded) apply();
+    if (styleReady(map)) apply();
     else map.once('style.load', apply);
     return () => {
       map.off('style.load', apply);
@@ -390,8 +402,8 @@ export function EnvironmentalMap({ initialBounds }: { initialBounds: BBox | null
     // Keep the target clear of the inspector: bottom sheet on mobile, right panel on desktop.
     const vh = window.innerHeight;
     const padding = isMobile
-      ? { top: 80, left: 24, right: 24, bottom: Math.round(vh * 0.52) + 16 }
-      : { top: 88, left: 48, right: 440, bottom: 64 };
+      ? { top: 120, left: 24, right: 24, bottom: Math.round(vh * 0.46) + 100 }
+      : { top: 96, left: useMapStore.getState().overviewOpen ? 360 : 48, right: 440, bottom: 80 };
     if (camera.bbox) {
       const [w, s, e, n] = camera.bbox;
       if (w === e && s === n) map.flyTo({ center: [w, s], zoom: Math.max(map.getZoom(), 14), padding, duration, ...keepTilt });
@@ -433,7 +445,7 @@ export function EnvironmentalMap({ initialBounds }: { initialBounds: BBox | null
       {/* Inline style: maplibre-gl.css sets `.maplibregl-map { position: relative }`, which outranks layered utilities. */}
       <div ref={containerRef} style={{ position: 'absolute', inset: 0, background: 'var(--map-bg)' }} />
       {/* Controls sit left of the desktop inspector when it is open; above the mobile sheet otherwise. */}
-      <div className={`pointer-events-none absolute bottom-36 z-10 flex flex-col items-end gap-2 md:bottom-16 ${selection && !isMobile ? 'right-[424px]' : 'right-3'}`}>
+      <div className={`pointer-events-none absolute bottom-[calc(140px+env(safe-area-inset-bottom))] z-10 flex flex-col items-end gap-2 md:bottom-16 ${rightPanelOpen && !isMobile ? 'right-[424px]' : 'right-3'}`}>
         {locateError && (
           <p role="status" className="panel pointer-events-auto px-3 py-2 text-sm text-danger">
             {t('controls.locateFailed')}
@@ -451,17 +463,7 @@ export function EnvironmentalMap({ initialBounds }: { initialBounds: BBox | null
           <button type="button" className="icon-btn rounded-none" onClick={resetNorth} aria-label={t('controls.compass')} title={t('controls.compass')}>
             <Icon name="compass" />
           </button>
-          <span aria-hidden="true" className="mx-2 h-px bg-line" />
-          <button
-            type="button"
-            className={`icon-btn rounded-none text-sm font-semibold ${view3d ? 'bg-surface-accent text-accent' : ''}`}
-            onClick={() => useMapStore.getState().setView3d(!view3d)}
-            aria-pressed={view3d}
-            aria-label={view3d ? t('controls.view2d') : t('controls.view3d')}
-            title={`${view3d ? t('controls.view2d') : t('controls.view3d')} — ${t('controls.view3dNote')}`}
-          >
-            {view3d ? '2D' : '3D'}
-          </button>
+
           <span aria-hidden="true" className="mx-2 h-px bg-line" />
           <button type="button" className="icon-btn rounded-none" onClick={locate} aria-label={t('controls.locate')} title={t('controls.locate')}>
             <Icon name="locate" />

@@ -12,7 +12,7 @@ export function PrimaryCallButtons({ locale }: { locale: Locale }) {
         <a
           key={c.id}
           href={telHref(c.number)}
-          className="flex min-h-14 items-center gap-2 rounded-lg border border-danger/30 bg-danger/5 px-3 py-2 text-danger hover:bg-danger/10"
+          className="lift flex min-h-14 items-center gap-2 rounded-xl border border-danger/30 bg-danger/5 px-3 py-2 text-danger hover:bg-danger/10"
           aria-label={`${translate(locale, 'emergency.call')} ${c.number} ${locale === 'en' ? c.nameEn : c.nameTh}`}
         >
           <Icon name="phone" size={18} className="shrink-0" />

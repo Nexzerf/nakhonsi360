@@ -349,7 +349,11 @@
     "anonymous": "ไม่ระบุชื่อ",
     "reporter": "ผู้แจ้ง",
     "callReporter": "โทรหา{name}",
-    "water": "น้ำ"
+    "water": "น้ำ",
+    "tabOpen": "เปิดอยู่",
+    "tabNew": "รอคนรับ",
+    "tabOnTheWay": "กำลังช่วย",
+    "tabClosed": "ปิดแล้ว"
   },
   "help": {
     "title": "ช่วยเหลือรายนี้",
@@ -413,5 +417,50 @@
     "seenAt": "เห็นเมื่อ {time}",
     "levelsTitle": "ระดับน้ำตามเวลา",
     "firstLevel": "ระดับน้ำตอนแจ้ง"
+  },
+  "nav": {
+    "label": "เมนูหลัก",
+    "overview": "ภาพรวม",
+    "reports": "รายงาน",
+    "layers": "ชั้นข้อมูล",
+    "emergency": "เบอร์ฉุกเฉิน"
+  },
+  "mode": {
+    "label": "มุมมองแผนที่",
+    "map": "แผนที่",
+    "satellite": "ดาวเทียม"
+  },
+  "overview": {
+    "title": "ภาพรวม",
+    "reportsTitle": "รายงานจากประชาชน",
+    "openReports": "เปิดรายการรายงาน",
+    "lifeN": "ด่วน {n}",
+    "openOf": "เปิดอยู่ จาก {n} รายงานใน 72 ชม.",
+    "perBucket": "จำนวนรายงานทุก {h} ชั่วโมง",
+    "hoursAgo": "{h} ชม.ที่แล้ว",
+    "now": "ตอนนี้",
+    "unavailable": "ยังโหลดรายงานไม่ได้",
+    "statusTitle": "สถานะรายงาน",
+    "last72": "72 ชม.ล่าสุด",
+    "waterTitle": "ระดับน้ำ (ThaiWater)",
+    "showOnMap": "แสดงบนแผนที่",
+    "stationsN": "{n} สถานี",
+    "notConnected": "ยังไม่มีข้อมูล",
+    "highest": "สูงสุด",
+    "waterSource": "สถานะตามเกณฑ์ของ สสน. (ThaiWater)",
+    "rainTitle": "ฝน 24 ชม.",
+    "rainMax": "มากสุดที่ {name}",
+    "rainWet": "ฝนตก {n} จาก {total} สถานี",
+    "quakeTitle": "แผ่นดินไหว",
+    "quakeMax": "ใหญ่สุด M{mag} {place}",
+    "quakeNone": "ไม่มี M4+",
+    "quakeScope": "30 วัน รัศมี 2,000 กม. (USGS)",
+    "chipOpen": "รายงานเปิด {n}",
+    "chipWater": "น้ำ: {status}"
+  },
+  "pwa": {
+    "install": "ติดตั้งแอป",
+    "installHint": "ติดตั้งบนหน้าจอหลัก เปิดได้เร็ว และดูเบอร์ฉุกเฉินได้แม้ไม่มีเน็ต",
+    "offline": "ออฟไลน์อยู่ ข้อมูลสดจะไม่อัปเดตจนกว่าจะกลับมาออนไลน์ เบอร์ฉุกเฉินยังใช้ได้"
   }
 }

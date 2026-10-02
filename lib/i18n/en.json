@@ -349,7 +349,11 @@
     "anonymous": "Anonymous",
     "reporter": "the reporter",
     "callReporter": "Call {name}",
-    "water": "Water"
+    "water": "Water",
+    "tabOpen": "Open",
+    "tabNew": "Waiting",
+    "tabOnTheWay": "On the way",
+    "tabClosed": "Closed"
   },
   "help": {
     "title": "Help with this",
@@ -413,5 +417,50 @@
     "seenAt": "seen {time}",
     "levelsTitle": "Water level over time",
     "firstLevel": "Water level when reported"
+  },
+  "nav": {
+    "label": "Main menu",
+    "overview": "Overview",
+    "reports": "Reports",
+    "layers": "Layers",
+    "emergency": "Emergency"
+  },
+  "mode": {
+    "label": "Map view",
+    "map": "Map",
+    "satellite": "Satellite"
+  },
+  "overview": {
+    "title": "Overview",
+    "reportsTitle": "Reports from the public",
+    "openReports": "Open the report list",
+    "lifeN": "{n} urgent",
+    "openOf": "open of {n} in 72 h",
+    "perBucket": "Reports per {h} hours",
+    "hoursAgo": "{h} h ago",
+    "now": "now",
+    "unavailable": "Reports could not be loaded",
+    "statusTitle": "Report status",
+    "last72": "last 72 h",
+    "waterTitle": "Water level (ThaiWater)",
+    "showOnMap": "Show on the map",
+    "stationsN": "{n} stations",
+    "notConnected": "No data yet",
+    "highest": "Highest",
+    "waterSource": "Status per HII's ThaiWater scale",
+    "rainTitle": "24-h rain",
+    "rainMax": "most at {name}",
+    "rainWet": "rain at {n} of {total} stations",
+    "quakeTitle": "Earthquakes",
+    "quakeMax": "largest M{mag} {place}",
+    "quakeNone": "no M4+",
+    "quakeScope": "30 days, 2,000 km (USGS)",
+    "chipOpen": "{n} open reports",
+    "chipWater": "Water: {status}"
+  },
+  "pwa": {
+    "install": "Install app",
+    "installHint": "Add to your home screen: opens fast, and emergency numbers work offline",
+    "offline": "You are offline. Live data will not update until you reconnect; emergency numbers still work."
   }
 }

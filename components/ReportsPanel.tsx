@@ -60,7 +60,7 @@ function ReportRow({ r, mine }: { r: PublicReport; mine: boolean }) {
   const locale = useMapStore((s) => s.locale);
   const h = hazardOf(r.hazard);
   const u = urgencyOf(r.urgency);
-  const closed = !statusOf(r.status)?.open;
+  const st = statusOf(r.status);
   return (
     <li>
       <button
@@ -69,38 +69,41 @@ function ReportRow({ r, mine }: { r: PublicReport; mine: boolean }) {
           useMapStore.getState().openReport(r.id);
           useMapStore.getState().flyTo({ center: [r.lng, r.lat], zoom: 14 });
         }}
-        className={`flex w-full items-start gap-3 rounded-md px-1.5 py-2.5 text-left hover:bg-surface-subtle ${closed ? 'opacity-70' : ''}`}
+        className={`tile lift block w-full px-3 py-2.5 text-left ${st?.open ? '' : 'opacity-70'}`}
       >
-        <span aria-hidden="true" className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-md" style={{ background: `color-mix(in srgb, ${u?.color} 14%, transparent)`, color: u?.color }}>
-          <Icon name={h?.icon ?? 'warning'} size={18} />
+        <span className="flex items-center gap-2">
+          <span aria-hidden="true" className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg" style={{ background: `color-mix(in srgb, ${u?.color} 14%, transparent)`, color: u?.color }}>
+            <Icon name={h?.icon ?? 'warning'} size={16} />
+          </span>
+          <span className="min-w-0 flex-1 truncate text-[15px] font-bold">{label(locale, h)}</span>
+          <span className="flex shrink-0 items-center gap-1.5 text-xs font-bold" style={{ color: st?.color }}>
+            <span aria-hidden="true" className="h-2 w-2 rounded-full" style={{ background: st?.color }} />
+            {label(locale, st)}
+          </span>
         </span>
-        <span className="min-w-0 flex-1">
-          <span className="flex flex-wrap items-center gap-x-2 gap-y-0.5">
-            <span className="text-sm font-semibold">{label(locale, h)}</span>
-            <span className="text-xs font-medium" style={{ color: u?.color }}>
-              {label(locale, u)}
-            </span>
-            {mine && <span className="chip border-accent text-accent">{t('reports.mine')}</span>}
+        <span className="mt-1 flex items-center gap-2 text-xs">
+          <span className="min-w-0 flex-1 truncate text-fg-muted">{[place(r) || t('reports.noArea'), r.placeNote].filter(Boolean).join(' · ')}</span>
+          <span className="shrink-0 font-bold" style={{ color: u?.color }}>
+            {label(locale, u)}
           </span>
-          <span className="block truncate text-xs text-fg-muted">{[place(r) || t('reports.noArea'), r.placeNote].filter(Boolean).join(' · ')}</span>
-          {r.needs.length > 0 && <span className="block truncate text-xs text-fg-subtle">{t('reports.needs')}: {r.needs.map((n) => label(locale, NEEDS.find((x) => x.id === n))).join(', ')}</span>}
-          <EvidenceLine r={r} />
-          {r.lastUpdate && (
-            <span className="block truncate text-xs text-fg-muted">
-              ↳ {[r.lastUpdate.action !== 'note' ? label(locale, UPDATE_ACTIONS.find((a) => a.id === r.lastUpdate!.action)) : null, r.lastUpdate.note].filter(Boolean).join(': ')}
-            </span>
-          )}
-          <span className="mt-1 flex flex-wrap items-center gap-2">
-            <StatusChip status={r.status} />
-            <span className="text-xs text-fg-subtle" title={formatDateTime(new Date(r.createdAt), locale)}>
-              {formatRelative(new Date(r.createdAt), locale)}
-            </span>
+        </span>
+        <EvidenceLine r={r} />
+        {r.lastUpdate && (
+          <span className="mt-0.5 block truncate text-xs text-fg-muted">
+            ↳ {[r.lastUpdate.action !== 'note' ? label(locale, UPDATE_ACTIONS.find((a) => a.id === r.lastUpdate!.action)) : null, r.lastUpdate.note].filter(Boolean).join(': ')}
           </span>
+        )}
+        <span className="mt-1.5 flex items-center gap-2 text-[11px] text-fg-subtle">
+          <span title={formatDateTime(new Date(r.createdAt), locale)}>{formatRelative(new Date(r.createdAt), locale)}</span>
+          <span className="tabular">#{r.id.slice(0, 6)}</span>
+          {mine && <span className="chip border-accent py-0 text-accent">{t('reports.mine')}</span>}
         </span>
       </button>
     </li>
   );
 }
+
+type Tab = 'open' | 'new' | 'on_the_way' | 'closed';
 
 function ReportList() {
   const t = useT();
@@ -108,53 +111,69 @@ function ReportList() {
   const q = useReports();
   const mine = useMyReports();
   const [hazard, setHazard] = useState<string | null>(null);
-  const [openOnly, setOpenOnly] = useState(true);
+  const [tab, setTab] = useState<Tab>('open');
   const [mineOnly, setMineOnly] = useState(false);
 
   const all = q.data?.reports ?? [];
-  const shown = all.filter((r) => (!hazard || r.hazard === hazard) && (!openOnly || statusOf(r.status)?.open) && (!mineOnly || mine.has(r.id)));
+  const inTab = (r: PublicReport) =>
+    tab === 'open' ? Boolean(statusOf(r.status)?.open) : tab === 'closed' ? !statusOf(r.status)?.open : r.status === tab;
+  const shown = all.filter((r) => inTab(r) && (!hazard || r.hazard === hazard) && (!mineOnly || mine.has(r.id)));
   const present = HAZARDS.filter((h) => all.some((r) => r.hazard === h.id));
   const lifeOpen = all.filter((r) => r.urgency === 'life' && statusOf(r.status)?.open).length;
+  const tabs: { id: Tab; key: string }[] = [
+    { id: 'open', key: 'reports.tabOpen' },
+    { id: 'new', key: 'reports.tabNew' },
+    { id: 'on_the_way', key: 'reports.tabOnTheWay' },
+    { id: 'closed', key: 'reports.tabClosed' },
+  ];
 
   return (
     <SidePanel id="reports-panel" title={t('reports.title')}>
-      <LiveLine updatedAt={q.dataUpdatedAt} failed={q.isError} />
-      <button type="button" onClick={() => useMapStore.getState().openPanel('report')} className="mt-2 flex min-h-12 w-full items-center justify-center gap-2 rounded-lg bg-danger px-4 font-semibold text-white">
-        <Icon name="megaphone" /> {t('actions.report')}
-      </button>
-
-      {lifeOpen > 0 && (
-        <p className="mt-3 rounded-md bg-danger/10 px-3 py-2 text-sm font-medium text-danger">{t('reports.lifeOpen', { n: lifeOpen })}</p>
-      )}
-
-      <div className="mt-3 flex flex-wrap gap-1.5" role="group" aria-label={t('reports.filter')}>
-        <button type="button" aria-pressed={openOnly} onClick={() => setOpenOnly(!openOnly)} className={`chip min-h-9 ${openOnly ? 'border-accent text-accent' : ''}`}>
-          {t('reports.openOnly')}
+      <div className="flex items-center justify-between gap-2">
+        <LiveLine updatedAt={q.dataUpdatedAt} failed={q.isError} />
+        <button type="button" onClick={() => useMapStore.getState().openPanel('report')} className="btn-dark min-h-10! shrink-0 px-3! text-sm">
+          <Icon name="plus" size={16} /> {t('actions.report')}
         </button>
-        {mine.size > 0 && (
-          <button type="button" aria-pressed={mineOnly} onClick={() => setMineOnly(!mineOnly)} className={`chip min-h-9 ${mineOnly ? 'border-accent text-accent' : ''}`}>
-            {t('reports.mineOnly')}
-          </button>
-        )}
-        {present.length > 1 &&
-          present.map((h) => (
-            <button key={h.id} type="button" aria-pressed={hazard === h.id} onClick={() => setHazard(hazard === h.id ? null : h.id)} className={`chip min-h-9 ${hazard === h.id ? 'border-accent text-accent' : ''}`}>
-              {label(locale, h)}
-            </button>
-          ))}
       </div>
+
+      {lifeOpen > 0 && <p className="mt-3 rounded-xl bg-danger/10 px-3 py-2 text-sm font-bold text-danger">{t('reports.lifeOpen', { n: lifeOpen })}</p>}
+
+      <div className="seg mt-3 flex w-full shadow-none!" role="group" aria-label={t('reports.filter')}>
+        {tabs.map((x) => (
+          <button key={x.id} type="button" aria-pressed={tab === x.id} onClick={() => setTab(x.id)} className="flex-1 px-1! text-[13px]!">
+            {t(x.key)}
+            <span className="tabular text-[11px] opacity-70">{all.filter((r) => (x.id === 'open' ? statusOf(r.status)?.open : x.id === 'closed' ? !statusOf(r.status)?.open : r.status === x.id)).length}</span>
+          </button>
+        ))}
+      </div>
+
+      {(present.length > 1 || mine.size > 0) && (
+        <div className="mt-2 flex flex-wrap gap-1.5" role="group" aria-label={t('reports.filter')}>
+          {mine.size > 0 && (
+            <button type="button" aria-pressed={mineOnly} onClick={() => setMineOnly(!mineOnly)} className={`chip min-h-9 ${mineOnly ? 'border-accent text-accent' : ''}`}>
+              {t('reports.mineOnly')}
+            </button>
+          )}
+          {present.length > 1 &&
+            present.map((h) => (
+              <button key={h.id} type="button" aria-pressed={hazard === h.id} onClick={() => setHazard(hazard === h.id ? null : h.id)} className={`chip min-h-9 ${hazard === h.id ? 'border-accent text-accent' : ''}`}>
+                {label(locale, h)}
+              </button>
+            ))}
+        </div>
+      )}
 
       {q.isPending ? (
         <div className="mt-3 space-y-2" aria-busy="true">
-          <div className="skeleton h-12" />
-          <div className="skeleton h-12" />
+          <div className="skeleton h-16" />
+          <div className="skeleton h-16" />
         </div>
       ) : q.isError && !q.data ? (
-        <p className="mt-3 rounded-md bg-surface-subtle px-3 py-2.5 text-sm">{t('reports.loadFailed')}</p>
+        <p className="mt-3 rounded-xl bg-surface-subtle px-3 py-2.5 text-sm">{t('reports.loadFailed')}</p>
       ) : shown.length === 0 ? (
-        <p className="mt-3 rounded-md bg-surface-subtle px-3 py-2.5 text-sm text-fg-muted">{all.length ? t('reports.noneFiltered') : t('reports.none')}</p>
+        <p className="mt-3 rounded-xl bg-surface-subtle px-3 py-2.5 text-sm text-fg-muted">{all.length ? t('reports.noneFiltered') : t('reports.none')}</p>
       ) : (
-        <ul className="mt-2 divide-y divide-line">
+        <ul className="stagger mt-3 space-y-2">
           {shown.map((r) => (
             <ReportRow key={r.id} r={r} mine={mine.has(r.id)} />
           ))}
