@@ -37,7 +37,7 @@ export function SidePanel({ id, title, onBack, onClose, children }: { id: string
       hidden={picking}
       className={
         isMobile
-          ? 'panel anim-slide-up fixed inset-x-2 top-[68px] bottom-[calc(84px+env(safe-area-inset-bottom))] z-40 flex flex-col overflow-hidden'
+          ? 'panel anim-slide-up fixed inset-x-2 top-[68px] bottom-[calc(max(0.5rem,env(safe-area-inset-bottom))+100px)] z-40 flex flex-col overflow-hidden'
           : 'panel anim-slide-right absolute top-[76px] right-3 bottom-[72px] z-20 flex w-[400px] max-w-[calc(100vw-24px)] flex-col overflow-hidden'
       }
     >
