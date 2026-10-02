@@ -145,9 +145,14 @@ body {
   font-variant-numeric: tabular-nums;
 }
 
-:focus-visible {
-  outline: 2px solid var(--focus);
-  outline-offset: 2px;
+/* In the base layer so a component can replace the ring with its own focus
+   style (e.g. the search box highlights its whole frame instead); unlayered
+   it would override Tailwind's outline-none and draw past the frame. */
+@layer base {
+  :focus-visible {
+    outline: 2px solid var(--focus);
+    outline-offset: 2px;
+  }
 }
 
 /* Headings and regions focused by script (tabindex=-1) move screen-reader
@@ -176,6 +181,21 @@ body {
   box-shadow: var(--float-shadow);
   -webkit-backdrop-filter: blur(18px) saturate(1.4);
   backdrop-filter: blur(18px) saturate(1.4);
+}
+
+/* Opaque variant for menus that open over busy content (search results). */
+.panel-solid {
+  background: var(--surface);
+}
+
+/* A text field's frame shows focus itself: gold border plus a soft halo,
+   drawn inside the rounded frame rather than as a ring around the input. */
+.field-frame {
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+.field-frame:focus-within {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 22%, transparent), var(--float-shadow);
 }
 
 /* Small inner cards on a glass panel (KPI tiles, rows). */

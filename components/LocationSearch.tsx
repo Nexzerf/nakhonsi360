@@ -107,7 +107,7 @@ export function LocationSearch() {
       <label htmlFor="location-search" className="sr-only">
         {t('search.label')}
       </label>
-      <div className="panel flex h-12 items-center overflow-hidden focus-within:border-accent focus-within:ring-2 focus-within:ring-[color-mix(in_srgb,var(--accent)_25%,transparent)]">
+      <div className="panel field-frame flex h-12 items-center overflow-hidden">
         <Link href="/about-data" prefetch={false} className="flex h-full shrink-0 items-center gap-2 pr-3 pl-2.5 hover:bg-surface-subtle" title={t('app.tagline')}>
           <LogoMark size={26} />
           <span className="font-display hidden text-[16px] font-semibold tracking-tight text-fg sm:inline">{t('app.name')}</span>
@@ -155,7 +155,7 @@ export function LocationSearch() {
       </div>
 
       {showList && (
-        <div id={listId} role="listbox" aria-label={t('search.label')} className="panel rise scroll-thin absolute inset-x-0 top-full z-40 mt-1.5 max-h-[60vh] overflow-y-auto py-1.5">
+        <div id={listId} role="listbox" aria-label={t('search.label')} className="panel panel-solid rise scroll-thin absolute inset-x-0 top-full z-40 mt-1.5 max-h-[60vh] overflow-y-auto py-1.5">
           {coord && (
             <div
               id={`${listId}-0`}
