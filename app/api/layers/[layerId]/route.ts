@@ -48,7 +48,7 @@ export async function GET(_req: NextRequest, ctx: { params: Promise<{ layerId: s
           },
         })),
       };
-      return NextResponse.json(fc, { headers: { 'Cache-Control': 'public, s-maxage=120, stale-while-revalidate=600' } });
+      return NextResponse.json(fc, { headers: { 'Cache-Control': 'public, max-age=60, s-maxage=120, stale-while-revalidate=600' } });
     }
     const rows = (await withTimeout(latestStationReadings(sql, layer.variable!), 6000)).filter((r) => layer.sourceIds.includes(r.source_id));
     const fc: GeoJSON.FeatureCollection = {
@@ -72,7 +72,7 @@ export async function GET(_req: NextRequest, ctx: { params: Promise<{ layerId: s
         },
       })),
     };
-    return NextResponse.json(fc, { headers: { 'Cache-Control': 'public, s-maxage=120, stale-while-revalidate=600' } });
+    return NextResponse.json(fc, { headers: { 'Cache-Control': 'public, max-age=60, s-maxage=120, stale-while-revalidate=600' } });
   } catch (err) {
     console.error('[api/layers]', layerId, err);
     return NextResponse.json({ error: 'layer failed' }, { status: 502 });

@@ -8,7 +8,6 @@
  *    metadata (camera, exact location) and keeps uploads small on weak
  *    mobile connections.
  */
-import exifr from 'exifr';
 import { LIMITS } from '@/lib/reports/schema';
 
 export const MAX_EDGE = 1600;
@@ -26,6 +25,8 @@ export interface PreparedPhoto {
 }
 
 async function readExif(file: File): Promise<{ takenAt: string | null; lat: number | null; lng: number | null }> {
+  // Loaded on first use: most visitors never attach a photo.
+  const { default: exifr } = await import('exifr');
   let takenAt: string | null = null;
   let lat: number | null = null;
   let lng: number | null = null;

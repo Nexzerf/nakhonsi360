@@ -28,6 +28,10 @@ import {
   hazardSource,
   highlightLayers,
   localizeBasemap,
+  MASK_LAYER,
+  MASK_SOURCE,
+  maskLayers,
+  maskSource,
   overlayLayers,
   overlaySourceId,
   reportLayers,
@@ -72,6 +76,30 @@ function styleReady(map: MlMap): boolean {
   return Boolean((map.style as unknown as { _loaded?: boolean } | undefined)?._loaded);
 }
 
+/** Zoom-out headroom beyond "whole province fits the screen". */
+const PROVINCE_ZOOM_SLACK = 0.5;
+
+/**
+ * Keep the camera on the province: no zooming out past the whole province
+ * (plus a little slack), and no panning further than what that widest view
+ * shows. Derived from the current viewport so the province always fits,
+ * whatever the screen shape. Recomputed on resize.
+ */
+function limitToProvince(map: MlMap, b: BBox) {
+  map.setMaxBounds(null);
+  const fit = map.cameraForBounds([[b[0], b[1]], [b[2], b[3]]], { padding: 16 });
+  if (fit?.zoom === undefined || !fit.center) return;
+  const minZoom = Math.max(0, fit.zoom - PROVINCE_ZOOM_SLACK);
+  const worldPx = 512 * 2 ** minZoom;
+  const c = maplibregl.MercatorCoordinate.fromLngLat(maplibregl.LngLat.convert(fit.center));
+  const hw = map.getCanvas().clientWidth / 2 / worldPx;
+  const hh = map.getCanvas().clientHeight / 2 / worldPx;
+  const sw = new maplibregl.MercatorCoordinate(c.x - hw, c.y + hh).toLngLat();
+  const ne = new maplibregl.MercatorCoordinate(c.x + hw, c.y - hh).toLngLat();
+  map.setMinZoom(minZoom);
+  map.setMaxBounds([sw, ne]);
+}
+
 const reducedMotion = () => typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
 async function fetchStyle(url: string, timeoutMs = 8000): Promise<StyleSpecification> {
@@ -90,6 +118,9 @@ export function EnvironmentalMap({ initialBounds }: { initialBounds: BBox | null
   const containerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<MlMap | null>(null);
   const attributionRef = useRef<{ key: string; ctrl: maplibregl.AttributionControl } | null>(null);
+  // The map starts on a blank placeholder style; overlays wait for the real
+  // basemap so their data is not downloaded twice (setStyle drops sources).
+  const basemapSetRef = useRef(false);
   const [styleVersion, setStyleVersion] = useState(0);
   const [mapFailed, setMapFailed] = useState(false);
   const [locateError, setLocateError] = useState(false);
@@ -140,6 +171,13 @@ export function EnvironmentalMap({ initialBounds }: { initialBounds: BBox | null
     mapRef.current = map;
     map.getCanvas().setAttribute('aria-label', t('app.mapLabel'));
     map.addControl(new maplibregl.ScaleControl({ unit: 'metric' }), 'bottom-left');
+
+    // With the province extent known, the map shows only the province.
+    if (initialBounds) {
+      const b = initialBounds;
+      limitToProvince(map, b);
+      map.on('resize', () => limitToProvince(map, b));
+    }
 
     map.on('style.load', () => setStyleVersion((v) => v + 1));
     map.on('zoomend', () => useMapStore.getState().setZoom(map.getZoom()));
@@ -239,11 +277,13 @@ export function EnvironmentalMap({ initialBounds }: { initialBounds: BBox | null
       try {
         const spec = typeof style === 'string' ? await fetchStyle(style) : style;
         if (cancelled) return;
+        basemapSetRef.current = true;
         map.setStyle(localizeBasemap(spec, locale), { diff: false });
         useMapStore.getState().setBasemapFailed(false);
       } catch (err) {
         if (cancelled) return;
         console.warn('[map] basemap unavailable, using plain background', err);
+        basemapSetRef.current = true;
         map.setStyle(FALLBACK_STYLE, { diff: false });
         useMapStore.getState().setBasemapFailed(true);
       }
@@ -256,10 +296,16 @@ export function EnvironmentalMap({ initialBounds }: { initialBounds: BBox | null
   // ---------------------------------------------------------------- overlays
   const syncOverlays = useCallback(() => {
     const map = mapRef.current;
-    if (!map || !styleReady(map)) return;
+    if (!map || !basemapSetRef.current || !styleReady(map)) return;
     const origin = window.location.origin;
 
     for (const l of map.getStyle().layers ?? []) if (l.id.startsWith(OVERLAY_PREFIX)) map.removeLayer(l.id);
+
+    // Cover the rest of the country; added before the overlays so it stays beneath them.
+    if (initialBounds) {
+      if (!map.getSource(MASK_SOURCE)) map.addSource(MASK_SOURCE, maskSource(origin));
+      if (!map.getLayer(MASK_LAYER)) for (const spec of maskLayers(basemap)) map.addLayer(spec);
+    }
 
     const active: LayerDef[] = Z_ORDER.map((id) => getLayer(id)!).filter(
       (l) => l && enabledLayers.includes(l.id) && layerHasData(l, sources),
@@ -325,7 +371,7 @@ export function EnvironmentalMap({ initialBounds }: { initialBounds: BBox | null
       map.getContainer().querySelector('.maplibregl-ctrl-attrib')?.classList.remove('maplibregl-compact-show');
       attributionRef.current = { key, ctrl };
     }
-  }, [enabledLayers, sources, selection, locale, draft, panel, view3d]);
+  }, [enabledLayers, sources, selection, locale, draft, panel, view3d, basemap, initialBounds]);
 
   useEffect(() => {
     syncOverlays();
@@ -350,7 +396,8 @@ export function EnvironmentalMap({ initialBounds }: { initialBounds: BBox | null
     if (!map) return;
     const apply = () => {
       const duration = reducedMotion() ? 0 : 800;
-      const firstOverlay = (map.getStyle().layers ?? []).find((l) => l.id.startsWith(OVERLAY_PREFIX))?.id;
+      // Beneath the province mask, so buildings outside the province stay covered.
+      const firstOverlay = map.getLayer(MASK_LAYER) ? MASK_LAYER : (map.getStyle().layers ?? []).find((l) => l.id.startsWith(OVERLAY_PREFIX))?.id;
       try {
         if (view3d) {
           if (!map.getSource(TERRAIN_SOURCE)) map.addSource(TERRAIN_SOURCE, terrainSource());

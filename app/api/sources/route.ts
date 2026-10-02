@@ -47,5 +47,5 @@ export async function GET() {
   });
 
   const body: SourcesResponse = { generatedAt: new Date().toISOString(), database, sources };
-  return NextResponse.json(body, { headers: { 'Cache-Control': 'public, s-maxage=60, stale-while-revalidate=300' } });
+  return NextResponse.json(body, { headers: { 'Cache-Control': 'public, max-age=30, s-maxage=60, stale-while-revalidate=300' } });
 }

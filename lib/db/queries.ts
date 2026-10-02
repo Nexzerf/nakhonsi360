@@ -250,6 +250,23 @@ export async function provinceExtent(sql: Sql): Promise<{ bbox: BBox; bufferedBb
   return bbox && bufferedBbox ? { bbox, bufferedBbox } : null;
 }
 
+/**
+ * Everything outside the official TH80 polygon, as GeoJSON, so the map can
+ * cover the rest of the country. Simplified to ~30 m: it is a visual mask,
+ * never used for analysis.
+ */
+export async function provinceMask(sql: Sql): Promise<{ type: 'Feature'; properties: Record<string, never>; geometry: unknown } | null> {
+  const [row] = await sql<{ geojson: string | null }[]>`
+    select st_asgeojson(
+             st_difference(
+               st_expand(st_envelope(a.geom), 30),
+               st_simplifypreservetopology(a.geom, 0.0003)
+             ), 5) as geojson
+      from admin_areas a where a.pcode = 'TH80' and a.level = 1`;
+  if (!row?.geojson) return null;
+  return { type: 'Feature', properties: {}, geometry: JSON.parse(row.geojson) };
+}
+
 // ---------------------------------------------------------------- live data
 
 /** Sources that have delivered data at least once (a successful or partial ingest run). */

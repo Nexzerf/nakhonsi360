@@ -407,3 +407,36 @@ export function buildingsLayer(dark: boolean): LayerSpecification {
     },
   };
 }
+
+// ---------------------------------------------------------------- province-only view
+
+export const MASK_SOURCE = 'n360mask-src';
+export const MASK_LAYER = 'n360mask-fill';
+export const MASK_EDGE_LAYER = 'n360mask-edge';
+
+export function maskSource(origin: string): SourceSpecification {
+  return { type: 'geojson', data: `${origin}/api/province/mask` };
+}
+
+/**
+ * Covers everything outside the province so only Nakhon Si Thammarat is
+ * shown, with a soft gold glow along the boundary. Drawn above the basemap
+ * (and 3D buildings) but below every data overlay.
+ */
+export function maskLayers(basemap: BasemapId): LayerSpecification[] {
+  const light = basemap === 'light' || basemap === 'terrain';
+  return [
+    {
+      id: MASK_LAYER,
+      type: 'fill',
+      source: MASK_SOURCE,
+      paint: { 'fill-color': light ? '#ebe8e1' : '#14110c', 'fill-opacity': light ? 0.94 : 0.9, 'fill-antialias': false },
+    },
+    {
+      id: MASK_EDGE_LAYER,
+      type: 'line',
+      source: MASK_SOURCE,
+      paint: { 'line-color': '#b8892e', 'line-width': ['interpolate', ['linear'], ['zoom'], 7, 5, 12, 10], 'line-blur': ['interpolate', ['linear'], ['zoom'], 7, 5, 12, 9], 'line-opacity': light ? 0.35 : 0.5 },
+    },
+  ];
+}

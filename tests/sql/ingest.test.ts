@@ -12,7 +12,7 @@ import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { thaiwaterRain24h, thaiwaterWaterlevel } from '@/lib/adapters/thaiwater';
 import { usgsEarthquakes } from '@/lib/adapters/usgs';
 import { runIngest } from '@/lib/ingest/runner';
-import { connectedSources, earthquakesNear, nearestObservations, recentEarthquakes } from '@/lib/db/queries';
+import { connectedSources, earthquakesNear, nearestObservations, provinceMask, recentEarthquakes } from '@/lib/db/queries';
 import type { IngestAdapter } from '@/lib/ingest/types';
 
 const { TEST_DATABASE_URL, CODAB_FILE } = process.env;
@@ -80,6 +80,25 @@ suite('ingest pipeline (real samples)', () => {
     const r = await runIngest(sql, keyed, { env: {} });
     expect(r.status).toBe('error');
     expect(r.error).toContain('FIRMS_MAP_KEY');
+  });
+
+  it('masks everything outside the province, and nothing inside it', async () => {
+    const mask = await provinceMask(sql);
+    expect(mask).not.toBeNull();
+    const g = JSON.stringify(mask!.geometry);
+    const [r] = await sql<{ city: boolean; bangkok: boolean; sea: boolean; holes: number }[]>`
+      with m as (select st_setsrid(st_geomfromgeojson(${g}), 4326) as g)
+      select st_covers(g, st_setsrid(st_makepoint(99.9631, 8.4304), 4326)) as city,  -- Nakhon Si Thammarat city
+             st_covers(g, st_setsrid(st_makepoint(100.5018, 13.7563), 4326)) as bangkok,
+             st_covers(g, st_setsrid(st_makepoint(100.6, 8.4), 4326)) as sea,  -- Gulf of Thailand, east of the coast
+             (select sum(st_numinteriorrings(d.geom))::int from st_dump(g) d) as holes
+        from m`;
+    expect(r).toMatchObject({ city: false, bangkok: true, sea: true });
+    expect(r!.holes).toBeGreaterThan(0);
+    const [inside] = await sql<{ n: number }[]>`
+      select count(*)::int as n from admin_areas a
+       where a.level = 3 and st_covers(st_setsrid(st_geomfromgeojson(${g}), 4326), st_pointonsurface(a.geom))`;
+    expect(inside!.n).toBe(0);
   });
 
   it('returns the nearest station reading with a geodesic distance', async () => {
