@@ -10,4 +10,6 @@ Some official file hosts can't be reached from every network. The main one is `o
 2. On GitHub, open this folder (`data/vendor/dopa/`), choose **Add file → Upload files**, upload the saved `.json`, and commit.
 3. Run the **Import static data** workflow again.
 
+The copy in `dopa/` was supplied by the project owner on 2026-10-02 (SHA-256 `e1eb6bf6…50e8a`, matching the verified file).
+
 Source: Department of Provincial Administration (DOPA), published on GD Catalog (`gdpublish-gis-01`), Open Data Common licence.
