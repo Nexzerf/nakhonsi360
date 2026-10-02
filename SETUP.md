@@ -39,7 +39,7 @@ DATABASE_URL=… npm run import:all # migrate + import boundaries → villages �
 
 Each importer prints the source record count, the imported count and every rejection reason (missing coordinates, swapped lat/lng, sentinel values, outside the province, duplicate ids). These counts are stored in `dataset_imports` and shown in each layer's ⓘ panel.
 
-**DOPA villages when `opendata_tst.dopa.go.th` is unreachable** (its host name contains an underscore, which many allowlists reject, and it may block non-Thai IPs): open the file URL from `data/samples/dopa.villages/excerpt.json` in a browser in Thailand, save it, and import it directly:
+**DOPA villages when `opendata_tst.dopa.go.th` is unreachable** (its host name contains an underscore, which many allowlists reject, and it blocks many non-Thai IPs, GitHub's runners included): open the file URL from `data/samples/dopa.villages/excerpt.json` in a browser in Thailand and save it. Then either upload it to `data/vendor/dopa/` and re-run the **Import static data** workflow (it is used only if its SHA-256 matches the verified official file; see `data/vendor/README.md`), or import it directly:
 
 ```bash
 DATABASE_URL=… npm run import:villages -- --file <saved>.json --source-date 2023-09-05 \
