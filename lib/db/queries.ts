@@ -192,48 +192,51 @@ interface TileLayerSql {
   from: string;
   where: string;
   props: string;
-  polygon: boolean;
 }
 
 /** Whitelisted tile queries. $1..$3 = z, x, y. */
 const TILE_LAYERS: Record<string, TileLayerSql> = {
-  'admin-province': { sourceLayer: 'admin_province', from: 'admin_areas', where: 'level = 1', props: 'pcode, name_th, name_en', polygon: true },
-  'admin-district': { sourceLayer: 'admin_district', from: 'admin_areas', where: 'level = 2', props: 'pcode, name_th, name_en', polygon: true },
-  'admin-subdistrict': { sourceLayer: 'admin_subdistrict', from: 'admin_areas', where: 'level = 3', props: 'pcode, name_th, name_en', polygon: true },
-  villages: { sourceLayer: 'villages', from: 'villages', where: 'true', props: 'id, name_th, name_en, moo', polygon: false },
-  'water-rivers': { sourceLayer: 'rivers', from: 'osm_features', where: "kind = 'river'", props: 'osm_id, kind, subkind, name_th, name_en', polygon: false },
-  'water-streams': { sourceLayer: 'streams', from: 'osm_features', where: "kind = 'stream'", props: 'osm_id, kind, subkind, name_th, name_en', polygon: false },
-  'water-canals': { sourceLayer: 'canals', from: 'osm_features', where: "kind in ('canal', 'drain')", props: 'osm_id, kind, subkind, name_th, name_en', polygon: false },
-  'water-reservoirs': { sourceLayer: 'reservoirs', from: 'osm_features', where: "kind = 'reservoir'", props: 'osm_id, kind, subkind, name_th, name_en', polygon: true },
-  'water-bodies': { sourceLayer: 'water_bodies', from: 'osm_features', where: "kind = 'water'", props: 'osm_id, kind, subkind, name_th, name_en', polygon: true },
-  roads: { sourceLayer: 'roads', from: 'osm_features', where: "(kind = 'road_major' or ($1 >= 14 and kind = 'road_minor'))", props: 'osm_id, kind, subkind, name_th, name_en', polygon: false },
-  coastline: { sourceLayer: 'coastline', from: 'osm_features', where: "kind = 'coastline'", props: 'osm_id', polygon: false },
+  'admin-province': { sourceLayer: 'admin_province', from: 'admin_areas', where: 'level = 1', props: 'pcode, name_th, name_en' },
+  'admin-district': { sourceLayer: 'admin_district', from: 'admin_areas', where: 'level = 2', props: 'pcode, name_th, name_en' },
+  'admin-subdistrict': { sourceLayer: 'admin_subdistrict', from: 'admin_areas', where: 'level = 3', props: 'pcode, name_th, name_en' },
+  villages: { sourceLayer: 'villages', from: 'villages', where: 'true', props: 'id, name_th, name_en, moo' },
+  'water-rivers': { sourceLayer: 'rivers', from: 'osm_features', where: "kind = 'river'", props: 'osm_id, kind, subkind, name_th, name_en' },
+  'water-streams': { sourceLayer: 'streams', from: 'osm_features', where: "kind = 'stream'", props: 'osm_id, kind, subkind, name_th, name_en' },
+  'water-canals': { sourceLayer: 'canals', from: 'osm_features', where: "kind in ('canal', 'drain')", props: 'osm_id, kind, subkind, name_th, name_en' },
+  'water-reservoirs': { sourceLayer: 'reservoirs', from: 'osm_features', where: "kind = 'reservoir'", props: 'osm_id, kind, subkind, name_th, name_en' },
+  'water-bodies': { sourceLayer: 'water_bodies', from: 'osm_features', where: "kind = 'water'", props: 'osm_id, kind, subkind, name_th, name_en' },
+  roads: { sourceLayer: 'roads', from: 'osm_features', where: "(kind = 'road_major' or ($1 >= 14 and kind = 'road_minor'))", props: 'osm_id, kind, subkind, name_th, name_en' },
+  coastline: { sourceLayer: 'coastline', from: 'osm_features', where: "kind = 'coastline'", props: 'osm_id' },
 };
 
 export function isTileLayer(id: string): boolean {
   return Object.prototype.hasOwnProperty.call(TILE_LAYERS, id);
 }
 
+/** Precomputed Web Mercator geometry for a zoom (see migration 20261003000001_tile_geometries). */
+function tileColumn(from: string, z: number): string {
+  if (from === 'villages') return 'tile_hi';
+  return z <= 8 ? 'tile_lo' : z <= 11 ? 'tile_mid' : 'tile_hi';
+}
+
 export async function renderTile(sql: Sql, layerId: string, z: number, x: number, y: number): Promise<Buffer> {
   const def = TILE_LAYERS[layerId];
   if (!def) throw new Error(`unknown tile layer ${layerId}`);
-  // Simplify polygons to ~half a tile pixel before clipping; lines/points untouched.
-  const geomExpr = def.polygon ? 'st_simplifypreservetopology(t.geom, $4)' : 't.geom';
-  const tolerance = 360 / 2 ** z / 4096 / 2;
+  // Geometry is already reprojected and simplified for this zoom band, so a
+  // tile only clips: the 4326 index finds the rows, the column is drawn as is.
   const query = `
     with bounds as (
       select st_tileenvelope($1, $2, $3) as env,
              st_transform(st_tileenvelope($1, $2, $3, margin => 0.015625), 4326) as env4326
     ),
     mvtgeom as (
-      select st_asmvtgeom(st_transform(${geomExpr}, 3857), bounds.env, 4096, 64, true) as geom, ${def.props}
+      select st_asmvtgeom(t.${tileColumn(def.from, z)}, bounds.env, 4096, 64, true) as geom, ${def.props}
         from ${def.from} t, bounds
        where t.geom && bounds.env4326 and ${def.where}
     )
     select st_asmvt(mvtgeom.*, '${def.sourceLayer}', 4096, 'geom') as tile
       from mvtgeom where geom is not null`;
-  const params = def.polygon ? [z, x, y, tolerance] : [z, x, y];
-  const [row] = await sql.unsafe<{ tile: Buffer | null }[]>(query, params);
+  const [row] = await sql.unsafe<{ tile: Buffer | null }[]>(query, [z, x, y]);
   return row?.tile ?? Buffer.alloc(0);
 }
 

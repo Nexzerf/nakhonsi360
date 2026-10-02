@@ -12,7 +12,7 @@ import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { thaiwaterRain24h, thaiwaterWaterlevel } from '@/lib/adapters/thaiwater';
 import { usgsEarthquakes } from '@/lib/adapters/usgs';
 import { runIngest } from '@/lib/ingest/runner';
-import { connectedSources, earthquakesNear, nearestObservations, provinceMask, recentEarthquakes } from '@/lib/db/queries';
+import { connectedSources, earthquakesNear, nearestObservations, provinceMask, recentEarthquakes, renderTile } from '@/lib/db/queries';
 import type { IngestAdapter } from '@/lib/ingest/types';
 
 const { TEST_DATABASE_URL, CODAB_FILE } = process.env;
@@ -99,6 +99,23 @@ suite('ingest pipeline (real samples)', () => {
       select count(*)::int as n from admin_areas a
        where a.level = 3 and st_covers(st_setsrid(st_geomfromgeojson(${g}), 4326), st_pointonsurface(a.geom))`;
     expect(inside!.n).toBe(0);
+  });
+
+  it('draws boundary tiles from the precomputed geometry at every zoom band', async () => {
+    // Tile containing Nakhon Si Thammarat city at zoom z.
+    const tile = (z: number) => {
+      const lng = 99.9631;
+      const lat = (8.4304 * Math.PI) / 180;
+      const x = Math.floor(((lng + 180) / 360) * 2 ** z);
+      const y = Math.floor(((1 - Math.log(Math.tan(lat) + 1 / Math.cos(lat)) / Math.PI) / 2) * 2 ** z);
+      return [z, x, y] as const;
+    };
+    for (const z of [7, 10, 13]) {
+      expect((await renderTile(sql, 'admin-district', ...tile(z))).length).toBeGreaterThan(0);
+      expect((await renderTile(sql, 'admin-subdistrict', ...tile(z))).length).toBeGreaterThan(0);
+    }
+    const [{ n } = { n: -1 }] = await sql<{ n: number }[]>`select count(*)::int as n from admin_areas where tile_lo is null or tile_mid is null or tile_hi is null`;
+    expect(n).toBe(0);
   });
 
   it('returns the nearest station reading with a geodesic distance', async () => {
