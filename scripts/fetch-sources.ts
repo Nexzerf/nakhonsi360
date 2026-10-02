@@ -14,7 +14,7 @@
  */
 import { createHash } from 'node:crypto';
 import { createWriteStream } from 'node:fs';
-import { mkdir, readFile, writeFile } from 'node:fs/promises';
+import { copyFile, mkdir, readFile, readdir, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { Readable } from 'node:stream';
 import { pipeline } from 'node:stream/promises';
@@ -23,6 +23,8 @@ import { main, parseArgs } from './_common';
 const UA = 'Nakhonsi360/0.1 (environmental map of Nakhon Si Thammarat; https://github.com/nexzerf/nakhonsi360)';
 const STATIC = path.join(process.cwd(), 'data', 'static');
 const SAMPLES = path.join(process.cwd(), 'data', 'samples');
+/** Unmodified copies of official files whose hosts some networks cannot reach (see data/vendor/README.md). */
+const VENDOR = path.join(process.cwd(), 'data', 'vendor');
 
 interface CkanResource {
   id: string;
@@ -67,7 +69,11 @@ async function ckanPackage(base: string, id: string): Promise<CkanPackage> {
 }
 
 async function download(url: string, dest: string): Promise<string> {
-  const r = await fetch(url, { headers: { 'User-Agent': UA } });
+  const r = await fetch(url, { headers: { 'User-Agent': UA } }).catch((err: unknown) => {
+    // undici only says "fetch failed"; the cause names the real problem (DNS, TLS, reset…).
+    const cause = err instanceof Error && err.cause instanceof Error ? `${(err.cause as NodeJS.ErrnoException).code ?? ''} ${err.cause.message}`.trim() : '';
+    throw new Error(`GET ${url} → ${err instanceof Error ? err.message : String(err)}${cause ? ` (${cause})` : ''}`);
+  });
   if (!r.ok || !r.body) throw new Error(`GET ${url} → HTTP ${r.status}`);
   const hash = createHash('sha256');
   const src = Readable.fromWeb(r.body as never);
@@ -133,7 +139,20 @@ async function fetchDopa(): Promise<ManifestEntry> {
   const res = matches.sort((a, b) => prefer(a) - prefer(b))[0]!;
   const file = path.join(STATIC, `dopa-villages-nakhon-si-thammarat${extFor(res.format, res.url)}`);
   console.log(`DOPA: ${res.name} [${res.format}] → ${file}`);
-  const sha256 = await download(res.url, file);
+  let sha256: string;
+  let copyNote = '';
+  try {
+    sha256 = await download(res.url, file);
+  } catch (err) {
+    // opendata_tst.dopa.go.th is unreachable from many networks (GitHub's runners
+    // included). Use a supplied copy only if it is byte-identical to the file
+    // already verified from the official URL.
+    const copy = await vendoredDopa(err);
+    await copyFile(copy.path, file);
+    sha256 = copy.sha256;
+    copyNote = ` — official file supplied as ${path.relative(process.cwd(), copy.path)} (host unreachable)`;
+    console.log(`  download failed (${err instanceof Error ? err.message : err}); using ${path.relative(process.cwd(), copy.path)}, sha256 matches the verified official file`);
+  }
 
   // Raw excerpt (first 20 records, unmodified) for writing/checking the adapter.
   const text = await readFile(file, 'utf8');
@@ -149,11 +168,30 @@ async function fetchDopa(): Promise<ManifestEntry> {
     sourceId: 'dopa.villages',
     file,
     url: res.url,
-    sourceVersion: res.last_modified ?? res.created ?? pkg.metadata_modified ?? null,
+    sourceVersion: copyNote ? `${res.last_modified ?? res.created ?? pkg.metadata_modified ?? 'not stated'}${copyNote}` : (res.last_modified ?? res.created ?? pkg.metadata_modified ?? null),
     sourceDate: null,
     sha256,
     fetchedAt: new Date().toISOString(),
   };
+}
+
+/** A copy of the DOPA file in data/vendor/dopa/ whose SHA-256 equals the verified official file's. */
+async function vendoredDopa(downloadError: unknown): Promise<{ path: string; sha256: string }> {
+  const excerpt = JSON.parse(await readFile(path.join(SAMPLES, 'dopa.villages', 'excerpt.json'), 'utf8')) as { _sample?: { fullFileSha256?: string } };
+  const expected = excerpt._sample?.fullFileSha256;
+  const dir = path.join(VENDOR, 'dopa');
+  const files = (await readdir(dir).catch(() => [] as string[])).filter((f) => /\.json$/i.test(f));
+  const why = downloadError instanceof Error ? downloadError.message : String(downloadError);
+  if (!expected) throw new Error(`${why}; no verified SHA-256 in data/samples/dopa.villages/excerpt.json to check a supplied copy against`);
+  if (files.length === 0) throw new Error(`${why}; no supplied copy in data/vendor/dopa/ either (see data/vendor/README.md)`);
+  const seen: string[] = [];
+  for (const f of files) {
+    const p = path.join(dir, f);
+    const sha256 = createHash('sha256').update(await readFile(p)).digest('hex');
+    if (sha256 === expected) return { path: p, sha256 };
+    seen.push(`${f} sha256=${sha256.slice(0, 12)}…`);
+  }
+  throw new Error(`${why}; data/vendor/dopa/ has no copy matching the verified official file (expected sha256=${expected.slice(0, 12)}…, found ${seen.join(', ')})`);
 }
 
 async function fetchOsm(): Promise<ManifestEntry> {
