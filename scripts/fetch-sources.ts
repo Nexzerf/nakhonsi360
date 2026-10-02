@@ -155,15 +155,21 @@ async function fetchDopa(): Promise<ManifestEntry> {
   }
 
   // Raw excerpt (first 20 records, unmodified) for writing/checking the adapter.
-  const text = await readFile(file, 'utf8');
-  let excerpt: string;
-  if (/\.csv$/i.test(file)) excerpt = text.split(/\r?\n/).slice(0, 21).join('\n');
-  else {
-    const json = JSON.parse(text.replace(/^﻿/, '')) as unknown;
-    const list = Array.isArray(json) ? json : ((json as Record<string, unknown>).features ?? (json as Record<string, unknown>).data ?? (json as Record<string, unknown>).records);
-    excerpt = JSON.stringify(Array.isArray(list) ? list.slice(0, 20) : json, null, 2).slice(0, 200_000);
+  // Skipped for a supplied copy: the committed excerpt already describes that
+  // exact file, and its _sample.fullFileSha256 is what the copy was checked against.
+  if (!copyNote) {
+    const bytes = await readFile(file);
+    const text = bytes.toString('utf8');
+    let excerpt: string;
+    if (/\.csv$/i.test(file)) excerpt = text.split(/\r?\n/).slice(0, 21).join('\n');
+    else {
+      const json = JSON.parse(text.replace(/^\uFEFF/, '')) as unknown;
+      const list = Array.isArray(json) ? json : ((json as Record<string, unknown>).features ?? (json as Record<string, unknown>).data ?? (json as Record<string, unknown>).records);
+      const _sample = { url: res.url, catalog: `https://gdcatalog.go.th/dataset/gdpublish-gis-01 (resource ${res.id})`, obtained: new Date().toISOString(), fullFileSha256: sha256, fullFileBytes: bytes.length };
+      excerpt = JSON.stringify({ _sample, records: Array.isArray(list) ? list.slice(0, 20) : json }, null, 2).slice(0, 200_000);
+    }
+    await saveSample('dopa.villages', `excerpt${/\.csv$/i.test(file) ? '.csv' : '.json'}`, excerpt);
   }
-  await saveSample('dopa.villages', `excerpt${/\.csv$/i.test(file) ? '.csv' : '.json'}`, excerpt);
   return {
     sourceId: 'dopa.villages',
     file,
