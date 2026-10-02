@@ -62,8 +62,11 @@ describe('satellite view', () => {
     } as unknown as StyleSpecification;
     const s = satelliteStyle(labels);
     const raster = Object.values(s.sources).find((x) => x.type === 'raster') as { tiles: string[]; maxzoom: number };
-    expect(raster.tiles[0]).toContain('World_Imagery');
-    expect(raster.maxzoom).toBeGreaterThanOrEqual(18);
+    expect(raster.tiles[0]).toBe('esri-imagery://{z}/{x}/{y}');
+    expect(raster.maxzoom).toBe(19);
+    expect((raster as { tileSize?: number }).tileSize).toBe(256);
+    const sharp = Object.values(satelliteStyle(labels, { hiDpi: true }).sources).find((x) => x.type === 'raster') as { tileSize: number };
+    expect(sharp.tileSize).toBe(128);
     expect(s.layers.map((l) => l.id)).toEqual(['background', 'esri-imagery', 'label_town']);
     expect(s.glyphs).toBe(labels.glyphs);
     expect(satelliteStyle().layers.map((l) => l.id)).toEqual(['background', 'esri-imagery']);

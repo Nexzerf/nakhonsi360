@@ -47,6 +47,7 @@ import {
   vectorSource,
 } from '@/lib/map/style';
 import { THAILAND_ENVELOPE } from '@/lib/geo/bbox';
+import { ESRI_PROTOCOL, loadEsriTile } from '@/lib/map/esriImagery';
 import type { BBox } from '@/lib/types';
 import { Icon } from '@/components/Icon';
 
@@ -75,6 +76,7 @@ const CCTV_REFRESH_MS = 60_000;
 const REPORT_REFRESH_MS = 15_000;
 
 let protocolRegistered = false;
+let esriProtocolRegistered = false;
 
 /**
  * The style itself is parsed and ready for layers. Unlike isStyleLoaded(),
@@ -153,6 +155,10 @@ export function EnvironmentalMap({ initialBounds }: { initialBounds: BBox | null
   // ---------------------------------------------------------------- init
   useEffect(() => {
     if (!containerRef.current || mapRef.current) return;
+    if (!esriProtocolRegistered) {
+      maplibregl.addProtocol(ESRI_PROTOCOL, loadEsriTile);
+      esriProtocolRegistered = true;
+    }
     if (PMTILES_BASE && !protocolRegistered) {
       maplibregl.addProtocol('pmtiles', new Protocol().tile);
       protocolRegistered = true;
@@ -295,7 +301,7 @@ export function EnvironmentalMap({ initialBounds }: { initialBounds: BBox | null
         // Satellite: imagery plus Thai place/road names borrowed from the vector basemap (imagery alone if that fails).
         const spec =
           basemap === 'satellite'
-            ? satelliteStyle(await fetchStyle(BASEMAP_STYLE_URL.light!).catch(() => undefined))
+            ? satelliteStyle(await fetchStyle(BASEMAP_STYLE_URL.light!).catch(() => undefined), { hiDpi: window.devicePixelRatio >= 1.5 })
             : typeof style === 'string'
               ? await fetchStyle(style)
               : style;

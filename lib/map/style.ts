@@ -6,6 +6,7 @@
 import type { LayerSpecification, SourceSpecification, StyleSpecification } from 'maplibre-gl';
 import type { BasemapId, LayerDef } from '@/lib/registry/layers';
 import { COLORS } from '@/lib/registry/layers';
+import { ESRI_MAX_ZOOM, ESRI_PROTOCOL } from '@/lib/map/esriImagery';
 import type { Locale } from '@/lib/freshness/format';
 
 export const OVERLAY_PREFIX = 'n360-';
@@ -18,11 +19,11 @@ export const BASEMAP_STYLE_URL: Partial<Record<BasemapId, string>> = {
   dark: 'https://tiles.openfreemap.org/styles/dark',
 };
 
-function rasterStyle(id: string, tiles: string[], attribution: string, maxzoom: number): StyleSpecification {
+function rasterStyle(id: string, tiles: string[], attribution: string, maxzoom: number, tileSize = 256): StyleSpecification {
   return {
     version: 8,
     glyphs: GLYPHS,
-    sources: { [id]: { type: 'raster', tiles, tileSize: 256, maxzoom, attribution } },
+    sources: { [id]: { type: 'raster', tiles, tileSize, maxzoom, attribution } },
     layers: [
       { id: 'background', type: 'background', paint: { 'background-color': '#dfe3e8' } },
       { id, type: 'raster', source: id },
@@ -30,20 +31,25 @@ function rasterStyle(id: string, tiles: string[], attribution: string, maxzoom: 
   };
 }
 
-const ESRI_IMAGERY_TILES = ['https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}'];
+// Served through the esri-imagery protocol (lib/map/esriImagery.ts): z19 where it exists, else z18 enlarged.
+const ESRI_IMAGERY_TILES = [`${ESRI_PROTOCOL}://{z}/{x}/{y}`];
 const ESRI_IMAGERY_ATTRIBUTION =
-  'ภาพดาวเทียม © <a href="https://www.arcgis.com/home/item.html?id=10df2279f9684e4a9f6a7f08febac2a9" target="_blank" rel="noopener">Esri World Imagery</a> (Esri, Maxar, Earthstar Geographics, GIS User Community)';
+  'ภาพดาวเทียม © <a href="https://www.arcgis.com/home/item.html?id=10df2279f9684e4a9f6a7f08febac2a9" target="_blank" rel="noopener">Esri World Imagery</a> (Esri, Vantor, Earthstar Geographics, GIS User Community)';
 
 /** Basemap label layers that are text only (no icons), drawn over the imagery. */
 const SATELLITE_LABEL_LAYER = /^(label_|highway-name|water_name|waterway_line_label)/;
 
 /**
- * Satellite view: Esri World Imagery (sub-metre in towns, up to z18), with
- * place, road and water names from the vector basemap on top when it is
- * available (white text, dark halo, so names stay readable on imagery).
+ * Satellite view: Esri World Imagery at its deepest real level (~0.3 m in
+ * towns, ~0.6 m elsewhere), with place, road and water names from the
+ * vector basemap on top when available (white text, dark halo).
+ *
+ * hiDpi: on sharp (Retina) screens tiles are declared 128 px, so each
+ * 256-px image fills 128 CSS px — one image pixel per screen pixel at 2×
+ * instead of a stretched 1× picture. Costs about 4× the tiles.
  */
-export function satelliteStyle(labels?: StyleSpecification): StyleSpecification {
-  const style = rasterStyle('esri-imagery', ESRI_IMAGERY_TILES, ESRI_IMAGERY_ATTRIBUTION, 18);
+export function satelliteStyle(labels?: StyleSpecification, opts: { hiDpi?: boolean } = {}): StyleSpecification {
+  const style = rasterStyle('esri-imagery', ESRI_IMAGERY_TILES, ESRI_IMAGERY_ATTRIBUTION, ESRI_MAX_ZOOM, opts.hiDpi ? 128 : 256);
   if (!labels) return style;
   const textLayers = labels.layers.filter(
     (l): l is Extract<LayerSpecification, { type: 'symbol' }> => l.type === 'symbol' && SATELLITE_LABEL_LAYER.test(l.id) && !(l.layout && 'icon-image' in l.layout),
