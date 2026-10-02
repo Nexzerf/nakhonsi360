@@ -14,6 +14,8 @@ import {
   OVERLAY_PREFIX,
   SELECTION_SOURCE,
   basemapStyle,
+  BASEMAP_STYLE_URL,
+  satelliteStyle,
   cctvLayers,
   cctvSource,
   BUILDINGS_LAYER,
@@ -290,7 +292,13 @@ export function EnvironmentalMap({ initialBounds }: { initialBounds: BBox | null
     const style = basemapStyle(basemap);
     (async () => {
       try {
-        const spec = typeof style === 'string' ? await fetchStyle(style) : style;
+        // Satellite: imagery plus Thai place/road names borrowed from the vector basemap (imagery alone if that fails).
+        const spec =
+          basemap === 'satellite'
+            ? satelliteStyle(await fetchStyle(BASEMAP_STYLE_URL.light!).catch(() => undefined))
+            : typeof style === 'string'
+              ? await fetchStyle(style)
+              : style;
         if (cancelled) return;
         basemapSetRef.current = true;
         map.setStyle(localizeBasemap(spec, locale), { diff: false });
