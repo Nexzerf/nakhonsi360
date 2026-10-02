@@ -30,15 +30,40 @@ function rasterStyle(id: string, tiles: string[], attribution: string, maxzoom: 
   };
 }
 
+const ESRI_IMAGERY_TILES = ['https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}'];
+const ESRI_IMAGERY_ATTRIBUTION =
+  'ภาพดาวเทียม © <a href="https://www.arcgis.com/home/item.html?id=10df2279f9684e4a9f6a7f08febac2a9" target="_blank" rel="noopener">Esri World Imagery</a> (Esri, Maxar, Earthstar Geographics, GIS User Community)';
+
+/** Basemap label layers that are text only (no icons), drawn over the imagery. */
+const SATELLITE_LABEL_LAYER = /^(label_|highway-name|water_name|waterway_line_label)/;
+
+/**
+ * Satellite view: Esri World Imagery (sub-metre in towns, up to z18), with
+ * place, road and water names from the vector basemap on top when it is
+ * available (white text, dark halo, so names stay readable on imagery).
+ */
+export function satelliteStyle(labels?: StyleSpecification): StyleSpecification {
+  const style = rasterStyle('esri-imagery', ESRI_IMAGERY_TILES, ESRI_IMAGERY_ATTRIBUTION, 18);
+  if (!labels) return style;
+  const textLayers = labels.layers.filter(
+    (l): l is Extract<LayerSpecification, { type: 'symbol' }> => l.type === 'symbol' && SATELLITE_LABEL_LAYER.test(l.id) && !(l.layout && 'icon-image' in l.layout),
+  );
+  for (const l of textLayers) if (labels.sources[l.source] && !style.sources[l.source]) style.sources[l.source] = labels.sources[l.source]!;
+  return {
+    ...style,
+    glyphs: labels.glyphs ?? style.glyphs,
+    layers: [
+      ...style.layers,
+      ...textLayers.map((l) => ({
+        ...l,
+        paint: { ...l.paint, 'text-color': '#ffffff', 'text-halo-color': 'rgba(15,23,42,0.85)', 'text-halo-width': 1.6, 'text-halo-blur': 0.4 },
+      })),
+    ],
+  };
+}
+
 export function basemapStyle(id: BasemapId): StyleSpecification | string {
-  if (id === 'satellite') {
-    return rasterStyle(
-      'eox-s2cloudless',
-      ['https://tiles.maps.eox.at/wmts/1.0.0/s2cloudless_3857/default/g/{z}/{y}/{x}.jpg'],
-      '<a href="https://s2maps.eu" target="_blank" rel="noopener">Sentinel-2 cloudless – s2maps.eu</a> by EOX IT Services GmbH (Contains modified Copernicus Sentinel data 2016 &amp; 2017)',
-      15,
-    );
-  }
+  if (id === 'satellite') return satelliteStyle();
   if (id === 'terrain') {
     return rasterStyle(
       'opentopomap',
@@ -59,17 +84,51 @@ export const FALLBACK_STYLE: StyleSpecification = {
   layers: [{ id: 'background', type: 'background', paint: { 'background-color': 'rgba(0,0,0,0)' } }],
 };
 
-/** Show Thai (or English) names on the OpenMapTiles basemap labels. */
+/** Zoom at which labels reach their largest size. */
+const LABEL_GROW_TO_ZOOM = 17;
+
+/**
+ * Basemap label size that keeps growing as you zoom in. Stock styles show
+ * big city names at overview zooms and only 9-12 px village, road and canal
+ * names further in, so text seemed to shrink when zooming in. Sizes are
+ * scaled up a little and continue to grow until LABEL_GROW_TO_ZOOM.
+ */
+export function readableTextSize(size: unknown): unknown {
+  const up = (v: unknown) => (typeof v === 'number' ? Math.round(Math.max(v * 1.15, 11) * 10) / 10 : v);
+  const grow = (stops: [number, unknown][]) => {
+    const last = stops[stops.length - 1]!;
+    const lastSize = typeof last[1] === 'number' ? last[1] : null;
+    if (lastSize !== null && last[0] < LABEL_GROW_TO_ZOOM) stops.push([LABEL_GROW_TO_ZOOM, Math.max(lastSize * 1.25, 15)]);
+    return stops;
+  };
+  if (typeof size === 'number') return ['interpolate', ['linear'], ['zoom'], 10, up(size), LABEL_GROW_TO_ZOOM, Math.max((up(size) as number) * 1.3, 15)];
+  if (Array.isArray(size) && size[0] === 'interpolate' && Array.isArray(size[2]) && size[2][0] === 'zoom') {
+    const stops: [number, unknown][] = [];
+    for (let i = 3; i + 1 < size.length; i += 2) stops.push([size[i] as number, up(size[i + 1])]);
+    return [size[0], size[1], size[2], ...grow(stops).flat()];
+  }
+  if (size && typeof size === 'object' && !Array.isArray(size) && Array.isArray((size as { stops?: unknown }).stops)) {
+    const stops = ((size as { stops: [number, unknown][] }).stops).map(([z, v]) => [z, up(v)] as [number, unknown]);
+    return ['interpolate', ['linear'], ['zoom'], ...grow(stops).flat()];
+  }
+  return size;
+}
+
+/** Show Thai (or English) names on the OpenMapTiles basemap labels, sized to stay readable. */
 export function localizeBasemap(style: StyleSpecification, locale: Locale): StyleSpecification {
   const field = locale === 'th' ? ['coalesce', ['get', 'name:th'], ['get', 'name']] : ['coalesce', ['get', 'name:en'], ['get', 'name_en'], ['get', 'name']];
   return {
     ...style,
     layers: style.layers.map((l) => {
       if (l.id.startsWith(OVERLAY_PREFIX) || l.type !== 'symbol' || !l.layout || !('text-field' in l.layout)) return l;
-      return { ...l, layout: { ...l.layout, 'text-field': field as never } };
+      const size = readableTextSize(l.layout['text-size'] ?? 16);
+      return { ...l, layout: { ...l.layout, 'text-field': field as never, 'text-size': size as never } };
     }),
   };
 }
+
+/** Our own overlay labels: readable on phones and growing with zoom. */
+const OVERLAY_LABEL_SIZE = ['interpolate', ['linear'], ['zoom'], 10, 12.5, 14, 14, 17, 16] as never;
 
 export function overlaySourceId(layerId: string) {
   return `${OVERLAY_PREFIX}src-${layerId}`;
@@ -105,7 +164,7 @@ export function overlayLayers(layer: LayerDef, locale: Locale): LayerSpecificati
           ...base,
           id: id('-label'),
           type: 'symbol',
-          layout: { 'text-field': nameField, 'text-font': LABEL_FONT, 'text-size': 12, 'text-offset': [0, 0.9], 'text-anchor': 'top', 'text-optional': true },
+          layout: { 'text-field': nameField, 'text-font': LABEL_FONT, 'text-size': OVERLAY_LABEL_SIZE, 'text-offset': [0, 0.9], 'text-anchor': 'top', 'text-optional': true },
           paint: { 'text-color': '#3b1d0e', 'text-halo-color': '#ffffff', 'text-halo-width': 1.5 },
         },
       ];
@@ -117,7 +176,7 @@ export function overlayLayers(layer: LayerDef, locale: Locale): LayerSpecificati
           id: id('-label'),
           type: 'symbol',
           minzoom: 11,
-          layout: { 'symbol-placement': 'line', 'text-field': nameField, 'text-font': LABEL_FONT, 'text-size': 12 },
+          layout: { 'symbol-placement': 'line', 'text-field': nameField, 'text-font': LABEL_FONT, 'text-size': OVERLAY_LABEL_SIZE },
           paint: { 'text-color': COLORS.river, 'text-halo-color': '#ffffff', 'text-halo-width': 1.5 },
         },
       ];
@@ -131,7 +190,7 @@ export function overlayLayers(layer: LayerDef, locale: Locale): LayerSpecificati
           id: id('-label'),
           type: 'symbol',
           minzoom: 13,
-          layout: { 'symbol-placement': 'line', 'text-field': nameField, 'text-font': LABEL_FONT, 'text-size': 11 },
+          layout: { 'symbol-placement': 'line', 'text-field': nameField, 'text-font': LABEL_FONT, 'text-size': OVERLAY_LABEL_SIZE },
           paint: { 'text-color': COLORS.canal, 'text-halo-color': '#ffffff', 'text-halo-width': 1.5 },
         },
       ];
@@ -217,7 +276,7 @@ export function stationLayers(layer: LayerDef, locale: Locale): LayerSpecificati
       type: 'symbol',
       source,
       filter: ['has', 'point_count'],
-      layout: { 'text-field': ['get', 'point_count_abbreviated'], 'text-font': ['Noto Sans Regular'], 'text-size': 11, 'text-allow-overlap': true },
+      layout: { 'text-field': ['get', 'point_count_abbreviated'], 'text-font': ['Noto Sans Regular'], 'text-size': 12, 'text-allow-overlap': true },
       paint: { 'text-color': '#1f2937' },
     },
     {
@@ -241,7 +300,7 @@ export function stationLayers(layer: LayerDef, locale: Locale): LayerSpecificati
       layout: {
         'text-field': ['concat', ['number-format', ['get', 'value'], { 'max-fraction-digits': 2 }], unitLabel],
         'text-font': ['Noto Sans Regular'],
-        'text-size': 11,
+        'text-size': OVERLAY_LABEL_SIZE,
         'text-offset': [0, 1.1],
         'text-anchor': 'top',
         'text-optional': true,
@@ -284,7 +343,7 @@ export function earthquakeLayers(layer: LayerDef): LayerSpecification[] {
       layout: {
         'text-field': ['concat', 'M', ['number-format', ['get', 'mag'], { 'min-fraction-digits': 1, 'max-fraction-digits': 1 }]],
         'text-font': ['Noto Sans Regular'],
-        'text-size': 11,
+        'text-size': OVERLAY_LABEL_SIZE,
         'text-offset': [0, 1.3],
         'text-anchor': 'top',
         'text-optional': true,
@@ -337,7 +396,7 @@ export function reportLayers(layer: LayerDef, urgencyColors: Record<string, stri
       layout: {
         'text-field': ['concat', '~', ['to-string', ['get', 'depth_cm']], locale === 'th' ? ' ซม.' : ' cm'],
         'text-font': ['Noto Sans Regular'],
-        'text-size': 12,
+        'text-size': OVERLAY_LABEL_SIZE,
         'text-offset': [0, 1.3],
         'text-anchor': 'top',
         'text-optional': true,

@@ -258,6 +258,6 @@ export interface BasemapDef {
 export const BASEMAPS: readonly BasemapDef[] = [
   { id: 'light', th: 'สว่าง', en: 'Light', sourceId: 'basemap.openfreemap' },
   { id: 'dark', th: 'มืด', en: 'Dark', sourceId: 'basemap.openfreemap' },
-  { id: 'satellite', th: 'ดาวเทียม', en: 'Satellite', sourceId: 'basemap.eox-s2cloudless' },
+  { id: 'satellite', th: 'ดาวเทียม', en: 'Satellite', sourceId: 'basemap.esri-imagery' },
   { id: 'terrain', th: 'ภูมิประเทศ', en: 'Terrain', sourceId: 'basemap.opentopomap' },
 ];
