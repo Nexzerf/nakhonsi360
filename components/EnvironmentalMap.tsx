@@ -8,11 +8,14 @@ import { useSources, layerHasData, useIsMobile } from '@/lib/hooks';
 import { getLayer, type LayerDef } from '@/lib/registry/layers';
 import { findSource } from '@/lib/registry/sources';
 import { OPEN_STATUSES, URGENCIES } from '@/lib/reports/schema';
+import { CCTV_MODES, CCTV_OTHER_COLOR } from '@/lib/cctv/schema';
 import {
   FALLBACK_STYLE,
   OVERLAY_PREFIX,
   SELECTION_SOURCE,
   basemapStyle,
+  cctvLayers,
+  cctvSource,
   BUILDINGS_LAYER,
   BUILDINGS_SOURCE,
   buildingsLayer,
@@ -51,10 +54,11 @@ const PMTILES_BASE = process.env.NEXT_PUBLIC_PMTILES_BASE_URL || undefined;
 const Z_ORDER = [
   'water-bodies', 'water-reservoirs', 'roads', 'coastline', 'water-streams', 'water-canals', 'water-rivers',
   'admin-subdistrict', 'admin-district', 'admin-province', 'villages',
-  'rain-24h', 'water-stations', 'earthquake', 'citizen-reports',
+  'rain-24h', 'water-stations', 'earthquake', 'cctv', 'citizen-reports',
 ];
 
 const URGENCY_COLORS = Object.fromEntries(URGENCIES.map((u) => [u.id, u.color]));
+const CCTV_COLORS = Object.fromEntries(CCTV_MODES.map((m) => [m.id, m.color]));
 
 /** Live station layers, clickable like villages. */
 const STATION_LAYER_IDS = ['water-stations', 'rain-24h'];
@@ -62,6 +66,9 @@ const STATION_LAYER_IDS = ['water-stations', 'rain-24h'];
 const LIVE_LAYER_IDS = [...STATION_LAYER_IDS, 'earthquake'];
 const QUAKE_LAYER = `${OVERLAY_PREFIX}earthquake`;
 const REPORT_LAYER = `${OVERLAY_PREFIX}citizen-reports`;
+const CCTV_LAYER = `${OVERLAY_PREFIX}cctv`;
+/** Camera status is refreshed about as often as the municipality updates it. */
+const CCTV_REFRESH_MS = 60_000;
 /** Reports are polled more often than station data. */
 const REPORT_REFRESH_MS = 15_000;
 
@@ -136,6 +143,8 @@ export function EnvironmentalMap({ initialBounds }: { initialBounds: BBox | null
   // Something occupies the right column on desktop (inspector, task panel or layers).
   const rightPanelOpen = useMapStore((s) => Boolean(s.selection || s.panel || s.layerPanelOpen));
   const panel = useMapStore((s) => s.panel);
+  const cctvMode = useMapStore((s) => s.cctvMode);
+  const cameraId = useMapStore((s) => s.cameraId);
   const { data: sources } = useSources();
   const isMobile = useIsMobile();
 
@@ -198,6 +207,12 @@ export function EnvironmentalMap({ initialBounds }: { initialBounds: BBox | null
         useMapStore.getState().setDraftLocation({ lat: e.lngLat.lat, lng: e.lngLat.lng, source: 'map' });
         return;
       }
+      const cam = map.getLayer(CCTV_LAYER) ? map.queryRenderedFeatures(e.point, { layers: [CCTV_LAYER] })[0] : undefined;
+      const camId = (cam?.properties as { id?: string } | undefined)?.id;
+      if (camId) {
+        useMapStore.getState().openCamera(camId);
+        return;
+      }
       const report = map.getLayer(REPORT_LAYER) ? map.queryRenderedFeatures(e.point, { layers: [REPORT_LAYER] })[0] : undefined;
       if (report) {
         const id = (report.properties as { id?: string }).id;
@@ -244,7 +259,7 @@ export function EnvironmentalMap({ initialBounds }: { initialBounds: BBox | null
         map.getCanvas().style.cursor = 'crosshair';
         return;
       }
-      const hit = [`${OVERLAY_PREFIX}villages`, QUAKE_LAYER, REPORT_LAYER, ...STATION_LAYER_IDS.flatMap((id) => [`${OVERLAY_PREFIX}${id}`, `${OVERLAY_PREFIX}${id}-cluster`])].filter((id) => map.getLayer(id));
+      const hit = [`${OVERLAY_PREFIX}villages`, QUAKE_LAYER, REPORT_LAYER, CCTV_LAYER, ...STATION_LAYER_IDS.flatMap((id) => [`${OVERLAY_PREFIX}${id}`, `${OVERLAY_PREFIX}${id}-cluster`])].filter((id) => map.getLayer(id));
       const over = hit.length > 0 && map.queryRenderedFeatures(e.point, { layers: hit }).length > 0;
       map.getCanvas().style.cursor = over ? 'pointer' : 'crosshair';
     });
@@ -322,6 +337,11 @@ export function EnvironmentalMap({ initialBounds }: { initialBounds: BBox | null
         for (const spec of reportLayers(layer, URGENCY_COLORS, OPEN_STATUSES, locale)) map.addLayer(spec);
         continue;
       }
+      if (layer.cctv) {
+        if (!map.getSource(srcId)) map.addSource(srcId, cctvSource(origin));
+        for (const spec of cctvLayers(layer, CCTV_COLORS, CCTV_OTHER_COLOR, cctvMode, cameraId)) map.addLayer(spec);
+        continue;
+      }
       if (layer.hazardKind === 'earthquake') {
         if (!map.getSource(srcId)) map.addSource(srcId, hazardSource(layer, origin));
         for (const spec of earthquakeLayers(layer)) map.addLayer(spec);
@@ -371,7 +391,7 @@ export function EnvironmentalMap({ initialBounds }: { initialBounds: BBox | null
       map.getContainer().querySelector('.maplibregl-ctrl-attrib')?.classList.remove('maplibregl-compact-show');
       attributionRef.current = { key, ctrl };
     }
-  }, [enabledLayers, sources, selection, locale, draft, panel, view3d, basemap, initialBounds]);
+  }, [enabledLayers, sources, selection, locale, draft, panel, view3d, basemap, initialBounds, cctvMode, cameraId]);
 
   useEffect(() => {
     syncOverlays();
@@ -425,6 +445,15 @@ export function EnvironmentalMap({ initialBounds }: { initialBounds: BBox | null
       map.off('style.load', apply);
     };
   }, [view3d, styleVersion, basemap]);
+
+  // Camera status (online/offline).
+  useEffect(() => {
+    const id = setInterval(() => {
+      const src = mapRef.current?.getSource(overlaySourceId('cctv')) as GeoJSONSource | undefined;
+      src?.setData(`${window.location.origin}/api/cctv?format=geojson`);
+    }, CCTV_REFRESH_MS);
+    return () => clearInterval(id);
+  }, []);
 
   // Reports: poll often, and refresh at once after this browser sends one.
   useEffect(() => {

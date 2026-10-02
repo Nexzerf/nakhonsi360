@@ -4,7 +4,7 @@
  * are listed (so users see what is planned) but cannot be switched on.
  */
 
-export type LayerGroupId = 'community' | 'admin' | 'water' | 'reference' | 'weather' | 'air' | 'hazards' | 'coast' | 'environment' | 'satellite';
+export type LayerGroupId = 'community' | 'cctv' | 'admin' | 'water' | 'reference' | 'weather' | 'air' | 'hazards' | 'coast' | 'environment' | 'satellite';
 
 export interface LayerGroup {
   id: LayerGroupId;
@@ -14,6 +14,7 @@ export interface LayerGroup {
 
 export const LAYER_GROUPS: readonly LayerGroup[] = [
   { id: 'community', th: 'รายงานจากประชาชน', en: 'Public reports' },
+  { id: 'cctv', th: 'กล้อง CCTV', en: 'CCTV cameras' },
   { id: 'admin', th: 'เขตปกครอง', en: 'Administrative' },
   { id: 'water', th: 'น้ำ', en: 'Water' },
   { id: 'reference', th: 'ถนนและชายฝั่ง', en: 'Roads & coastline' },
@@ -32,7 +33,7 @@ export type IconId =
   | 'rain' | 'temperature' | 'wind' | 'warning' | 'air'
   | 'flood' | 'drought' | 'fire' | 'landslide' | 'earthquake'
   | 'erosion' | 'mangrove' | 'landuse' | 'forest' | 'agriculture' | 'wetland'
-  | 'satellite' | 'ndvi';
+  | 'satellite' | 'ndvi' | 'cctv';
 
 /** How the legend draws the layer's symbol. */
 export type LegendSymbol =
@@ -60,6 +61,8 @@ export interface LayerDef {
   hazardKind?: 'earthquake';
   /** Citizen reports, served by /api/reports?format=geojson. */
   reports?: true;
+  /** City CCTV cameras, served by /api/cctv?format=geojson. */
+  cctv?: true;
   /** Short note on zoom behaviour for the ⓘ panel. */
   zoomNoteTh?: string;
   zoomNoteEn?: string;
@@ -96,6 +99,15 @@ export const LAYERS: readonly LayerDef[] = [
     zoomNoteTh: 'รายงาน 72 ชั่วโมงล่าสุด สีตามความเร่งด่วนที่ผู้แจ้งเลือก ยังไม่ยืนยันจนกว่าเจ้าหน้าที่อัปเดตสถานะ',
     zoomNoteEn: 'Reports from the last 72 hours, coloured by the urgency the reporter chose; unverified until a responder updates them.',
     legend: { type: 'circle', color: '#ea580c', stroke: '#fff', radius: 6 },
+  },
+
+  // CCTV — Nakhon Si Thammarat City Municipality
+  {
+    id: 'cctv', group: 'cctv', th: 'กล้อง CCTV เทศบาลนคร', en: 'City CCTV cameras', icon: 'cctv',
+    sourceIds: ['nst.cctv'], phase: 2, defaultOn: false, minzoom: 0, cctv: true,
+    zoomNoteTh: 'กล้องของเทศบาลนครนครศรีธรรมราช (เขตเมือง) แตะที่กล้องเพื่อดูภาพสดจากระบบของเทศบาล สีตามประเภท: จราจร หน้าโรงเรียน ระดับน้ำ Safety Zone',
+    zoomNoteEn: 'Cameras of Nakhon Si Thammarat City Municipality (city area). Tap a camera for its live view from the municipality\'s system. Colour by type: traffic, school, water level, safety zone.',
+    legend: { type: 'circle', color: '#1d6fb8', stroke: '#fff', radius: 6 },
   },
 
   // Administrative — HDX COD-AB + DOPA

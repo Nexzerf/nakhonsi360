@@ -423,7 +423,8 @@
     "overview": "Overview",
     "reports": "Reports",
     "layers": "Layers",
-    "emergency": "Emergency"
+    "emergency": "Emergency",
+    "cctv": "CCTV"
   },
   "mode": {
     "label": "Map view",
@@ -462,5 +463,43 @@
     "install": "Install app",
     "installHint": "Add to your home screen: opens fast, and emergency numbers work offline",
     "offline": "You are offline. Live data will not update until you reconnect; emergency numbers still work."
+  },
+  "cctv": {
+    "title": "City CCTV cameras",
+    "modes": {
+      "all": "All",
+      "water": "Water level",
+      "traffic": "Traffic",
+      "school": "Schools",
+      "safety": "Safety zone",
+      "other": "Other"
+    },
+    "summary": "{online} of {total} cameras online",
+    "checked": "Status as of {time}",
+    "search": "Search cameras, e.g. a road or school",
+    "searchLabel": "Search cameras",
+    "none": "No camera matches",
+    "unavailable": "The municipality's camera system can't be reached right now. Try again.",
+    "retry": "Try again",
+    "online": "Online",
+    "offline": "Offline",
+    "unknown": "Status unknown",
+    "standard": "Standard",
+    "hd": "HD",
+    "quality": "Quality",
+    "loading": "Connecting to the live view…",
+    "offlineNote": "The municipality lists this camera as offline; the picture may not load.",
+    "hdNote": "HD uses more data. If it stutters, switch back to standard.",
+    "showOnMap": "Show on map",
+    "openSource": "Open the municipality's camera site",
+    "liveFrom": "Live view from Nakhon Si Thammarat City Municipality's NST Smart City CCTV, played by the municipality's own player. This app does not record or relay video.",
+    "coverage": "City municipality area only",
+    "count": "{n} cameras",
+    "waterHint": "Use it to see real water levels alongside public flood reports.",
+    "group": "Group",
+    "chip": "CCTV {n}",
+    "status": "Status",
+    "cameraId": "Camera ID",
+    "location": "Location"
   }
 }

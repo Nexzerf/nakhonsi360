@@ -347,6 +347,44 @@ export function reportLayers(layer: LayerDef, urgencyColors: Record<string, stri
   ];
 }
 
+export function cctvSource(origin: string): SourceSpecification {
+  return { type: 'geojson', data: `${origin}/api/cctv?format=geojson` };
+}
+
+/**
+ * City CCTV cameras, coloured by type. Offline cameras are faded; the one
+ * playing in the panel gets a dark ring. `mode` 'all' shows every type.
+ */
+export function cctvLayers(layer: LayerDef, modeColors: Record<string, string>, otherColor: string, mode: string, selectedId: string | null): LayerSpecification[] {
+  const source = overlaySourceId(layer.id);
+  const id = (x: string) => `${OVERLAY_PREFIX}${layer.id}${x}`;
+  const filter = (mode === 'all' ? ['has', 'id'] : ['==', ['get', 'mode'], mode]) as never;
+  const color = ['match', ['get', 'mode'], ...Object.entries(modeColors).flat(), otherColor] as never;
+  const offline = ['==', ['get', 'status'], 'offline'];
+  return [
+    {
+      id: id('-selected'),
+      type: 'circle',
+      source,
+      filter: ['==', ['get', 'id'], selectedId ?? ''] as never,
+      paint: { 'circle-radius': ['interpolate', ['linear'], ['zoom'], 10, 11, 16, 16], 'circle-color': '#1d1912', 'circle-opacity': 0.9 },
+    },
+    {
+      id: id(''),
+      type: 'circle',
+      source,
+      filter,
+      paint: {
+        'circle-radius': ['interpolate', ['linear'], ['zoom'], 10, 4.5, 13, 6.5, 16, 9],
+        'circle-color': color,
+        'circle-opacity': ['case', offline, 0.35, 1] as never,
+        'circle-stroke-color': '#ffffff',
+        'circle-stroke-width': 1.8,
+      },
+    },
+  ];
+}
+
 export const DRAFT_SOURCE = `${OVERLAY_PREFIX}report-draft`;
 
 /** Where the report being written will be placed. */

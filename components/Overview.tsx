@@ -269,6 +269,9 @@ export function KpiChips() {
       <button type="button" className={chip} onClick={() => useMapStore.getState().openPanel('reports')}>
         <Icon name="list" size={15} /> {t('overview.chipOpen', { n: open.length })}
       </button>
+      <button type="button" className={chip} onClick={() => useMapStore.getState().openPanel('cctv')}>
+        <Icon name="cctv" size={15} /> {t('nav.cctv')}
+      </button>
       {life > 0 && (
         <button type="button" className={`${chip} text-danger`} onClick={() => useMapStore.getState().openPanel('reports')}>
           <span aria-hidden="true" className="anim-pulse h-2 w-2 rounded-full bg-danger" /> {t('overview.lifeN', { n: life })}
