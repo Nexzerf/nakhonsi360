@@ -75,7 +75,7 @@ export function StatusBar() {
               </li>
             ))}
           </ul>
-          <Link href="/about-data" className="flex min-h-11 items-center gap-1.5 border-t border-line px-4 text-sm font-medium text-accent hover:bg-surface-subtle">
+          <Link href="/about-data" prefetch={false} className="flex min-h-11 items-center gap-1.5 border-t border-line px-4 text-sm font-medium text-accent hover:bg-surface-subtle">
             {t('app.aboutData')} <span aria-hidden="true">→</span>
           </Link>
         </div>

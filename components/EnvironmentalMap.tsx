@@ -118,6 +118,9 @@ export function EnvironmentalMap({ initialBounds }: { initialBounds: BBox | null
   const containerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<MlMap | null>(null);
   const attributionRef = useRef<{ key: string; ctrl: maplibregl.AttributionControl } | null>(null);
+  // The map starts on a blank placeholder style; overlays wait for the real
+  // basemap so their data is not downloaded twice (setStyle drops sources).
+  const basemapSetRef = useRef(false);
   const [styleVersion, setStyleVersion] = useState(0);
   const [mapFailed, setMapFailed] = useState(false);
   const [locateError, setLocateError] = useState(false);
@@ -274,11 +277,13 @@ export function EnvironmentalMap({ initialBounds }: { initialBounds: BBox | null
       try {
         const spec = typeof style === 'string' ? await fetchStyle(style) : style;
         if (cancelled) return;
+        basemapSetRef.current = true;
         map.setStyle(localizeBasemap(spec, locale), { diff: false });
         useMapStore.getState().setBasemapFailed(false);
       } catch (err) {
         if (cancelled) return;
         console.warn('[map] basemap unavailable, using plain background', err);
+        basemapSetRef.current = true;
         map.setStyle(FALLBACK_STYLE, { diff: false });
         useMapStore.getState().setBasemapFailed(true);
       }
@@ -291,7 +296,7 @@ export function EnvironmentalMap({ initialBounds }: { initialBounds: BBox | null
   // ---------------------------------------------------------------- overlays
   const syncOverlays = useCallback(() => {
     const map = mapRef.current;
-    if (!map || !styleReady(map)) return;
+    if (!map || !basemapSetRef.current || !styleReady(map)) return;
     const origin = window.location.origin;
 
     for (const l of map.getStyle().layers ?? []) if (l.id.startsWith(OVERLAY_PREFIX)) map.removeLayer(l.id);

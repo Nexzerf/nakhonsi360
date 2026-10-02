@@ -13,13 +13,17 @@ import { StatusBar } from '@/components/StatusBar';
 import { DataProvenanceDialog } from '@/components/DataProvenance';
 import { MapErrorBoundary } from '@/components/MapErrorBoundary';
 import { Icon } from '@/components/Icon';
-import { TaskPanels } from '@/components/ActionBar';
 import { MobileTabBar, ModeSwitch, ReportButton, TopNav } from '@/components/Chrome';
 import { KpiChips, OverviewCards } from '@/components/Overview';
 import { SidePanel } from '@/components/SidePanel';
 import { InstallButton, OfflineNotice, PwaSetup } from '@/components/Pwa';
 
 // MapLibre needs the browser (WebGL); never render it on the server.
+// Report form, report list and emergency numbers: off the startup path, but
+// fetched as soon as the browser is idle so opening the report form is instant.
+const loadTaskPanels = () => import('@/components/ActionBar');
+const TaskPanels = dynamic(() => loadTaskPanels().then((m) => m.TaskPanels), { ssr: false });
+
 const EnvironmentalMap = dynamic(() => import('@/components/EnvironmentalMap').then((m) => m.EnvironmentalMap), {
   ssr: false,
   loading: () => <div className="absolute inset-0 bg-surface-subtle" />,
@@ -36,6 +40,16 @@ export function MapApp({ initialBounds }: { initialBounds: BBox | null }) {
   useEffect(() => {
     document.documentElement.lang = locale;
   }, [locale]);
+
+  useEffect(() => {
+    const preload = () => void loadTaskPanels();
+    if ('requestIdleCallback' in window) {
+      const id = window.requestIdleCallback(preload, { timeout: 4000 });
+      return () => window.cancelIdleCallback(id);
+    }
+    const id = setTimeout(preload, 2000);
+    return () => clearTimeout(id);
+  }, []);
 
   const overviewOpen = useMapStore((s) => s.overviewOpen);
   const layerPanelOpen = useMapStore((s) => s.layerPanelOpen);
@@ -140,7 +154,7 @@ export function MapApp({ initialBounds }: { initialBounds: BBox | null }) {
 
       <LayerControl />
       {!panel && !layerPanelOpen && <LocationInspector />}
-      <TaskPanels />
+      {(panel || picking) && <TaskPanels />}
 
       <DataProvenanceDialog />
       <PwaSetup />
