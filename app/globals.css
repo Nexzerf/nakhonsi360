@@ -150,6 +150,23 @@ body {
   outline-offset: 2px;
 }
 
+/* Headings and regions focused by script (tabindex=-1) move screen-reader
+   focus only; Safari would otherwise draw a ring around them. */
+[tabindex='-1']:focus {
+  outline: none;
+}
+
+/* iOS Safari zooms the page into any text field under 16px and leaves it
+   zoomed (the layout then looks shifted and cut off). Unlayered, so it wins
+   over Tailwind's text-size utilities on touch screens. */
+@media (pointer: coarse) {
+  input:not([type='checkbox']):not([type='radio']):not([type='range']):not([type='file']),
+  textarea,
+  select {
+    font-size: 16px;
+  }
+}
+
 /* ---------------------------------------------------------------- surfaces */
 
 .panel {

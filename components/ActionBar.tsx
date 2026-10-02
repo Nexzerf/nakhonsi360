@@ -5,6 +5,7 @@ import { useMapStore, useT } from '@/lib/state/store';
 import { EmergencyDirectory } from '@/components/EmergencyDirectory';
 import { ReportForm } from '@/components/ReportForm';
 import { ReportsPanel } from '@/components/ReportsPanel';
+import { CctvPanel } from '@/components/CctvPanel';
 import { SidePanel } from '@/components/SidePanel';
 import { Icon } from '@/components/Icon';
 
@@ -17,6 +18,7 @@ export function TaskPanels() {
     <>
       {panel === 'report' && <ReportForm />}
       {panel === 'reports' && <ReportsPanel />}
+      {panel === 'cctv' && <CctvPanel />}
       {panel === 'emergency' && (
         <SidePanel id="emergency-panel" title={t('emergency.title')}>
           <EmergencyDirectory locale={locale} />

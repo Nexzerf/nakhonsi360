@@ -5,7 +5,7 @@ import { useReports } from '@/lib/reports/client';
 import { useMapStore, useT } from '@/lib/state/store';
 import { Icon } from '@/components/Icon';
 
-type NavId = 'overview' | 'reports' | 'layers' | 'emergency';
+type NavId = 'overview' | 'reports' | 'layers' | 'emergency' | 'cctv';
 
 function useNav() {
   const panel = useMapStore((s) => s.panel);
@@ -26,11 +26,12 @@ function useOpenCount() {
   return (q.data?.reports ?? []).filter((r) => (OPEN_STATUSES as string[]).includes(r.status)).length;
 }
 
-const NAV: { id: NavId; icon: 'dashboard' | 'list' | 'layers' | 'phone'; key: string }[] = [
+const NAV: { id: NavId; icon: 'dashboard' | 'list' | 'layers' | 'phone' | 'cctv'; key: string }[] = [
   { id: 'overview', icon: 'dashboard', key: 'nav.overview' },
   { id: 'reports', icon: 'list', key: 'nav.reports' },
   { id: 'layers', icon: 'layers', key: 'nav.layers' },
   { id: 'emergency', icon: 'phone', key: 'nav.emergency' },
+  { id: 'cctv', icon: 'cctv', key: 'nav.cctv' },
 ];
 
 /** Desktop: icon navigation in the top centre (dark when active). */

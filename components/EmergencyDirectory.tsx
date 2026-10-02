@@ -18,7 +18,7 @@ export function PrimaryCallButtons({ locale }: { locale: Locale }) {
           <Icon name="phone" size={18} className="shrink-0" />
           <span className="min-w-0">
             <span className="tabular block text-lg leading-tight font-semibold">{c.number}</span>
-            <span className="block truncate text-xs text-fg-muted">{locale === 'en' ? c.nameEn : c.nameTh}</span>
+            <span className="line-clamp-2 block text-xs leading-snug text-fg-muted">{locale === 'en' ? c.nameEn : c.nameTh}</span>
           </span>
         </a>
       ))}

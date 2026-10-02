@@ -50,6 +50,8 @@ export function layerStatus(layer: LayerDef, data: SourcesResponse | undefined):
 
 /** True when a layer's data can be requested. */
 export function layerHasData(layer: LayerDef, data: SourcesResponse | undefined): boolean {
+  // Fetched live from the municipality on request; /api/cctv reports its own availability.
+  if (layer.cctv) return true;
   if (process.env.NEXT_PUBLIC_PMTILES_BASE_URL && isLayerAvailable(layer) && layer.sourceLayer) return true;
   const s = layerStatus(layer, data);
   return layer.sourceLayer ? s === 'ok' : s === 'ok' || s === 'degraded';

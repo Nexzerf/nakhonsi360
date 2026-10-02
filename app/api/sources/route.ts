@@ -36,7 +36,7 @@ export async function GET() {
     const lastImport = imports.get(src.id) ?? null;
     const lastRun = runs.get(src.id) ?? null;
     let status: SourceStatus;
-    if (src.id.startsWith('basemap.')) status = 'external';
+    if (src.id.startsWith('basemap.') || src.id === 'nst.cctv') status = 'external';
     else if (src.kind === 'community') status = database === 'ok' ? 'ok' : 'unknown';
     else if (database !== 'ok') status = src.phase > CURRENT_PHASE ? 'not_connected' : 'unknown';
     else if (imported.has(src.id)) status = lastImport ? 'ok' : 'not_imported';
