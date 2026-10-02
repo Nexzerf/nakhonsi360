@@ -9,11 +9,15 @@ on:
     inputs:
       only:
         description: 'Sources to fetch (comma list of hdx,dopa,osm)'
+        type: string
         default: 'hdx,dopa,osm'
       build_pmtiles:
         description: 'Also build PMTiles (artifact)'
         type: boolean
         default: false
+
+permissions:
+  contents: read
 
 jobs:
   import:
