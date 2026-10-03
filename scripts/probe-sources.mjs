@@ -38,82 +38,60 @@ const list = async (label, url, filter = () => true) => {
   } catch { console.log(r.text.slice(0, 500)); return null; }
 };
 
-// ---------------- Air4Thai certificate: names and chain; air4thai.net host
-try {
-  console.log('\n### air4thai cert SAN\n' + execSync('echo | openssl s_client -connect air4thai.pcd.go.th:443 -servername air4thai.pcd.go.th 2>/dev/null | openssl x509 -noout -subject -issuer -ext subjectAltName -dates', { encoding: 'utf8' }));
-  console.log('\n### air4thai.net cert\n' + execSync('echo | openssl s_client -connect air4thai.net:443 -servername air4thai.net 2>&1 | grep -E "^ *[0-9] s:|^ *i:|Verify return" | head -8', { encoding: 'utf8' }));
-} catch (e) { console.log('openssl failed', e.message); }
-await probe('air4thai.net API', 'https://air4thai.net/services/getNewAQI_JSON.php', {}, 300);
-await probe('LE YR1 intermediate', 'https://letsencrypt.org/certs/2024/yr1.pem', {}, 200);
-await probe('LE YR1 der', 'https://letsencrypt.org/certs/2024/yr1.der', {}, 50);
-await probe('LE root YR', 'https://letsencrypt.org/certs/gen-y/root-yr.pem', {}, 200);
-// Fetch with our own CA list = Node roots + LE intermediates (verification still on).
-try {
-  const tls = await import('node:tls');
-  const { Agent, fetch: ufetch } = await import('node:module').then(() => import('undici')).catch(() => ({}));
-  console.log('undici available:', !!Agent);
-} catch (e) { console.log('tls/undici', e.message); }
-// ---------------- GISTDA PM2.5
-for (const p of ['/rest/getPm25byProvince', '/rest/getPm25byAmphoe?pv_idn=80', '/rest/getPm25byTambon?pv_idn=80', '/rest/getPm25AmphoebyProvince?pv_idn=80', '/rest/getPM25byAmphoe?pv_idn=80', '/rest/getPm25byAmphoe/80', '/rest/pred/getPm25byAmphoe?pv_idn=80', '/rest/getPm25byStation', '/rest/getPm25Raster', '/rest']) {
-  const r = await probe(`pm25.gistda ${p}`, `https://pm25.gistda.or.th${p}`, {}, 250);
-  try {
-    if (r?.status === 200 && p.includes('Amphoe?')) console.log(JSON.stringify(JSON.parse(r.text).data.map((x) => [x.ap_idn, x.ap_tn, x.pm25?.toFixed(1), x.dt])));
-  } catch { /* not JSON */ }
+
+const J = async (label, url, opts) => { const r = await probe(label, url, opts, 0); try { return r?.status === 200 ? JSON.parse(r.text) : null; } catch { console.log('not json:', r.text.slice(0, 200)); return null; } };
+const env = encodeURIComponent(JSON.stringify({ xmin: BBOX[0], ymin: BBOX[1], xmax: BBOX[2], ymax: BBOX[3], spatialReference: { wkid: 4326 } }));
+async function layerReport(label, layerUrl) {
+  const info = await J(`${label} info`, `${layerUrl}?f=json`);
+  if (!info) return;
+  console.log(`name=${info.name} geom=${info.geometryType} maxRecords=${info.maxRecordCount} editDate=${info.editingInfo?.lastEditDate ? new Date(info.editingInfo.lastEditDate).toISOString() : '-'}`);
+  console.log('fields:', (info.fields ?? []).map((f) => `${f.name}(${f.alias})`).join(', ').slice(0, 900));
+  console.log('desc:', String(info.description ?? '').replace(/<[^>]+>/g, ' ').slice(0, 300), '| copyright:', info.copyrightText ?? '');
+  const q = `${layerUrl}/query?where=1%3D1&geometry=${env}&geometryType=esriGeometryEnvelope&inSR=4326&spatialRel=esriSpatialRelIntersects`;
+  const c = await J(`${label} count`, `${q}&returnCountOnly=true&f=json`);
+  console.log('count in province bbox:', c?.count);
+  const f = await J(`${label} sample`, `${q}&outFields=*&returnGeometry=false&resultRecordCount=3&f=json`);
+  for (const ft of f?.features ?? []) console.log(' attrs:', JSON.stringify(ft.attributes).slice(0, 500));
 }
 
-// ---------------- GISTDA portal (flood frequency, drought, DMCR)
-const gp = 'https://gistdaportal.gistda.or.th/data/rest/services';
-await list('gistdaportal data root', `${gp}?f=json`);
-for (const f of ['FL_Flood', 'GFlood', 'dmcr_gidgroup', 'GWater', 'L08', 'L09', 'L10', 'L11', 'L12', 'L13', 'L14', 'L15', 'DR_Drought', 'GMOS']) await list(`gistdaportal ${f}`, `${gp}/${f}?f=json`);
-const ga = 'https://gistdaportal.gistda.or.th/arcgis/rest/services';
-for (const f of ['GWater', 'Hosted', 'TMS', 'app']) await list(`gistdaportal arcgis ${f}`, `${ga}/${f}?f=json`);
+// ---------------- Air4Thai certificate names
+try {
+  console.log('\n### air4thai cert\n' + execSync('echo | openssl s_client -connect air4thai.pcd.go.th:443 -servername air4thai.pcd.go.th 2>/dev/null | openssl x509 -noout -subject -issuer -ext subjectAltName -dates', { encoding: 'utf8' }));
+} catch (e) { console.log('openssl failed', e.message); }
+
+// ---------------- GISTDA recurrent flood + drought + DMCR folder
+const H = 'https://gistdaportal.gistda.or.th/arcgis/rest/services/Hosted';
+for (const svc of ['พื้นที่น้ำท่วมซ้ำซาก_ปี_2011_2022', 'สรุปพื้นที่แล้ง', 'พื้นที่เฝ้าระวังน้ำท่วม']) {
+  const root = await J(`svc ${svc}`, `${H}/${encodeURIComponent(svc)}/FeatureServer?f=json`);
+  console.log('layers:', (root?.layers ?? []).map((l) => `${l.id}:${l.name}`).join(', '), '| desc:', String(root?.serviceDescription ?? '').slice(0, 200));
+  for (const l of (root?.layers ?? []).slice(0, 3)) await layerReport(`${svc}/${l.id}`, `${H}/${encodeURIComponent(svc)}/FeatureServer/${l.id}`);
+}
+const D = 'https://gistdaportal.gistda.or.th/data/rest/services';
+for (const f of ['dmcr_gidgroup', 'FL_Flood', 'GFlood']) {
+  const d = await J(`folder ${f}`, `${D}/${f}?f=json`);
+  console.log((d?.services ?? []).map((x) => `${x.name} ${x.type}`).join('\n'));
+}
+const all = await J('Hosted list', `${H}?f=json`);
+console.log('hosted matching:', (all?.services ?? []).map((x) => x.name).filter((n) => /mangrove|ป่าชายเลน|ชายเลน|wetland|ชุ่มน้ำ|soil|ความชื้น|landuse|การใช้ที่ดิน/i.test(n)).join(' | '));
 
 // ---------------- DWR wetlands
-const dwr = await list('DWR portal wetland', 'https://gis.dwr.go.th/portal/sharing/rest/search?q=wetland&f=json&num=50');
-await list('DWR arcgis root', 'https://gis.dwr.go.th/arcgis/rest/services?f=json');
-for (const x of dwr?.results ?? []) if (/MapServer|FeatureServer/.test(x.url ?? '')) await list(`DWR ${x.title}`, `${x.url}?f=json`);
-await list('DWR portal mangrove', 'https://gis.dwr.go.th/portal/sharing/rest/search?q=mangrove&f=json&num=20');
-
-// ---------------- Planetary Computer: best scene per MGRS tile, then a covered tile
-const since = new Date(Date.now() - 120 * 864e5).toISOString();
-const s = await probe('PC STAC search', 'https://planetarycomputer.microsoft.com/api/stac/v1/search', {
-  method: 'POST', headers: { 'Content-Type': 'application/json' },
-  body: JSON.stringify({ collections: ['sentinel-2-l2a'], bbox: BBOX, datetime: `${since}/..`, query: { 'eo:cloud_cover': { lt: 60 } }, sortby: [{ field: 'datetime', direction: 'desc' }], limit: 200 }),
-}, 0);
-const best = new Map();
-if (s?.status === 200) {
-  for (const f of JSON.parse(s.text).features) {
-    const t = f.properties['s2:mgrs_tile']; const cc = f.properties['eo:cloud_cover'];
-    if (!best.has(t) || cc < best.get(t).cc) best.set(t, { id: f.id, cc, dt: f.properties.datetime, bbox: f.bbox });
-  }
-  console.log([...best].map(([t, v]) => `${t} ${v.dt} cc=${v.cc.toFixed(1)} ${v.id} bbox=${v.bbox.map((n) => n.toFixed(2))}`).join('\n'));
-}
-if (best.size) {
-  const ids = [...best.values()].map((v) => v.id);
-  const reg = await probe('PC register', 'https://planetarycomputer.microsoft.com/api/data/v1/mosaic/register', {
-    method: 'POST', headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ collections: ['sentinel-2-l2a'], 'filter-lang': 'cql2-json', filter: { op: 'in', args: [{ property: 'id' }, ids] }, sortby: [{ field: 'eo:cloud_cover', direction: 'asc' }] }),
-  }, 200);
-  const sid = JSON.parse(reg.text).searchid;
-  const tile = (z, lng, lat) => { const x = Math.floor(((lng + 180) / 360) * 2 ** z); const r = (lat * Math.PI) / 180; const y = Math.floor(((1 - Math.log(Math.tan(r) + 1 / Math.cos(r)) / Math.PI) / 2) * 2 ** z); return `${z}/${x}/${y}`; };
-  for (const [z, lng, lat] of [[12, 99.96, 8.43], [10, 99.9, 8.4], [14, 100.0, 8.45]]) {
-    await probe(`PC visual ${z}`, `https://planetarycomputer.microsoft.com/api/data/v1/mosaic/${sid}/tiles/WebMercatorQuad/${tile(z, lng, lat)}@1x?collection=sentinel-2-l2a&assets=visual&nodata=0&format=png`, {}, 120);
-    await probe(`PC ndvi ${z}`, `https://planetarycomputer.microsoft.com/api/data/v1/mosaic/${sid}/tiles/WebMercatorQuad/${tile(z, lng, lat)}@1x?collection=sentinel-2-l2a&expression=(B08-B04)/(B08%2BB04)&asset_as_band=true&rescale=-0.2,0.9&colormap_name=rdylgn&format=png`, {}, 200);
-  }
-  await probe('PC tilejson', `https://planetarycomputer.microsoft.com/api/data/v1/mosaic/${sid}/WebMercatorQuad/tilejson.json?collection=sentinel-2-l2a&assets=visual`, {}, 800);
+const W = 'https://gis.dwr.go.th/arcgis/rest/services';
+for (const svc of ['พื้นที่ชุ่มน้ำระดับนานาชาติ', 'พื้นที่ชุ่มน้ำท้องถิ่น', 'Ramsar_Wetland_Revise_1Oct2020_by_ONEP']) {
+  const root = await J(`DWR ${svc}`, `${W}/${encodeURIComponent(svc)}/MapServer?f=json`);
+  console.log('layers:', (root?.layers ?? []).map((l) => `${l.id}:${l.name}`).join(', '), '| caps:', root?.capabilities, '| copyright:', root?.copyrightText);
+  for (const l of (root?.layers ?? []).slice(0, 3)) await layerReport(`DWR ${svc}/${l.id}`, `${W}/${encodeURIComponent(svc)}/MapServer/${l.id}`);
 }
 
-// ---------------- GIBS layers: matrix sets, time defaults and a tile
-const g = await probe('GIBS caps', 'https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/wmts.cgi?SERVICE=WMTS&REQUEST=GetCapabilities', {}, 0);
-if (g?.status === 200) for (const id of ['HLS_S30_Nadir_BRDF_Adjusted_Reflectance', 'HLS_L30_Nadir_BRDF_Adjusted_Reflectance', 'VIIRS_SNPP_NDVI_8Day', 'MODIS_Terra_L3_NDVI_16Day', 'SMAP_L4_Analyzed_Surface_Soil_Moisture', 'SMAP_L4_Analyzed_Root_Zone_Soil_Moisture']) {
-  const i = g.text.indexOf(`<ows:Identifier>${id}</ows:Identifier>`); const blk = g.text.slice(i, i + 4000);
-  const tms = /<TileMatrixSet>([^<]+)</.exec(blk)?.[1]; const def = /<Default>([^<]+)</.exec(blk)?.[1]; const fmt = /<Format>([^<]+)</.exec(blk)?.[1]; const res = /template="([^"]+)"/.exec(blk)?.[1];
-  const vals = [...blk.matchAll(/<Value>([^<]+)</g)].map((m) => m[1]); 
-  console.log(`\n### GIBS ${id}: tms=${tms} default=${def} fmt=${fmt}\n  template=${res}\n  time values: ${vals.slice(-3).join(' | ')}`);
-  if (res && tms) {
-    const lvl = Number(/Level(\d+)/.exec(tms)?.[1] ?? 9); const z = Math.min(lvl, 9);
-    const x = Math.floor(((99.96 + 180) / 360) * 2 ** z); const r = (8.43 * Math.PI) / 180; const y = Math.floor(((1 - Math.log(Math.tan(r) + 1 / Math.cos(r)) / Math.PI) / 2) * 2 ** z);
-    await probe(`GIBS tile ${id} z${z}`, res.replace('{Time}', 'default').replace('{TileMatrixSet}', tms).replace('{TileMatrix}', z).replace('{TileRow}', y).replace('{TileCol}', x), {}, 80);
-  }
+// ---------------- Mangroves: OSM (Overpass) and ESA WorldCover on Planetary Computer
+const ov = await probe('overpass mangrove', 'https://overpass-api.de/api/interpreter', { method: 'POST', body: new URLSearchParams({ data: `[out:json][timeout:60];(way["wetland"="mangrove"](${BBOX[1]},${BBOX[0]},${BBOX[3]},${BBOX[2]});relation["wetland"="mangrove"](${BBOX[1]},${BBOX[0]},${BBOX[3]},${BBOX[2]}););out count;` }) }, 400);
+const wc = await J('PC worldcover collection', 'https://planetarycomputer.microsoft.com/api/stac/v1/collections/esa-worldcover');
+console.log('worldcover:', wc?.title, wc?.extent?.temporal?.interval, JSON.stringify(wc?.summaries?.['esa_worldcover:product_version'] ?? ''), 'license:', wc?.license);
+const ws = await J('PC worldcover search', 'https://planetarycomputer.microsoft.com/api/stac/v1/search', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ collections: ['esa-worldcover'], bbox: BBOX, limit: 10 }) });
+for (const f of ws?.features ?? []) console.log(' item', f.id, f.properties.datetime ?? f.properties.start_datetime, Object.keys(f.assets).join(','));
+const item = ws?.features?.[0];
+if (item) {
+  const t = 'WebMercatorQuad/12/3184/1950';
+  await probe('PC worldcover tile classmap', `https://planetarycomputer.microsoft.com/api/data/v1/item/tiles/${t}@1x?collection=esa-worldcover&item=${item.id}&assets=map&colormap_name=esa-worldcover&format=png`, {}, 100);
+  await probe('PC worldcover mangrove-only', `https://planetarycomputer.microsoft.com/api/data/v1/item/tiles/${t}@1x?collection=esa-worldcover&item=${item.id}&expression=(map==95)&asset_as_band=true&colormap=${encodeURIComponent(JSON.stringify({ 0: [0, 0, 0, 0], 1: [0, 128, 96, 255] }))}&format=png`, {}, 300);
+  await probe('PC worldcover legend', 'https://planetarycomputer.microsoft.com/api/data/v1/legend/classmap/esa-worldcover', {}, 1200);
 }
-await probe('EOX tile 2025 z13', 'https://tiles.maps.eox.at/wmts/1.0.0/s2cloudless-2025_3857/default/GoogleMapsCompatible/13/3904/6368.jpg', {}, 80);
