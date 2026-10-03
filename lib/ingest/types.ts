@@ -48,6 +48,11 @@ export interface FetchContext {
   env: Record<string, string | undefined>;
   fetch: typeof fetch;
   userAgent: string;
+  /**
+   * A point inside each imported district (pcode → [lng, lat]), for sources
+   * that publish values per district rather than per station.
+   */
+  districtPoints: Map<string, [number, number]>;
 }
 
 /**

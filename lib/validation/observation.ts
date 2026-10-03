@@ -7,7 +7,13 @@ export const PLAUSIBLE_RANGES: Record<string, { unit: string; min: number; max: 
   temperature: { unit: '°C', min: 5, max: 45 },
   humidity: { unit: '%', min: 0, max: 100 },
   pm25: { unit: 'µg/m³', min: 0, max: 1000 },
-  wind_speed: { unit: 'm/s', min: 0, max: 90 },
+  pm25_24h: { unit: 'µg/m³', min: 0, max: 1000 },
+  pm10: { unit: 'µg/m³', min: 0, max: 2000 },
+  aqi: { unit: 'AQI', min: 0, max: 500 },
+  // As TMD publishes it (km/h).
+  wind_speed: { unit: 'km/h', min: 0, max: 320 },
+  visibility: { unit: 'km', min: 0, max: 100 },
+  pressure_msl: { unit: 'hPa', min: 850, max: 1100 },
   wind_dir: { unit: '°', min: 0, max: 360 },
   // Water surface elevation; Thai terrain spans below sea level (tidal) to ~2,565 m.
   water_level: { unit: 'm MSL', min: -20, max: 2600 },

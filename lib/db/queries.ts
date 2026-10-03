@@ -213,6 +213,8 @@ const TILE_LAYERS: Record<string, TileLayerSql> = {
   // Department of Mineral Resources layers (scripts/import-dmr.ts).
   landslide: { sourceLayer: 'landslide_susceptibility', from: 'hazard_zones', where: "dataset = 'landslide-bands'", props: "feature_id as id, props->>'level' as level, (props->>'grade')::int as grade" },
   'flash-flood': { sourceLayer: 'flash_flood', from: 'hazard_zones', where: "dataset = 'flash-flood'", props: "feature_id as id, props->>'subbasin' as subbasin" },
+  mangroves: { sourceLayer: 'mangroves', from: 'hazard_zones', where: "dataset = 'mangroves'", props: "feature_id as id, props->>'name_th' as name_th, (props->>'area_rai')::float as area_rai" },
+  wetlands: { sourceLayer: 'wetlands', from: 'hazard_zones', where: "dataset = 'wetlands'", props: "feature_id as id, props->>'name_th' as name_th, props->>'class' as class, (props->>'area_rai')::float as area_rai" },
   'landslide-villages': { sourceLayer: 'landslide_villages', from: 'hazard_zones', where: "dataset = 'landslide-villages'", props: "feature_id as id, props->>'name_th' as name_th, props->>'moo' as moo, props->>'risk' as risk, props->>'year_be' as year_be" },
   'landslide-safe': { sourceLayer: 'landslide_safe', from: 'hazard_zones', where: "dataset = 'landslide-safe'", props: "feature_id as id, props->>'name_th' as name_th, props->>'village' as village, props->>'moo' as moo" },
   'shoreline-change': { sourceLayer: 'shoreline_change', from: 'hazard_zones', where: "dataset = 'shoreline-change'", props: "feature_id as id, props->>'status' as status, props->>'beach' as beach, props->>'year' as year" },
@@ -286,10 +288,11 @@ export async function provinceMask(sql: Sql): Promise<{ type: 'Feature'; propert
 export async function geohazardsAt(sql: Sql, lng: number, lat: number): Promise<GeohazardSummary> {
   const pt = sql`st_setsrid(st_makepoint(${lng}, ${lat}), 4326)`;
   const [zones, places, coast] = await Promise.all([
-    sql<{ dataset: string; level: string | null; grade: string | null; descr: string | null }[]>`
-      select dataset, props->>'level' as level, props->>'grade' as grade, props->>'desc' as descr
+    sql<{ dataset: string; level: string | null; grade: string | null; descr: string | null; name: string | null; class: string | null; area: string | null }[]>`
+      select dataset, props->>'level' as level, props->>'grade' as grade, props->>'desc' as descr,
+             props->>'name_th' as name, props->>'class' as class, props->>'area_rai' as area
         from hazard_zones
-       where dataset in ('landslide-susceptibility', 'flash-flood') and st_intersects(geom, ${pt})
+       where dataset in ('landslide-susceptibility', 'flash-flood', 'mangroves', 'wetlands') and st_intersects(geom, ${pt})
        order by (props->>'grade')::int desc nulls last`,
     sql<{ dataset: string; id: string; props: Record<string, string | null>; d: number; lng: number; lat: number }[]>`
       select * from (
@@ -324,6 +327,14 @@ export async function geohazardsAt(sql: Sql, lng: number, lat: number): Promise<
     riskVillages: places.filter((p) => p.dataset === 'landslide-villages').map(place),
     safePoints: places.filter((p) => p.dataset === 'landslide-safe').map(place),
     coast: coast[0] ? { status: coast[0].status, beach: coast[0].beach, year: coast[0].year != null ? String(coast[0].year) : null, distanceM: Math.round(Number(coast[0].d)) } : null,
+    mangrove: (() => {
+      const m = zones.find((z) => z.dataset === 'mangroves');
+      return m ? { areaRai: m.area != null && Number.isFinite(Number(m.area)) ? Number(m.area) : null } : null;
+    })(),
+    wetland: (() => {
+      const w = zones.find((z) => z.dataset === 'wetlands');
+      return w ? { name: w.name, class: w.class } : null;
+    })(),
   };
 }
 
@@ -461,4 +472,29 @@ export async function recentHazards(sql: Sql, kind: 'flood' | 'hotspot', days: n
 
 export async function earthquakesNear(sql: Sql, lng: number, lat: number, days = 30): Promise<(EarthquakeRow & { distance_m: number })[]> {
   return sql<(EarthquakeRow & { distance_m: number })[]>`select * from earthquakes_near(${lng}, ${lat}, ${days})`;
+}
+
+// ---------------------------------------------------------------- warnings (TMD)
+
+export interface WarningRow {
+  source_id: string;
+  feature_key: string;
+  observed_at: Date;
+  valid_until: Date | null;
+  fetched_at: Date;
+  properties: Record<string, unknown>;
+}
+
+/**
+ * Announcements still in effect: before their published end, or, when no end
+ * is given, issued within the last 24 hours. Newest first.
+ */
+export async function activeWarnings(sql: Sql): Promise<WarningRow[]> {
+  return sql<WarningRow[]>`
+    select source_id, feature_key, observed_at, valid_until, fetched_at, properties
+      from hazard_features
+     where kind = 'warning'
+       and (valid_until > now() or (valid_until is null and observed_at > now() - interval '24 hours'))
+     order by observed_at desc
+     limit 10`;
 }

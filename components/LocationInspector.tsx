@@ -572,6 +572,18 @@ function Geohazards({ g }: { g: GeohazardSummary }) {
       ) : (
         <p className="text-xs text-fg-subtle">{t('geohazard.notAssessed')}</p>
       )}
+      {g.floodYears != null && (
+        <p className="flex items-start gap-2 text-sm">
+          <Icon name="flood" size={16} className="mt-0.5 shrink-0 text-[#0369a1]" />
+          <span>
+            {g.floodYears.years > 0 ? t('geohazard.floodYears', { years: g.floodYears.years }) : t('geohazard.floodYearsNone')}
+            <span className="block text-xs text-fg-subtle">
+              {g.floodYears.flooded.length > 0 ? `${t('geohazard.floodYearsList')} ${g.floodYears.flooded.map((y) => (locale === 'en' ? y : y + 543)).join(', ')} · ` : ''}
+              {t('geohazard.floodYearsSource')}
+            </span>
+          </span>
+        </p>
+      )}
       {g.inFlashFloodArea && (
         <p className="flex items-start gap-2 rounded-lg bg-[#fb923c]/10 px-2.5 py-1.5 text-sm text-[#9a3412]">
           <Icon name="flood" size={16} className="mt-0.5 shrink-0" /> {t('geohazard.flashFlood')}
@@ -601,6 +613,24 @@ function Geohazards({ g }: { g: GeohazardSummary }) {
           </ul>
           <p className="mt-1 text-xs text-fg-subtle">{t('geohazard.safeNote')}</p>
         </div>
+      )}
+      {g.wetland && (
+        <p className="flex items-start gap-2 text-sm">
+          <Icon name="wetland" size={16} className="mt-0.5 shrink-0 text-[#0369a1]" />
+          <span>
+            {t('geohazard.wetland')}: <strong>{g.wetland.name ?? '—'}</strong>
+            {g.wetland.class && <span className="block text-xs text-fg-subtle">{g.wetland.class}</span>}
+          </span>
+        </p>
+      )}
+      {g.mangrove && (
+        <p className="flex items-start gap-2 text-sm">
+          <Icon name="mangrove" size={16} className="mt-0.5 shrink-0 text-[#15803d]" />
+          <span>
+            {t('geohazard.mangrove')}
+            {g.mangrove.areaRai !== null && <span className="block text-xs text-fg-subtle">{t('geohazard.mangroveArea', { rai: Math.round(g.mangrove.areaRai).toLocaleString(locale === 'en' ? 'en' : 'th') })}</span>}
+          </span>
+        </p>
       )}
       {g.coast && (
         <p className="flex items-start gap-2 text-sm">

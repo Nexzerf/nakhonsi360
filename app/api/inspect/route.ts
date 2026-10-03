@@ -5,6 +5,7 @@ import { earthquakesNear, lastSuccessfulRuns, geohazardsAt, inspectAdmin, satell
 import { CONDITION_VARIABLES } from '@/lib/registry/stationRules';
 import { buildVariableConditions } from '@/lib/inspect/conditions';
 import { summarizeEarthquakes } from '@/lib/inspect/hazards';
+import { floodFrequencyAt } from '@/lib/inspect/floodFrequency';
 import { USGS_WINDOW_DAYS } from '@/lib/adapters/usgs';
 import type { CardResult, ConditionsCard, HazardsCard, ImportRecord, InspectResponse, InspectSection, SourceRef } from '@/lib/types';
 
@@ -221,10 +222,20 @@ async function hazardsCard(sql: Db, lng: number, lat: number): Promise<CardResul
     const asOf = okRuns.get('usgs.earthquakes') ?? null;
     sources.push({ sourceId: 'usgs.earthquakes', observedAt: asOf, fetchedAt: asOf });
   }
-  const [geohazard, satHits] = await Promise.all([
-    dmr || shore ? geohazardsAt(sql, lng, lat) : null,
+  const wetlands = imports.get('dwr.wetlands');
+  const mangroves = imports.get('dmcr.coast');
+  const [geohazardDb, satHits, floodYears] = await Promise.all([
+    dmr || shore || wetlands || mangroves ? geohazardsAt(sql, lng, lat) : null,
     floodConnected || hotspotsConnected ? satelliteHazardsAt(sql, lng, lat) : null,
+    // Live GISTDA query, shared by everyone tapping the same spot for a day.
+    // A failed lookup throws so it is not kept, and shows as "not available".
+    memo(sql, `floodfreq:${lng.toFixed(4)}:${lat.toFixed(4)}`, 86_400_000, async () => {
+      const r = await floodFrequencyAt(fetch, lng, lat);
+      if (r === null) throw new Error('GISTDA flood frequency unavailable');
+      return r;
+    }).catch(() => null),
   ]);
+  const geohazard = geohazardDb ? { ...geohazardDb, floodYears } : null;
   const satellite = satHits ? { ...satHits, floodConnected, hotspotsConnected } : null;
   for (const id of ['gistda.flood', 'firms.hotspots'] as const) {
     if (!connected.has(id)) continue;
@@ -234,5 +245,8 @@ async function hazardsCard(sql: Db, lng: number, lat: number): Promise<CardResul
   // Survey data: no single observation date (each record carries its own survey year), so only the import time.
   if (dmr) sources.push(ref('dmr.landslide', { ...dmr, sourceDate: null }));
   if (shore) sources.push(ref('dmr.shoreline', { ...shore, sourceDate: null }));
+  if (wetlands && geohazard?.wetland) sources.push(ref('dwr.wetlands', { ...wetlands, sourceDate: null }));
+  if (mangroves && geohazard?.mangrove) sources.push(ref('dmcr.coast', { ...mangroves, sourceDate: null }));
+  if (floodYears) sources.push({ sourceId: 'gistda.flood-recurrent', observedAt: null, fetchedAt: null });
   return { status: 'ok', data: { satellite, geohazard, earthquakes, pendingSourceIds }, sources };
 }

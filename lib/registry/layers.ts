@@ -41,6 +41,20 @@ export type LegendSymbol =
   | { type: 'fill'; color: string; outline: string; pattern?: 'hatch' | 'dots' }
   | { type: 'circle'; color: string; stroke: string; radius: number };
 
+export interface RasterDef {
+  /** XYZ tile URL templates ({z}/{x}/{y}), or… */
+  tiles?: string[];
+  /** …a TileJSON URL served by /api/imagery/:layerId. */
+  tilejson?: string;
+  tileSize: number;
+  minzoom?: number;
+  maxzoom: number;
+  opacity: number;
+  /** 'linear' smooths coarse grids (e.g. 9 km soil moisture) instead of showing blocks. */
+  resampling?: 'linear' | 'nearest';
+  attribution: string;
+}
+
 export interface LayerDef {
   id: string;
   group: LayerGroupId;
@@ -63,6 +77,14 @@ export interface LayerDef {
   reports?: true;
   /** City CCTV cameras, served by /api/cctv?format=geojson. */
   cctv?: true;
+  /** Not drawn on the map: shown as a banner while the layer is on (TMD announcements). */
+  banner?: 'warnings';
+  /** Raster overlay: fixed tile URLs, or a TileJSON our server builds (imagery whose scenes change). */
+  raster?: RasterDef;
+  /** Colour key shown in the legend, as the source defines it. */
+  legendItems?: { color: string; th: string; en: string }[];
+  /** Continuous colour ramp shown in the legend (low → high). */
+  legendRamp?: { colors: string[]; lowTh: string; lowEn: string; highTh: string; highEn: string };
   /** Short note on zoom behaviour for the ⓘ panel. */
   zoomNoteTh?: string;
   zoomNoteEn?: string;
@@ -198,15 +220,15 @@ export const LAYERS: readonly LayerDef[] = [
   },
 
   // Weather — Phase 2
-  { id: 'weather-stations', group: 'weather', th: 'สถานีอากาศ', en: 'Weather stations', icon: 'station', sourceIds: ['tmd.weather'], phase: 2, defaultOn: false, minzoom: 0, legend: { type: 'circle', color: '#374151', stroke: '#fff', radius: 5 } },
+  { id: 'weather-stations', group: 'weather', th: 'สถานีอากาศ', en: 'Weather stations', icon: 'station', sourceIds: ['tmd.weather'], phase: 2, defaultOn: false, minzoom: 0, variable: 'temperature', zoomNoteTh: 'สถานีตรวจอากาศของกรมอุตุนิยมวิทยา รายงานทุก 3 ชั่วโมง แตะสถานีเพื่อดูค่าล่าสุด', zoomNoteEn: 'Thai Meteorological Department weather stations, reporting every 3 hours. Tap one for its latest values.', legend: { type: 'circle', color: '#374151', stroke: '#fff', radius: 5 } },
   { id: 'rain-24h', group: 'weather', th: 'ฝน 24 ชม.', en: '24-h rain', icon: 'rain', sourceIds: ['thaiwater.rain24h', 'tmd.weather'], phase: 2, defaultOn: false, minzoom: 0, variable: 'rain_24h', zoomNoteTh: 'รวมกลุ่มสถานีเมื่อซูมน้อยกว่า 10', zoomNoteEn: 'Clustered below zoom 10', legend: { type: 'circle', color: '#2563eb', stroke: '#fff', radius: 5 } },
-  { id: 'temperature', group: 'weather', th: 'อุณหภูมิ', en: 'Temperature', icon: 'temperature', sourceIds: ['tmd.weather'], phase: 2, defaultOn: false, minzoom: 0, legend: { type: 'circle', color: '#9a3412', stroke: '#fff', radius: 5 } },
-  { id: 'wind', group: 'weather', th: 'ลม', en: 'Wind', icon: 'wind', sourceIds: ['tmd.weather'], phase: 2, defaultOn: false, minzoom: 0, legend: { type: 'circle', color: '#475569', stroke: '#fff', radius: 5 } },
-  { id: 'weather-warnings', group: 'weather', th: 'คำเตือนภัย', en: 'Warnings', icon: 'warning', sourceIds: ['tmd.warnings'], phase: 2, defaultOn: false, minzoom: 0, legend: { type: 'fill', color: '#fde68a', outline: COLORS.warning } },
+  { id: 'temperature', group: 'weather', th: 'อุณหภูมิ', en: 'Temperature', icon: 'temperature', sourceIds: ['tmd.weather'], phase: 2, defaultOn: false, minzoom: 0, variable: 'temperature', zoomNoteTh: 'อุณหภูมิอากาศล่าสุดจากสถานีกรมอุตุนิยมวิทยา (ทุก 3 ชั่วโมง) ค่าเป็นของจุดที่ตั้งสถานี', zoomNoteEn: 'Latest air temperature at Thai Meteorological Department stations (every 3 hours), as measured at the station.', legend: { type: 'circle', color: '#9a3412', stroke: '#fff', radius: 5 } },
+  { id: 'wind', group: 'weather', th: 'ลม', en: 'Wind', icon: 'wind', sourceIds: ['tmd.weather'], phase: 2, defaultOn: false, minzoom: 0, variable: 'wind_speed', zoomNoteTh: 'ความเร็วลม (กม./ชม.) และทิศทางที่ลมพัดไป จากสถานีกรมอุตุนิยมวิทยา ไม่มีลูกศรเมื่อสถานีรายงานลมสงบหรือทิศไม่แน่นอน', zoomNoteEn: 'Wind speed (km/h) and the direction it blows towards, from Thai Meteorological Department stations. No arrow when calm or variable.', legend: { type: 'circle', color: '#475569', stroke: '#fff', radius: 5 } },
+  { id: 'weather-warnings', group: 'weather', th: 'คำเตือนภัย', en: 'Warnings', icon: 'warning', sourceIds: ['tmd.warnings'], phase: 2, defaultOn: false, minzoom: 0, banner: 'warnings', zoomNoteTh: 'ประกาศเตือนภัยของกรมอุตุนิยมวิทยาที่ยังมีผลอยู่ แสดงเป็นแถบด้านบนของแผนที่ (ไม่ได้วาดเป็นพื้นที่ เพราะประกาศระบุเป็นภูมิภาค)', zoomNoteEn: 'Thai Meteorological Department announcements in effect, shown as a banner above the map (not drawn as areas: they name regions).', legend: { type: 'fill', color: '#fde68a', outline: COLORS.warning } },
 
   // Air — Phase 2
-  { id: 'pm25', group: 'air', th: 'PM2.5', en: 'PM2.5', icon: 'air', sourceIds: ['air4thai.aqi'], phase: 2, defaultOn: false, minzoom: 0, legend: { type: 'circle', color: '#6b7280', stroke: '#fff', radius: 5 } },
-  { id: 'aqi', group: 'air', th: 'AQI', en: 'AQI', icon: 'air', sourceIds: ['air4thai.aqi'], phase: 2, defaultOn: false, minzoom: 0, legend: { type: 'circle', color: '#6b7280', stroke: '#fff', radius: 5 } },
+  { id: 'pm25', group: 'air', th: 'PM2.5', en: 'PM2.5', icon: 'air', sourceIds: ['air4thai.aqi', 'gistda.pm25'], phase: 2, defaultOn: false, minzoom: 0, variable: 'pm25', zoomNoteTh: 'PM2.5 (µg/m³) จากสถานีตรวจวัดของกรมควบคุมมลพิษ (สีตามระดับที่ คพ. ประกาศ) และค่าประมาณรายอำเภอจากดาวเทียมของ GISTDA (จุดชื่อ "อ.…" สีเทา เพราะไม่ใช่ค่าตรวจวัด)', zoomNoteEn: 'PM2.5 (µg/m³) at Pollution Control Department monitors (coloured by the level PCD publishes) and GISTDA district estimates from satellite data (points named "อ.…", grey because they are estimates, not measurements).', legend: { type: 'circle', color: '#6b7280', stroke: '#fff', radius: 5 } },
+  { id: 'aqi', group: 'air', th: 'AQI', en: 'AQI', icon: 'air', sourceIds: ['air4thai.aqi'], phase: 2, defaultOn: false, minzoom: 0, variable: 'aqi', zoomNoteTh: 'ดัชนีคุณภาพอากาศ (AQI) ของประเทศไทยจากสถานีกรมควบคุมมลพิษ สีและระดับตามที่ คพ. ประกาศ ในจังหวัดมีสถานีเดียว (อ.เมือง)', zoomNoteEn: 'Thai Air Quality Index from Pollution Control Department monitors, coloured by the level PCD publishes. The province has one monitor (Mueang).', legend: { type: 'circle', color: '#6b7280', stroke: '#fff', radius: 5 } },
 
   // Hazards
   {
@@ -216,8 +238,23 @@ export const LAYERS: readonly LayerDef[] = [
     zoomNoteEn: 'Flood water GISTDA detected in satellite images over the last 7 days (hexagon cells). No colour means none was detected, not a guarantee (e.g. under cloud or in built-up areas).',
     legend: { type: 'fill', color: '#38bdf8', outline: COLORS.flood },
   },
-  { id: 'flood-recurrent', group: 'hazards', th: 'น้ำท่วมซ้ำซาก', en: 'Recurrent flood', icon: 'flood', sourceIds: ['gistda.flood-recurrent'], phase: 2, defaultOn: false, minzoom: 0, legend: { type: 'fill', color: '#a5f3fc', outline: COLORS.flood, pattern: 'hatch' } },
-  { id: 'soil-moisture', group: 'hazards', th: 'ภัยแล้ง / ความชื้นในดิน', en: 'Drought / soil moisture', icon: 'drought', sourceIds: ['gistda.soilmoisture'], phase: 3, defaultOn: false, minzoom: 0, legend: { type: 'fill', color: '#fed7aa', outline: COLORS.drought } },
+  {
+    id: 'flood-recurrent', group: 'hazards', th: 'น้ำท่วมซ้ำซาก (2554–2563)', en: 'Recurrent flooding (2011–2020)', icon: 'flood',
+    sourceIds: ['gistda.flood-recurrent'], phase: 2, defaultOn: false, minzoom: 0,
+    raster: { tiles: ['https://gistdaportal.gistda.or.th/data/rest/services/FL_Flood/flood_freq11_20/MapServer/tile/{z}/{y}/{x}'], tileSize: 256, maxzoom: 19, opacity: 0.75, resampling: 'nearest', attribution: 'น้ำท่วมซ้ำซาก 2554–2563: GISTDA' },
+    zoomNoteTh: 'จำนวนปีที่ GISTDA ตรวจพบน้ำท่วมจากภาพดาวเทียมในช่วง 10 ปี (2554–2563) สีตามที่ GISTDA กำหนด พื้นที่ไม่มีสีคือไม่พบน้ำท่วมในช่วงนั้น ไม่ได้แปลว่าน้ำไม่ท่วม แตะบนแผนที่เพื่อดูจำนวนปีของจุดนั้น',
+    zoomNoteEn: 'Number of years GISTDA detected flooding from satellite images over 2011–2020, in GISTDA\'s colours. No colour means none was detected then, not that it never floods. Tap the map for the count at a point.',
+    legend: { type: 'fill', color: '#fcc44c', outline: COLORS.flood },
+    legendRamp: { colors: ['#2892c7', '#6da9b3', '#a0c29b', '#cede81', '#fafa64', '#fcc44c', '#fa8d34', '#f25922', '#e81014'], lowTh: '1 ปี', lowEn: '1 year', highTh: '9 ปี', highEn: '9 years' },
+  },
+  {
+    id: 'soil-moisture', group: 'hazards', th: 'ความชื้นในดิน (ดาวเทียม SMAP)', en: 'Soil moisture (SMAP satellite)', icon: 'drought',
+    sourceIds: ['gistda.soilmoisture'], phase: 3, defaultOn: false, minzoom: 0,
+    raster: { tilejson: '/api/imagery/soil-moisture', tileSize: 256, maxzoom: 6, opacity: 0.6, resampling: 'linear', attribution: 'ความชื้นในดิน: NASA SMAP L4 (GIBS)' },
+    zoomNoteTh: 'ความชื้นดินผิวหน้ารายวันจากดาวเทียม SMAP ของ NASA (ข้อมูลช่องละ 9 กม. แผนที่จึงปรับให้เรียบ ไม่ได้ละเอียดระดับแปลง) สีตามชุดสีของ NASA GIBS ใช้ดูแนวโน้มแห้ง/ชื้นของพื้นที่กว้าง วันที่ของข้อมูลแสดงในรายการชั้นข้อมูล',
+    zoomNoteEn: 'Daily surface soil moisture from NASA\'s SMAP satellite (9 km cells, smoothed for display; not field-level), in NASA GIBS colours. For broad dry/wet patterns; the data day is shown in the layer list.',
+    legend: { type: 'fill', color: '#fed7aa', outline: COLORS.drought },
+  },
   {
     id: 'hotspots', group: 'hazards', th: 'จุดความร้อน/ไฟ (3 วัน)', en: 'Fire hotspots (3 days)', icon: 'fire',
     sourceIds: ['firms.hotspots'], phase: 2, defaultOn: false, minzoom: 0, hazardKind: 'hotspot',
@@ -276,15 +313,44 @@ export const LAYERS: readonly LayerDef[] = [
     zoomNoteEn: 'Coastal areas lost to erosion or gained by accretion, from the Department of Mineral Resources; data years 2015–2019.',
     legend: { type: 'fill', color: '#fdba74', outline: '#c2410c' },
   },
-  { id: 'mangroves', group: 'coast', th: 'ป่าชายเลน', en: 'Mangroves', icon: 'mangrove', sourceIds: ['dmcr.coast'], phase: 3, defaultOn: false, minzoom: 0, legend: { type: 'fill', color: '#86efac', outline: COLORS.forest } },
+  {
+    id: 'mangroves', group: 'coast', th: 'ป่าชายเลน', en: 'Mangroves', icon: 'mangrove', sourceIds: ['dmcr.coast'], phase: 3, defaultOn: false, minzoom: 0, sourceLayer: 'mangroves',
+    zoomNoteTh: 'แนวป่าชายเลนของกรมทรัพยากรทางทะเลและชายฝั่ง (เผยแพร่ผ่าน GISTDA) บริการไม่ระบุปีข้อมูล แตะเพื่อดูพื้นที่ (ไร่)',
+    zoomNoteEn: 'Mangrove forest zones of the Department of Marine and Coastal Resources (published via GISTDA); the service states no data year. Tap for the area (rai).',
+    legend: { type: 'fill', color: '#4ade80', outline: COLORS.forest },
+  },
 
   // Environment — Phase 3
-  { id: 'landuse', group: 'environment', th: 'การใช้ที่ดิน', en: 'Land use', icon: 'landuse', sourceIds: ['ldd.landuse'], phase: 3, defaultOn: false, minzoom: 12, legend: { type: 'fill', color: '#e5e7eb', outline: COLORS.urban } },
-  { id: 'wetlands', group: 'environment', th: 'พื้นที่ชุ่มน้ำ', en: 'Wetlands', icon: 'wetland', sourceIds: ['dwr.wetlands'], phase: 3, defaultOn: false, minzoom: 0, legend: { type: 'fill', color: '#bae6fd', outline: COLORS.river, pattern: 'dots' } },
+  {
+    id: 'landuse', group: 'environment', th: 'การใช้ที่ดิน', en: 'Land use', icon: 'landuse', sourceIds: ['ldd.landuse'], phase: 3, defaultOn: false, minzoom: 0,
+    raster: { tiles: ['/api/proxy/ldd-landuse/{z}/{x}/{y}'], tileSize: 256, maxzoom: 19, opacity: 0.65, resampling: 'linear', attribution: 'การใช้ที่ดิน: กรมพัฒนาที่ดิน' },
+    zoomNoteTh: 'แผนที่การใช้ที่ดินของกรมพัฒนาที่ดิน (แคชแผนที่) บริการไม่ได้ระบุปีข้อมูลและคำอธิบายสี ซูมเข้าเพื่อดูรายละเอียดระดับแปลง',
+    zoomNoteEn: 'Land Development Department land-use map (cached tiles). The service states no data year and no colour key; zoom in for parcel detail.',
+    legend: { type: 'fill', color: '#fde68a', outline: COLORS.urban },
+  },
+  {
+    id: 'wetlands', group: 'environment', th: 'พื้นที่ชุ่มน้ำสำคัญ', en: 'Registered wetlands', icon: 'wetland', sourceIds: ['dwr.wetlands'], phase: 3, defaultOn: false, minzoom: 0, sourceLayer: 'wetlands',
+    zoomNoteTh: 'พื้นที่ชุ่มน้ำที่มีความสำคัญระดับนานาชาติและระดับชาติ ตามทะเบียนของ สผ. (ปรับปรุง 1 ต.ค. 2563) เผยแพร่โดยกรมทรัพยากรน้ำ เช่น อ่าวปากพนัง',
+    zoomNoteEn: 'Wetlands of international and national importance from ONEP\'s register (revised 1 Oct 2020), published by the Department of Water Resources — e.g. Pak Phanang Bay.',
+    legend: { type: 'fill', color: '#7dd3fc', outline: COLORS.river, pattern: 'hatch' },
+  },
 
   // Satellite — Phase 4
-  { id: 'sentinel2', group: 'satellite', th: 'ภาพดาวเทียม', en: 'Satellite imagery', icon: 'satellite', sourceIds: ['copernicus.sentinel2'], phase: 4, defaultOn: false, minzoom: 0, legend: { type: 'fill', color: '#d1d5db', outline: '#6b7280' } },
-  { id: 'ndvi', group: 'satellite', th: 'พืชพรรณ (NDVI)', en: 'Vegetation (NDVI)', icon: 'ndvi', sourceIds: ['copernicus.sentinel2'], phase: 4, defaultOn: false, minzoom: 0, legend: { type: 'fill', color: '#bbf7d0', outline: COLORS.forest } },
+  {
+    id: 'sentinel2', group: 'satellite', th: 'ภาพดาวเทียม Sentinel-2 ล่าสุด', en: 'Latest Sentinel-2 imagery', icon: 'satellite', sourceIds: ['copernicus.sentinel2'], phase: 4, defaultOn: false, minzoom: 8,
+    raster: { tilejson: '/api/imagery/sentinel2', tileSize: 256, minzoom: 8, maxzoom: 16, opacity: 1, resampling: 'linear', attribution: 'Contains modified Copernicus Sentinel data (Planetary Computer)' },
+    zoomNoteTh: 'ภาพสีธรรมชาติความละเอียด 10 ม. จากดาวเทียม Sentinel-2 เลือกภาพที่เมฆน้อยที่สุดในช่วง 120 วันล่าสุดของแต่ละช่องกริด ใช้เปรียบเทียบกับภาพพื้นฐาน (ซึ่งอาจเก่ากว่า) วันที่ของภาพแสดงในรายการชั้นข้อมูล อาจมีเมฆบางส่วน',
+    zoomNoteEn: 'True-colour 10 m Sentinel-2 imagery: the least cloudy scene of the last 120 days for each grid tile — newer than the basemap imagery. Scene dates are shown in the layer list; some cloud may remain.',
+    legend: { type: 'fill', color: '#d1d5db', outline: '#4b5563' },
+  },
+  {
+    id: 'ndvi', group: 'satellite', th: 'พืชพรรณ (NDVI)', en: 'Vegetation (NDVI)', icon: 'ndvi', sourceIds: ['copernicus.sentinel2'], phase: 4, defaultOn: false, minzoom: 8,
+    raster: { tilejson: '/api/imagery/ndvi', tileSize: 256, minzoom: 8, maxzoom: 16, opacity: 0.8, resampling: 'linear', attribution: 'Contains modified Copernicus Sentinel data (Planetary Computer)' },
+    zoomNoteTh: 'ดัชนีพืชพรรณ NDVI = (อินฟราเรดใกล้ − แดง) / (อินฟราเรดใกล้ + แดง) คำนวณจากภาพ Sentinel-2 ชุดเดียวกับชั้นภาพดาวเทียม เขียวเข้ม = พืชหนาแน่น แดง = ดินเปล่า/สิ่งปลูกสร้าง/น้ำ เมฆจะทำให้ค่าต่ำผิดปกติ',
+    zoomNoteEn: 'NDVI = (NIR − red) / (NIR + red) from the same Sentinel-2 scenes as the imagery layer. Dark green = dense vegetation, red = bare soil, built-up or water. Cloud lowers the value.',
+    legend: { type: 'fill', color: '#4ade80', outline: COLORS.forest },
+    legendRamp: { colors: ['#a50026', '#f46d43', '#fee08b', '#d9ef8b', '#66bd63', '#006837'], lowTh: 'ไม่มีพืช (−0.2)', lowEn: 'No vegetation (−0.2)', highTh: 'พืชหนาแน่น (0.9)', highEn: 'Dense vegetation (0.9)' },
+  },
 ];
 
 /** The phase this build implements. Layers from later phases are listed but disabled. */

@@ -238,6 +238,24 @@ export function overlayLayers(layer: LayerDef, locale: Locale): LayerSpecificati
           },
         },
       ];
+    case 'mangroves':
+      return [
+        { ...base, id: id(''), type: 'fill', paint: { 'fill-color': '#22c55e', 'fill-opacity': ['interpolate', ['linear'], ['zoom'], 8, 0.6, 15, 0.4] as never } },
+        { ...base, id: id('-outline'), type: 'line', minzoom: 11, paint: { 'line-color': '#15803d', 'line-width': 0.8 } },
+      ];
+    case 'wetlands':
+      return [
+        { ...base, id: id(''), type: 'fill', paint: { 'fill-color': '#38bdf8', 'fill-opacity': 0.28 } },
+        { ...base, id: id('-outline'), type: 'line', paint: { 'line-color': '#0369a1', 'line-width': ['interpolate', ['linear'], ['zoom'], 8, 1, 14, 2] as never, 'line-dasharray': [3, 2] } },
+        {
+          ...base,
+          id: id('-label'),
+          type: 'symbol',
+          minzoom: 9,
+          layout: { 'text-field': ['get', 'name_th'], 'text-font': ['Noto Sans Regular'], 'text-size': OVERLAY_LABEL_SIZE, 'text-max-width': 10 },
+          paint: { 'text-color': '#075985', 'text-halo-color': '#ffffff', 'text-halo-width': 1.5 },
+        },
+      ];
     case 'flash-flood':
       return [
         { ...base, id: id(''), type: 'fill', paint: { 'fill-color': '#fb923c', 'fill-opacity': 0.45 } },
@@ -300,6 +318,29 @@ export function selectionLayers(): LayerSpecification[] {
   ];
 }
 
+/** Raster overlay source: fixed XYZ tiles, or the TileJSON our server builds for changing imagery. */
+export function rasterSource(layer: LayerDef, origin: string): SourceSpecification {
+  const r = layer.raster!;
+  const common = { type: 'raster' as const, tileSize: r.tileSize, attribution: r.attribution };
+  const abs = (u: string) => (u.startsWith('/') ? `${origin}${u}` : u);
+  return r.tilejson ? { ...common, url: abs(r.tilejson) } : { ...common, tiles: r.tiles!.map(abs), minzoom: r.minzoom ?? 0, maxzoom: r.maxzoom };
+}
+
+export function rasterLayers(layer: LayerDef): LayerSpecification[] {
+  const r = layer.raster!;
+  return [
+    {
+      id: `${OVERLAY_PREFIX}${layer.id}`,
+      type: 'raster',
+      source: overlaySourceId(layer.id),
+      paint: { 'raster-opacity': r.opacity, 'raster-resampling': r.resampling ?? 'linear', 'raster-fade-duration': 150 },
+    },
+  ];
+}
+
+/** Image id of the wind arrow; drawn by the map on demand (see EnvironmentalMap). */
+export const WIND_ARROW_IMAGE = 'n360-wind-arrow';
+
 /** GeoJSON source for a live station layer: clustered at province zooms (≤ 9). */
 export function stationSource(layer: LayerDef, origin: string): SourceSpecification {
   return { type: 'geojson', data: `${origin}/api/layers/${layer.id}`, cluster: true, clusterMaxZoom: 9, clusterRadius: 36 };
@@ -314,7 +355,13 @@ export function stationLayers(layer: LayerDef, locale: Locale): LayerSpecificati
   const source = overlaySourceId(layer.id);
   const id = (s: string) => `${OVERLAY_PREFIX}${layer.id}${s}`;
   const neutral = layer.legend.type === 'circle' ? layer.legend.color : '#475569';
-  const unitLabel = layer.variable === 'rain_24h' ? (locale === 'th' ? ' มม.' : ' mm') : layer.variable === 'water_level' ? (locale === 'th' ? ' ม.รทก.' : ' m MSL') : '';
+  const UNIT: Record<string, [string, string]> = { rain_24h: [' มม.', ' mm'], water_level: [' ม.รทก.', ' m MSL'], temperature: ['°C', '°C'], wind_speed: [' กม./ชม.', ' km/h'], pm25: [' µg/m³', ' µg/m³'], aqi: ['', ''] };
+  const unitLabel = UNIT[layer.variable ?? '']?.[locale === 'th' ? 0 : 1] ?? '';
+  // Weather stations are labelled by name; the other layers by their value.
+  const labelField =
+    layer.id === 'weather-stations'
+      ? ['coalesce', ['get', locale === 'th' ? 'name_th' : 'name_en'], ['get', 'name_th']]
+      : ['concat', ['number-format', ['get', 'value'], { 'max-fraction-digits': 2 }], unitLabel];
   return [
     {
       id: id('-cluster'),
@@ -355,7 +402,7 @@ export function stationLayers(layer: LayerDef, locale: Locale): LayerSpecificati
       minzoom: 10,
       filter: ['!', ['has', 'point_count']],
       layout: {
-        'text-field': ['concat', ['number-format', ['get', 'value'], { 'max-fraction-digits': 2 }], unitLabel],
+        'text-field': labelField as never,
         'text-font': ['Noto Sans Regular'],
         'text-size': OVERLAY_LABEL_SIZE,
         'text-offset': [0, 1.1],
@@ -364,6 +411,25 @@ export function stationLayers(layer: LayerDef, locale: Locale): LayerSpecificati
       },
       paint: { 'text-color': '#111827', 'text-halo-color': '#ffffff', 'text-halo-width': 1.5 },
     },
+    ...(layer.variable === 'wind_speed'
+      ? [
+          {
+            // Where the wind blows to: TMD gives the direction it comes from, so turn the arrow round.
+            id: id('-arrow'),
+            type: 'symbol',
+            source,
+            filter: ['all', ['!', ['has', 'point_count']], ['has', 'wind_dir'], ['>', ['get', 'value'], 0]],
+            layout: {
+              'icon-image': WIND_ARROW_IMAGE,
+              'icon-size': ['interpolate', ['linear'], ['zoom'], 8, 0.55, 14, 0.85],
+              'icon-rotate': ['+', ['get', 'wind_dir'], 180],
+              'icon-rotation-alignment': 'map',
+              'icon-allow-overlap': true,
+              'icon-ignore-placement': true,
+            },
+          } as LayerSpecification,
+        ]
+      : []),
   ];
 }
 

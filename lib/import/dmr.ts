@@ -15,9 +15,11 @@ export const DMR_REST = 'https://gisportal.dmr.go.th/arcgis/rest/services';
 export interface DmrDataset {
   /** Key in hazard_zones.dataset and in the tile layer table. */
   dataset: string;
-  sourceId: 'dmr.landslide' | 'dmr.shoreline';
-  /** Folder/Service of the MapServer (layer 0 is used). */
+  sourceId: 'dmr.landslide' | 'dmr.shoreline' | 'dwr.wetlands' | 'dmcr.coast' | 'gistda.flood-recurrent';
+  /** Folder/Service of the DMR MapServer (layer 0 is used)… */
   service: string;
+  /** …or the full ArcGIS REST layer URL, for datasets other agencies publish the same way. */
+  url?: string;
   /** Agency field holding a stable id (falls back to OBJECTID). */
   idField: string;
   /** Our property name → agency field. Values are copied as published. */
@@ -77,10 +79,32 @@ export const DMR_DATASETS: readonly DmrDataset[] = [
     fields: { status: 'STATUS_T', status_en: 'STATUS_E', beach: 'BEACH_NAME', area_sqm: 'AREA_sqm', year: 'YEAR_COMPI', tambon: 'TAMBON', district: 'DISTRICT', province: 'PROVINCE' },
     geometry: 'polygon',
   },
+
+  // ------------------------------------------------------------ other agencies, same ArcGIS REST pattern
+  {
+    // ONEP's register of wetlands of international and national importance (revised 1 Oct 2020), published by DWR.
+    dataset: 'wetlands',
+    sourceId: 'dwr.wetlands',
+    service: 'DWR/Ramsar_Wetland_Revise_1Oct2020_by_ONEP',
+    url: 'https://gis.dwr.go.th/arcgis/rest/services/Ramsar_Wetland_Revise_1Oct2020_by_ONEP/MapServer/0',
+    idField: 'FID',
+    fields: { name_th: 'W_Name_1', class: 'WL_Class_1', region: 'Region_1', area_rai: 'Area_Rai', province: 'PROV_NAM_T', order_no: 'Order_InBo' },
+    geometry: 'polygon',
+  },
+  {
+    // DMCR mangrove forest zones (แนวป่าชายเลน ทช.), served from GISTDA's portal.
+    dataset: 'mangroves',
+    sourceId: 'dmcr.coast',
+    service: 'GISTDA/14_แนวป่าชายเลนของทช',
+    url: 'https://gistdaportal.gistda.or.th/arcgis/rest/services/Hosted/14_%E0%B9%81%E0%B8%99%E0%B8%A7%E0%B8%9B%E0%B9%88%E0%B8%B2%E0%B8%8A%E0%B8%B2%E0%B8%A2%E0%B9%80%E0%B8%A5%E0%B8%99%E0%B8%82%E0%B8%AD%E0%B8%87%E0%B8%97%E0%B8%8A/FeatureServer/0',
+    idField: 'fr_id',
+    fields: { name_th: 'fr_name', area_rai: 'area_rai', fr_id: 'fr_id' },
+    geometry: 'polygon',
+  },
 ];
 
 export function layerUrl(d: DmrDataset): string {
-  return `${DMR_REST}/${d.service}/MapServer/0`;
+  return d.url ?? `${DMR_REST}/${d.service}/MapServer/0`;
 }
 
 /** ArcGIS envelope for a [w, s, e, n] box in WGS84. */

@@ -71,6 +71,14 @@ export async function GET(_req: NextRequest, ctx: { params: Promise<{ layerId: s
       return NextResponse.json(fc, { headers: { 'Cache-Control': 'public, max-age=60, s-maxage=120, stale-while-revalidate=600' } });
     }
     const rows = (await withTimeout(latestStationReadings(sql, layer.variable!), 6000)).filter((r) => layer.sourceIds.includes(r.source_id));
+    // Wind: the direction reported with the same observation, so the map can draw an arrow.
+    const dirs = new Map<string, number>();
+    if (layer.variable === 'wind_speed') {
+      for (const d of await withTimeout(latestStationReadings(sql, 'wind_dir'), 6000)) {
+        const speed = rows.find((r) => r.source_id === d.source_id && r.station_id === d.station_id);
+        if (speed && new Date(speed.observed_at).getTime() === new Date(d.observed_at).getTime()) dirs.set(`${d.source_id}|${d.station_id}`, d.value);
+      }
+    }
     const fc: GeoJSON.FeatureCollection = {
       type: 'FeatureCollection',
       features: rows.map((r) => ({
@@ -89,6 +97,7 @@ export async function GET(_req: NextRequest, ctx: { params: Promise<{ layerId: s
           official_level: r.official_level,
           official_color: r.official_color,
           official_detail: r.official_detail,
+          ...(dirs.has(`${r.source_id}|${r.station_id}`) ? { wind_dir: dirs.get(`${r.source_id}|${r.station_id}`) } : {}),
         },
       })),
     };

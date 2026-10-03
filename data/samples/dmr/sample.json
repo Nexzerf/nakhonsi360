@@ -2,7 +2,11 @@
  "_sample": {
   "obtained": "2026-10-03",
   "service": "https://gisportal.dmr.go.th/arcgis/rest/services",
-  "note": "First features returned for the province extent (f=geojson, outSR=4326), geometry trimmed to type only; attributes unmodified."
+  "note": "First features returned for the province extent (f=geojson, outSR=4326), geometry trimmed to type only; attributes unmodified.",
+  "others": {
+   "DWR/Ramsar_Wetland_Revise_1Oct2020_by_ONEP": "https://gis.dwr.go.th/arcgis/rest/services/Ramsar_Wetland_Revise_1Oct2020_by_ONEP/MapServer/0 (2026-10-03, first two features in the province extent, f=geojson, returnGeometry=false; attributes unmodified)",
+   "GISTDA/14_แนวป่าชายเลนของทช": "https://gistdaportal.gistda.or.th/arcgis/rest/services/Hosted/14_แนวป่าชายเลนของทช/FeatureServer/0 (2026-10-03, same method)"
+  }
  },
  "HAZARD/LANDSLIDE_SUSCEPTIBILITY": [
   {
@@ -232,6 +236,66 @@
     "Shape.STLength()": 2582.1301759164007
    },
    "geometry_type": "MultiPolygon"
+  }
+ ],
+ "DWR/Ramsar_Wetland_Revise_1Oct2020_by_ONEP": [
+  {
+   "type": "Feature",
+   "id": 72,
+   "geometry": null,
+   "properties": {
+    "FID": 72,
+    "Area_SqM": 453311207.14,
+    "Area_Rai": 283319.5,
+    "W_Name_1": "เขตห้ามล่าสัตว์ป่าทะเลน้อย",
+    "Region_1": "ภาคใต้",
+    "WL_Class_1": "ความสำคัญระดับนานาชาติ",
+    "Order_InBo": "Inter 38",
+    "Order1": 38,
+    "PROV_NAM_T": "จ.นครศรีธรรมราช จ.พัทลุง จ.สงขลา"
+   }
+  },
+  {
+   "type": "Feature",
+   "id": 75,
+   "geometry": null,
+   "properties": {
+    "FID": 75,
+    "Area_SqM": 203671627.03,
+    "Area_Rai": 127294.77,
+    "W_Name_1": "อ่าวปากพนัง",
+    "Region_1": "ภาคใต้",
+    "WL_Class_1": "ความสำคัญระดับนานาชาติ",
+    "Order_InBo": "Inter 64",
+    "Order1": 64,
+    "PROV_NAM_T": "จ.นครศรีธรรมราช"
+   }
+  }
+ ],
+ "GISTDA/14_แนวป่าชายเลนของทช": [
+  {
+   "id": 799,
+   "type": "Feature",
+   "properties": {
+    "objectid_1": 799,
+    "fr_id": "mg00799",
+    "fr_name": "ป่าชายเลน",
+    "area_rai": 545.92797852,
+    "shape_leng": 7906.31580522,
+    "objectid": 799
+   }
+  },
+  {
+   "id": 830,
+   "type": "Feature",
+   "properties": {
+    "objectid_1": 830,
+    "fr_id": "mg00830",
+    "fr_name": "ป่าชายเลน",
+    "area_rai": 12.0607996,
+    "shape_leng": 706.25496843,
+    "objectid": 830
+   }
   }
  ]
 }

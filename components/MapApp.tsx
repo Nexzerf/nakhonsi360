@@ -1,5 +1,6 @@
 'use client';
 
+import { WarningsBanner } from '@/components/WarningsBanner';
 import { useEffect, useState } from 'react';
 import dynamic from 'next/dynamic';
 import { useMapStore, useT } from '@/lib/state/store';
@@ -98,6 +99,7 @@ export function MapApp({ initialBounds }: { initialBounds: BBox | null }) {
             </div>
             <OfflineNotice />
             {!panel && !selection && !layerPanelOpen && !overviewOpen && <KpiChips />}
+            {!panel && !selection && !layerPanelOpen && !overviewOpen && <WarningsBanner />}
           </div>
           {!panel && !selection && !layerPanelOpen && !overviewOpen && !picking && (
             <div className="anim-fade-up pointer-events-none absolute inset-x-0 bottom-[calc(84px+env(safe-area-inset-bottom))] z-10 flex justify-center">
@@ -125,6 +127,9 @@ export function MapApp({ initialBounds }: { initialBounds: BBox | null }) {
             </div>
             <div className="anim-fade-down absolute top-3 left-1/2 -translate-x-1/2 [animation-delay:80ms]">
               <TopNav />
+            </div>
+            <div className="absolute top-[76px] left-1/2 flex w-[min(34rem,calc(100vw-48rem))] min-w-[20rem] -translate-x-1/2 justify-center">
+              <WarningsBanner />
             </div>
             <div className="anim-fade-down ml-auto flex items-center gap-2 [animation-delay:140ms]">
               <InstallButton />

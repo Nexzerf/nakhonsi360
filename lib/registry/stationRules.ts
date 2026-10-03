@@ -32,8 +32,8 @@ export const CONDITION_VARIABLES: readonly VariableRule[] = [
   { variable: 'water_level', th: 'ระดับน้ำ', en: 'Water level', sourceIds: ['thaiwater.waterlevel'], rule: { kind: 'same_river', maxRadiusM: 20_000, riverSnapM: 2_000 }, disagreeAbs: 0.1, disagreeRel: 0.05, decimals: 2 },
   { variable: 'temperature', th: 'อุณหภูมิ', en: 'Temperature', sourceIds: ['tmd.weather'], rule: { kind: 'radius', radiusM: 30_000 }, disagreeAbs: 2, disagreeRel: 0.1, decimals: 1 },
   { variable: 'humidity', th: 'ความชื้นสัมพัทธ์', en: 'Humidity', sourceIds: ['tmd.weather'], rule: { kind: 'radius', radiusM: 30_000 }, disagreeAbs: 10, disagreeRel: 0.15, decimals: 0 },
-  { variable: 'wind_speed', th: 'ความเร็วลม', en: 'Wind speed', sourceIds: ['tmd.weather'], rule: { kind: 'radius', radiusM: 30_000 }, disagreeAbs: 2, disagreeRel: 0.3, decimals: 1 },
-  { variable: 'pm25', th: 'PM2.5', en: 'PM2.5', sourceIds: ['air4thai.aqi'], rule: { kind: 'radius', radiusM: 25_000 }, disagreeAbs: 10, disagreeRel: 0.25, decimals: 0 },
+  { variable: 'wind_speed', th: 'ความเร็วลม', en: 'Wind speed', sourceIds: ['tmd.weather'], rule: { kind: 'radius', radiusM: 30_000 }, disagreeAbs: 7, disagreeRel: 0.3, decimals: 1 },
+  { variable: 'pm25', th: 'PM2.5', en: 'PM2.5', sourceIds: ['air4thai.aqi', 'gistda.pm25'], rule: { kind: 'radius', radiusM: 25_000 }, disagreeAbs: 10, disagreeRel: 0.25, decimals: 0 },
 ];
 
 /** Compare river names ignoring spaces and case only; the names themselves must match. */

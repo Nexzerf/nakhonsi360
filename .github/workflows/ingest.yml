@@ -1,7 +1,8 @@
 name: Ingest live data
 
-# Pulls live sources (ThaiWater water level + 24-h rain, USGS earthquakes, more as adapters are
-# verified) into the database every 15 minutes, then applies retention.
+# Pulls live sources (ThaiWater, TMD weather and warnings, Air4Thai, GISTDA flood and PM2.5,
+# NASA FIRMS, USGS) into the database every 15 minutes, then refreshes the imagery layers
+# (at most twice a day). TMD_UID/TMD_UKEY are optional (TMD's demo account is used without them).
 # Requires the DATABASE_URL repository secret; without it the job is skipped.
 on:
   schedule:
@@ -51,3 +52,10 @@ jobs:
           FIRMS_MAP_KEY: ${{ secrets.FIRMS_MAP_KEY }}
         run: |
           if [ -n "${{ inputs.source }}" ]; then npm run ingest -- --source "${{ inputs.source }}"; else npm run ingest; fi
+      - name: Refresh imagery layers (Sentinel-2 mosaic, SMAP day; skipped when refreshed within 12 h)
+        if: steps.check.outputs.ready == 'true' && inputs.source == ''
+        # Imagery is a nice-to-have: a failure here must not mark the live ingest as failed.
+        continue-on-error: true
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+        run: npm run refresh:imagery

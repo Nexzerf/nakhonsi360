@@ -55,12 +55,33 @@ export function MapLegend() {
               {active.map((l) => {
                 const hidden = zoom < l.minzoom;
                 return (
-                  <li key={l.id} className={`flex min-h-7 items-center gap-2.5 ${hidden ? 'text-fg-subtle' : ''}`}>
-                    <span className={hidden ? 'opacity-40' : ''}>
-                      <LegendSwatch symbol={l.legend} size={20} />
-                    </span>
-                    <span className="flex-1">{placeName(locale, l.th, l.en)}</span>
-                    {hidden && <span className="tabular text-[11px] text-fg-subtle">{t('layers.minzoom', { zoom: l.minzoom })}</span>}
+                  <li key={l.id} className={hidden ? 'text-fg-subtle' : ''}>
+                    <div className="flex min-h-7 items-center gap-2.5">
+                      <span className={hidden ? 'opacity-40' : ''}>
+                        <LegendSwatch symbol={l.legend} size={20} />
+                      </span>
+                      <span className="flex-1">{placeName(locale, l.th, l.en)}</span>
+                      {hidden && <span className="tabular text-[11px] text-fg-subtle">{t('layers.minzoom', { zoom: l.minzoom })}</span>}
+                    </div>
+                    {l.legendRamp && (
+                      <div className="mb-1 pl-[30px]">
+                        <div aria-hidden="true" className="h-2 rounded-full" style={{ background: `linear-gradient(to right, ${l.legendRamp.colors.join(', ')})` }} />
+                        <div className="mt-0.5 flex justify-between text-[11px] text-fg-subtle">
+                          <span>{locale === 'en' ? l.legendRamp.lowEn : l.legendRamp.lowTh}</span>
+                          <span>{locale === 'en' ? l.legendRamp.highEn : l.legendRamp.highTh}</span>
+                        </div>
+                      </div>
+                    )}
+                    {l.legendItems && (
+                      <ul className="mb-1 grid grid-cols-2 gap-x-2 pl-[30px]">
+                        {l.legendItems.map((it) => (
+                          <li key={it.color + it.th} className="flex items-center gap-1.5 text-[11px]">
+                            <span aria-hidden="true" className="h-2.5 w-2.5 shrink-0 rounded-sm" style={{ background: it.color }} />
+                            {locale === 'en' ? it.en : it.th}
+                          </li>
+                        ))}
+                      </ul>
+                    )}
                   </li>
                 );
               })}
