@@ -57,12 +57,67 @@ async function svcReport(base, svc, kind = 'FeatureServer') {
     if (d.features) console.log('   distinct:', d.features.slice(0, 40).map((x) => Object.values(x.attributes)[0]).join(' | ').slice(0, 900));
   }
 }
-try {
-  console.log('\n### air4thai cert\n' + execSync('echo | openssl s_client -connect air4thai.pcd.go.th:443 -servername air4thai.pcd.go.th 2>/dev/null | openssl x509 -noout -subject -issuer -ext subjectAltName -dates', { encoding: 'utf8' }));
-} catch (e) { console.log('openssl failed', e.message); }
-const H = 'https://gistdaportal.gistda.or.th/arcgis/rest/services/Hosted';
-await svcReport(H, 'พื้นที่น้ำท่วมซ้ำซาก_ปี_2011_2022');
-await svcReport(H, '14_แนวป่าชายเลนของทช');
-await svcReport(H, 'Nakornsri_Landuse');
-await svcReport('https://gistdaportal.gistda.or.th/data/rest/services', 'FL_Flood/FL_RepeatedFlooding_GISTDA_50k_Y2005_Y2016');
-await svcReport(H, 'L09_LanduseSouth_GISTDA_25k');
+
+async function mapReport(url) {
+  const root = await J(`${url}?f=json`);
+  console.log(`\n### ${url.split('/services/')[1]}: layers=${(root.layers ?? []).map((l) => `${l.id}:${l.name}`).join(', ')} caps=${root.capabilities} tiled=${!!root.tileInfo} ${root.err ?? root.httpStatus ?? ''}`);
+  console.log('  desc:', String(root.serviceDescription ?? root.description ?? '').replace(/<[^>]+>/g, ' ').slice(0, 300), '| copyright:', root.copyrightText ?? '');
+  for (const l of (root.layers ?? []).slice(0, 3)) {
+    const info = await J(`${url}/${l.id}?f=json`);
+    const q = `${url}/${l.id}/query?where=1%3D1&geometry=${env}&geometryType=esriGeometryEnvelope&inSR=4326&spatialRel=esriSpatialRelIntersects`;
+    const c = await J(`${q}&returnCountOnly=true&f=json`);
+    const f = await J(`${q}&outFields=*&returnGeometry=false&resultRecordCount=2&f=json`);
+    console.log(`  [${l.id}] ${info.name} ${info.geometryType ?? info.type} count=${c.count ?? JSON.stringify(c).slice(0, 80)} drawingInfo=${JSON.stringify(info.drawingInfo?.renderer?.type ?? '')}`);
+    console.log('   fields:', (info.fields ?? []).map((x) => x.name).join(', ').slice(0, 400));
+    for (const ft of f.features ?? []) console.log('   attrs:', JSON.stringify(ft.attributes).slice(0, 300));
+    if (info.drawingInfo?.renderer?.uniqueValueInfos) console.log('   classes:', info.drawingInfo.renderer.uniqueValueInfos.map((u) => `${u.value}=${u.label} rgb(${u.symbol?.color})`).join(' | ').slice(0, 800));
+  }
+}
+const D = 'https://gistdaportal.gistda.or.th/data/rest/services/FL_Flood';
+await mapReport(`${D}/FL_RepeatedFlooding_GISTDA_50k_Y2005_Y2016/MapServer`);
+await mapReport(`${D}/flood_freq11_20/MapServer`);
+
+// PM2.5 per district (full, for the sample)
+const pm = await fetch('https://pm25.gistda.or.th/rest/getPm25byAmphoe?pv_idn=80');
+console.log('\n### PM25 AMPHOE FULL ' + pm.status + ' fetchedAt=' + new Date().toISOString() + '\n' + (await pm.text()));
+
+// Air4Thai with AIA chasing: read the server certificate, download its issuer, then verify normally.
+import tls from 'node:tls';
+import https from 'node:https';
+import { X509Certificate } from 'node:crypto';
+const peer = await new Promise((res, rej) => {
+  const s = tls.connect({ host: 'air4thai.pcd.go.th', port: 443, servername: 'air4thai.pcd.go.th', rejectUnauthorized: false }, () => { const c = s.getPeerCertificate(true); s.end(); res(c); });
+  s.on('error', rej);
+});
+console.log('\n### air4thai peer', peer.subject?.CN, 'issuer', peer.issuer?.CN, 'infoAccess', JSON.stringify(peer.infoAccess));
+const caUrl = peer.infoAccess?.['CA Issuers - URI']?.[0];
+if (caUrl) {
+  const der = Buffer.from(await (await fetch(caUrl)).arrayBuffer());
+  const inter = new X509Certificate(der);
+  console.log('intermediate', inter.subject, '| issuer', inter.issuer, '| validTo', inter.validTo, '| AIA', inter.infoAccess);
+  const ca = [...tls.rootCertificates, inter.toString()];
+  const body = await new Promise((res, rej) => https.get('https://air4thai.pcd.go.th/services/getNewAQI_JSON.php', { ca, headers: { 'User-Agent': 'Nakhonsi360 probe' } }, (r) => { let b = ''; r.on('data', (d) => (b += d)); r.on('end', () => res({ status: r.statusCode, b })); }).on('error', rej));
+  console.log('air4thai verified fetch:', body.status, body.b.length, 'bytes');
+  try {
+    const d = JSON.parse(body.b);
+    const st = d.stations ?? [];
+    console.log('stations:', st.length, 'keys:', Object.keys(st[0] ?? {}).join(','));
+    const nst = st.filter((x) => Number(x.lat) > 7.7 && Number(x.lat) < 9.4 && Number(x.long) > 99.3 && Number(x.long) < 100.4);
+    console.log('### AIR4THAI NST STATIONS\n' + JSON.stringify(nst));
+  } catch (e) { console.log('parse', e.message, body.b.slice(0, 300)); }
+}
+
+// CORS and tiles for browser-loaded rasters
+const tileOf = (z, lng, lat) => { const x = Math.floor(((lng + 180) / 360) * 2 ** z); const r = (lat * Math.PI) / 180; const y = Math.floor(((1 - Math.log(Math.tan(r) + 1 / Math.cos(r)) / Math.PI) / 2) * 2 ** z); return [z, x, y]; };
+const [z, x, y] = tileOf(12, 99.96, 8.43);
+for (const [label, u] of [
+  ['LDD LU', `https://eis.ldd.go.th/arcgis/rest/services/LDD_LU_WM_CACHE/MapServer/tile/${z}/${y}/${x}`],
+  ['GIBS SMAP', `https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/SMAP_L4_Analyzed_Surface_Soil_Moisture/default/2026-09-29/GoogleMapsCompatible_Level6/6/${tileOf(6, 99.96, 8.43)[2]}/${tileOf(6, 99.96, 8.43)[1]}.png`],
+  ['PC tile', `https://planetarycomputer.microsoft.com/api/data/v1/mosaic/0c5657cc1c50ffea17e0b8ed5b77c853/tiles/WebMercatorQuad/${z}/${x}/${y}@2x?collection=sentinel-2-l2a&assets=visual&nodata=0&format=png`],
+]) {
+  try {
+    const r = await fetch(u, { headers: { Origin: 'https://nakhonsi360.vercel.app' } });
+    const b = await r.arrayBuffer();
+    console.log(`\n### CORS ${label}: ${r.status} ${r.headers.get('content-type')} ${b.byteLength}B acao=${r.headers.get('access-control-allow-origin')} cache=${r.headers.get('cache-control')}`);
+  } catch (e) { console.log(`### CORS ${label}: ERROR ${e.message}`); }
+}
