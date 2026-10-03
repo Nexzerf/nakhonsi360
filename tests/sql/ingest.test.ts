@@ -11,8 +11,9 @@ import postgres from 'postgres';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { thaiwaterRain24h, thaiwaterWaterlevel } from '@/lib/adapters/thaiwater';
 import { usgsEarthquakes } from '@/lib/adapters/usgs';
+import { firmsHotspots } from '@/lib/adapters/firms';
 import { runIngest } from '@/lib/ingest/runner';
-import { connectedSources, earthquakesNear, nearestObservations, provinceMask, recentEarthquakes, renderTile } from '@/lib/db/queries';
+import { connectedSources, earthquakesNear, nearestObservations, provinceMask, recentEarthquakes, renderTile, satelliteHazardsAt } from '@/lib/db/queries';
 import type { IngestAdapter } from '@/lib/ingest/types';
 
 const { TEST_DATABASE_URL, CODAB_FILE } = process.env;
@@ -116,6 +117,20 @@ suite('ingest pipeline (real samples)', () => {
     }
     const [{ n } = { n: -1 }] = await sql<{ n: number }[]>`select count(*)::int as n from admin_areas where tile_lo is null or tile_mid is null or tile_hi is null`;
     expect(n).toBe(0);
+  });
+
+  it('keeps FIRMS hotspots only within the province + 5 km and finds them near a point', async () => {
+    // The real sample (all three points are outside the province) plus one test point in the city, today.
+    const today = new Date().toISOString().slice(0, 10);
+    const csv = readFileSync(path.join(root, 'data', 'samples', 'firms.hotspots', 'area_viirs_noaa21_5d.csv'), 'utf8').trimEnd() + `\n8.43,99.96,330,0.4,0.4,${today},400,N21,VIIRS,n,2.0NRT,295,4.2,D\n`;
+    const r = await runIngest(sql, firmsHotspots, { raw: { since: `${today}T00:00:00.000Z`, csv: { VIIRS_NOAA21_NRT: csv } } });
+    expect(r.status).toBe('ok');
+    const [{ n } = { n: -1 }] = await sql<{ n: number }[]>`select count(*)::int as n from hazard_features where source_id = 'firms.hotspots'`;
+    expect(n).toBe(1);
+    const near = await satelliteHazardsAt(sql, 99.9631, 8.4304);
+    expect(near.hotspots.count).toBe(1);
+    expect(near.hotspots.nearestM).toBeLessThan(5000);
+    expect(near.flood).toBeNull();
   });
 
   it('returns the nearest station reading with a geodesic distance', async () => {

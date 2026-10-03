@@ -1,7 +1,7 @@
 import { NextResponse, type NextRequest } from 'next/server';
 import type * as GeoJSON from 'geojson';
 import { getDb, withTimeout } from '@/lib/db/client';
-import { connectedSources, latestStationReadings, recentEarthquakes } from '@/lib/db/queries';
+import { connectedSources, latestStationReadings, recentEarthquakes, recentHazards } from '@/lib/db/queries';
 import { getLayer } from '@/lib/registry/layers';
 
 export const dynamic = 'force-dynamic';
@@ -45,6 +45,26 @@ export async function GET(_req: NextRequest, ctx: { params: Promise<{ layerId: s
             depth_km: r.properties.depth_km ?? null,
             status: r.properties.status ?? null,
             url: r.properties.url ?? null,
+          },
+        })),
+      };
+      return NextResponse.json(fc, { headers: { 'Cache-Control': 'public, max-age=60, s-maxage=120, stale-while-revalidate=600' } });
+    }
+    if (layer.hazardKind === 'flood' || layer.hazardKind === 'hotspot') {
+      // GISTDA's flood window is 7 days; hotspots are shown for 3 days.
+      const days = layer.hazardKind === 'flood' ? 7 : 3;
+      const rows = (await withTimeout(recentHazards(sql, layer.hazardKind, days), 6000)).filter((r) => layer.sourceIds.includes(r.source_id));
+      const fc: GeoJSON.FeatureCollection = {
+        type: 'FeatureCollection',
+        features: rows.map((r) => ({
+          type: 'Feature',
+          geometry: JSON.parse(r.geojson) as GeoJSON.Geometry,
+          properties: {
+            ...r.properties,
+            source_id: r.source_id,
+            feature_key: r.feature_key,
+            observed_at: new Date(r.observed_at).toISOString(),
+            fetched_at: new Date(r.fetched_at).toISOString(),
           },
         })),
       };

@@ -529,6 +529,18 @@
     "safe": "Nearest safe point: {name}",
     "tapToSee": "tap to see on the map",
     "more": "More details",
-    "less": "Hide details"
+    "less": "Hide details",
+    "hotspotSource": "NASA FIRMS, last 3 days"
+  },
+  "satHazard": {
+    "title": "From satellites (GISTDA, NASA)",
+    "floodHere": "Satellites detected flooding here",
+    "floodNear": "Satellites detected flooding {distance} away",
+    "reported": "reported by GISTDA {time}",
+    "noFlood": "GISTDA satellites detected no flooding within 2 km in the last 7 days",
+    "hotspots": "{n} hotspots within 5 km (nearest {distance})",
+    "latest": "latest {time}",
+    "noHotspots": "No hotspots within 5 km in the last 3 days",
+    "note": "Satellites can miss flooding under cloud or in built-up areas, and a hotspot may be open burning or another heat source; not confirmed on the ground."
   }
 }

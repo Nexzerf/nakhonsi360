@@ -8,11 +8,15 @@
 import type { IngestAdapter } from '@/lib/ingest/types';
 import { thaiwaterRain24h, thaiwaterWaterlevel } from '@/lib/adapters/thaiwater';
 import { usgsEarthquakes } from '@/lib/adapters/usgs';
+import { firmsHotspots } from '@/lib/adapters/firms';
+import { gistdaFlood } from '@/lib/adapters/gistda';
 
 export const ADAPTERS: Record<string, IngestAdapter> = {
   [thaiwaterWaterlevel.sourceId]: thaiwaterWaterlevel,
   [thaiwaterRain24h.sourceId]: thaiwaterRain24h,
   [usgsEarthquakes.sourceId]: usgsEarthquakes,
+  [firmsHotspots.sourceId]: firmsHotspots,
+  [gistdaFlood.sourceId]: gistdaFlood,
 };
 
 /** Live sources that still need a verified sample before an adapter can be written. */
@@ -21,7 +25,6 @@ export const PENDING_ADAPTERS = [
   'tmd.warnings',
   'tmd.earthquake',
   'air4thai.aqi',
-  'gistda.flood',
+  // Verified 2026-10-03 but not used: the same VIIRS detections as firms.hotspots (would draw every point twice).
   'gistda.hotspots',
-  'firms.hotspots',
 ] as const;
