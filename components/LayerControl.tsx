@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
-import { BASEMAPS, LAYERS, LAYER_GROUPS, MAX_VISIBLE_OVERLAYS, type BasemapId, type LayerDef } from '@/lib/registry/layers';
+import { BASEMAPS, LAYERS, LAYER_GROUPS, LAYER_SCENARIOS, MAX_VISIBLE_OVERLAYS, type BasemapId, type LayerDef } from '@/lib/registry/layers';
 import { useSources, layerStatus, layerHasData, layerUsable } from '@/lib/hooks';
 import { useMapStore, useT } from '@/lib/state/store';
 import { placeName } from '@/lib/i18n';
@@ -120,6 +120,44 @@ const BASEMAP_PREVIEW: Record<BasemapId, string> = {
   terrain: 'repeating-radial-gradient(circle at 65% 60%, #efe6cf 0 5px, #d8c9a1 5px 6px), #efe6cf',
 };
 
+/** "What do you want to see?" — one tap replaces the visible layers with a ready-made set. */
+function Scenarios() {
+  const t = useT();
+  const locale = useMapStore((s) => s.locale);
+  const enabled = useMapStore((s) => s.enabledLayers);
+  const { data } = useSources();
+  const same = (ids: readonly string[]) => {
+    const want = new Set(ids.filter((id) => LAYERS.some((l) => l.id === id && layerUsable(l, data))));
+    const have = new Set(enabled.filter((id) => LAYERS.some((l) => l.id === id && layerUsable(l, data))));
+    return want.size === have.size && [...want].every((id) => have.has(id));
+  };
+  return (
+    <div className="px-2 pb-3">
+      <h3 className="mb-2 text-sm font-semibold">{t('layers.scenarioTitle')}</h3>
+      <div className="grid grid-cols-2 gap-2">
+        {LAYER_SCENARIOS.map((sc) => {
+          const active = same(sc.layers);
+          return (
+            <button
+              key={sc.id}
+              type="button"
+              aria-pressed={active}
+              onClick={() => useMapStore.getState().setLayers(sc.layers)}
+              className={`lift flex min-h-16 items-center gap-2.5 rounded-xl border px-3 py-2 text-left transition-colors ${active ? 'border-transparent bg-niello text-white' : 'border-line bg-surface hover:bg-surface-subtle'}`}
+            >
+              <Icon name={sc.icon} size={22} className="shrink-0" />
+              <span className="min-w-0">
+                <span className="block text-[15px] leading-tight font-semibold">{placeName(locale, sc.th, sc.en)}</span>
+                <span className={`block text-xs leading-snug ${active ? 'text-white/75' : 'text-fg-subtle'}`}>{locale === 'en' ? sc.descEn : sc.descTh}</span>
+              </span>
+            </button>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
 function GroupSection({ group, layers, defaultOpen }: { group: (typeof LAYER_GROUPS)[number]; layers: LayerDef[]; defaultOpen: boolean }) {
   const t = useT();
   const locale = useMapStore((s) => s.locale);
@@ -197,6 +235,7 @@ export function LayerControl() {
       </div>
 
       <div className="scroll-thin overflow-y-auto px-2 pb-3">
+        <Scenarios />
         <fieldset className="px-2 pb-3">
           <legend className="eyebrow mb-2">{t('layers.basemap')}</legend>
           <div className="grid grid-cols-4 gap-2">
@@ -237,12 +276,23 @@ export function LayerControl() {
           </p>
         )}
 
+        <h3 className="mb-1.5 px-2 text-sm font-semibold">{t('layers.customTitle')}</h3>
         <div className="rounded-lg border border-line">
           {LAYER_GROUPS.map((g) => {
-            const layers = LAYERS.filter((l) => l.group === g.id);
+            const layers = LAYERS.filter((l) => l.group === g.id && layerUsable(l, data));
             if (!layers.length) return null;
-            return <GroupSection key={g.id} group={g} layers={layers} defaultOpen={layers.some((l) => layerUsable(l, data))} />;
+            // Groups with something switched on start open; the rest stay folded.
+            return <GroupSection key={g.id} group={g} layers={layers} defaultOpen={layers.some((l) => enabled.includes(l.id))} />;
           })}
+        </div>
+
+        {/* Layers whose data is not connected yet: listed (so people see what is coming) but out of the way. */}
+        <div className="mt-2 rounded-lg border border-line">
+          <GroupSection
+            group={{ id: 'planned' as never, th: `ยังไม่เปิดให้ใช้ (${LAYERS.filter((l) => !layerUsable(l, data)).length})`, en: `Not available yet (${LAYERS.filter((l) => !layerUsable(l, data)).length})` }}
+            layers={LAYERS.filter((l) => !layerUsable(l, data))}
+            defaultOpen={false}
+          />
         </div>
       </div>
     </div>

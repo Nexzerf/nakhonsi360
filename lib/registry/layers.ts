@@ -199,7 +199,7 @@ export const LAYERS: readonly LayerDef[] = [
 
   // Weather — Phase 2
   { id: 'weather-stations', group: 'weather', th: 'สถานีอากาศ', en: 'Weather stations', icon: 'station', sourceIds: ['tmd.weather'], phase: 2, defaultOn: false, minzoom: 0, legend: { type: 'circle', color: '#374151', stroke: '#fff', radius: 5 } },
-  { id: 'rain-24h', group: 'weather', th: 'ฝน 24 ชม.', en: '24-h rain', icon: 'rain', sourceIds: ['thaiwater.rain24h', 'tmd.weather'], phase: 2, defaultOn: true, minzoom: 0, variable: 'rain_24h', zoomNoteTh: 'รวมกลุ่มสถานีเมื่อซูมน้อยกว่า 10', zoomNoteEn: 'Clustered below zoom 10', legend: { type: 'circle', color: '#2563eb', stroke: '#fff', radius: 5 } },
+  { id: 'rain-24h', group: 'weather', th: 'ฝน 24 ชม.', en: '24-h rain', icon: 'rain', sourceIds: ['thaiwater.rain24h', 'tmd.weather'], phase: 2, defaultOn: false, minzoom: 0, variable: 'rain_24h', zoomNoteTh: 'รวมกลุ่มสถานีเมื่อซูมน้อยกว่า 10', zoomNoteEn: 'Clustered below zoom 10', legend: { type: 'circle', color: '#2563eb', stroke: '#fff', radius: 5 } },
   { id: 'temperature', group: 'weather', th: 'อุณหภูมิ', en: 'Temperature', icon: 'temperature', sourceIds: ['tmd.weather'], phase: 2, defaultOn: false, minzoom: 0, legend: { type: 'circle', color: '#9a3412', stroke: '#fff', radius: 5 } },
   { id: 'wind', group: 'weather', th: 'ลม', en: 'Wind', icon: 'wind', sourceIds: ['tmd.weather'], phase: 2, defaultOn: false, minzoom: 0, legend: { type: 'circle', color: '#475569', stroke: '#fff', radius: 5 } },
   { id: 'weather-warnings', group: 'weather', th: 'คำเตือนภัย', en: 'Warnings', icon: 'warning', sourceIds: ['tmd.warnings'], phase: 2, defaultOn: false, minzoom: 0, legend: { type: 'fill', color: '#fde68a', outline: COLORS.warning } },
@@ -292,6 +292,29 @@ export function isLayerAvailable(l: LayerDef): boolean {
 
 /** Default overlays (spec §7). Live layers only draw once their source has data. */
 export const DEFAULT_LAYER_IDS: readonly string[] = LAYERS.filter((l) => l.defaultOn).map((l) => l.id);
+
+/**
+ * One-tap "what do you want to see?" sets for people who don't know which
+ * layers to pick. Each replaces the visible layers; the full list stays below.
+ */
+export interface LayerScenario {
+  id: 'basic' | 'flood' | 'landslide' | 'coast';
+  th: string;
+  en: string;
+  descTh: string;
+  descEn: string;
+  icon: IconId;
+  layers: readonly string[];
+}
+
+const BOUNDARIES = ['admin-province', 'admin-district'];
+
+export const LAYER_SCENARIOS: readonly LayerScenario[] = [
+  { id: 'basic', th: 'ภาพรวม', en: 'Overview', descTh: 'รายงานเหตุ ระดับน้ำ แม่น้ำ', descEn: 'Reports, water levels, rivers', icon: 'province', layers: DEFAULT_LAYER_IDS },
+  { id: 'flood', th: 'น้ำท่วม', en: 'Floods', descTh: 'ระดับน้ำ ฝน 24 ชม. น้ำป่า', descEn: 'Water levels, 24-h rain, flash floods', icon: 'flood', layers: ['citizen-reports', 'water-stations', 'rain-24h', 'water-rivers', 'flash-flood', ...BOUNDARIES] },
+  { id: 'landslide', th: 'ดินถล่ม', en: 'Landslides', descTh: 'พื้นที่เสี่ยง จุดปลอดภัย', descEn: 'Risk areas, safe points', icon: 'landslide', layers: ['citizen-reports', 'landslide', 'landslide-safe', 'landslide-villages', ...BOUNDARIES] },
+  { id: 'coast', th: 'ชายฝั่ง', en: 'Coast', descTh: 'การกัดเซาะชายฝั่ง', descEn: 'Coastal erosion', icon: 'coastline', layers: ['citizen-reports', 'shoreline-change', 'erosion', ...BOUNDARIES] },
+];
 
 /** Vector layers served as MVT/PMTiles. */
 export const VECTOR_LAYER_IDS: readonly string[] = LAYERS.filter((l) => l.sourceLayer && isLayerAvailable(l)).map((l) => l.id);

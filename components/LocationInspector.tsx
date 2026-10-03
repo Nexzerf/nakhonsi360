@@ -599,20 +599,85 @@ function PlaceRow({ p, color, detail }: { p: GeohazardPlace; color: string; deta
   );
 }
 
-const PLANNED_ICON: Record<'hazards' | 'satellite', IconId> = { hazards: 'warning', satellite: 'satellite' };
-
-function PlannedCard({ section, sel }: { section: 'hazards' | 'satellite'; sel: Sel }) {
+/**
+ * The few things most people want first, in one line each: rain, the river
+ * level here, landslide susceptibility, the nearest safe point. Only local
+ * values (the same rules as the cards below); anything else stays in the cards.
+ */
+function QuickSummary({ conditions, hazards }: { conditions: SectionQuery<ConditionsCard>; hazards: SectionQuery<HazardsCard> }) {
   const t = useT();
-  const q = useSection<never>(section, sel);
-  const phase = q.data?.status === 'not_connected' ? q.data.phase : null;
+  const locale = useMapStore((s) => s.locale);
+  const vars = conditions.data?.status === 'ok' ? conditions.data.data.variables : [];
+  const rain = vars.find((v) => v.variable === 'rain_24h')?.readings[0];
+  const water = vars.find((v) => v.variable === 'water_level')?.readings[0];
+  const geo = hazards.data?.status === 'ok' ? hazards.data.data.geohazard : null;
+  const safe = geo?.safePoints[0];
+  const station = (r: ConditionReading) => placeName(locale, r.stationNameTh, r.stationNameEn) ?? r.stationId;
+  const fmt = (n: number, d = 1) => n.toLocaleString(locale === 'th' ? 'th-TH' : 'en-GB', { maximumFractionDigits: d });
+
+  const rows: { key: string; color: string; text: React.ReactNode; sub: string; onClick?: () => void }[] = [];
+  if (rain) {
+    rows.push({
+      key: 'rain',
+      color: rain.value >= 35 ? '#1d4ed8' : rain.value > 0 ? '#60a5fa' : '#cbd5e1',
+      text: t('summary.rain', { value: fmt(rain.value) }),
+      sub: `${station(rain)} · ${formatDistance(rain.distanceM, locale)}`,
+    });
+  }
+  if (water) {
+    rows.push({
+      key: 'water',
+      color: water.officialColor ?? '#94a3b8',
+      text: water.officialStatus ? t('summary.water', { status: water.officialStatus }) : t('summary.waterValue', { value: fmt(water.value, 2), unit: water.unit }),
+      sub: `${station(water)}${water.riverName ? ` · ${water.riverName}` : ''} · ${formatDistance(water.distanceM, locale)}`,
+    });
+  }
+  if (geo?.susceptibility) {
+    rows.push({ key: 'landslide', color: LANDSLIDE_GRADE_COLORS[geo.susceptibility.grade ?? 0] ?? '#e5e7eb', text: t('summary.landslide', { level: geo.susceptibility.level }), sub: t('summary.landslideSource') });
+  }
+  if (geo?.inFlashFloodArea) rows.push({ key: 'flash', color: '#fb923c', text: t('summary.flashFlood'), sub: t('summary.landslideSource') });
+  if (safe) {
+    rows.push({
+      key: 'safe',
+      color: '#15803d',
+      text: t('summary.safe', { name: safe.name ?? '—' }),
+      sub: `${formatDistance(safe.distanceM, locale)} · ${t('summary.tapToSee')}`,
+      onClick: () => {
+        const s = useMapStore.getState();
+        s.flyTo({ center: [safe.lng, safe.lat], zoom: 15 });
+        s.select({ lat: safe.lat, lng: safe.lng, label: safe.name ?? undefined, kind: 'point' });
+      },
+    });
+  }
+  if (rows.length === 0) return null;
   return (
-    <Card id={`card-${section}`} title={t(`inspector.sections.${section}`)} icon={PLANNED_ICON[section]} aside={phase ? <span className="chip">{t('layers.plannedPhase', { phase })}</span> : undefined}>
-      {phase ? (
-        <EmptyState main={t('empty.noPublicData')} reason={`${t('inspector.plannedLabel')}: ${t(`inspector.planned.${section}`)}`} />
-      ) : (
-        <CardState q={q} />
-      )}
-    </Card>
+    <section aria-labelledby="summary-title" className="panel-solid rounded-[14px] border border-line p-3">
+      <h3 id="summary-title" className="mb-1.5 text-sm font-semibold">{t('summary.title')}</h3>
+      <ul className="space-y-1">
+        {rows.map((r) => {
+          const body = (
+            <>
+              <span aria-hidden="true" className="mt-1 h-3 w-3 shrink-0 rounded-full border border-black/10" style={{ background: r.color }} />
+              <span className="min-w-0 flex-1">
+                <span className="block text-[15px] leading-snug font-medium">{r.text}</span>
+                <span className="block truncate text-xs text-fg-subtle">{r.sub}</span>
+              </span>
+            </>
+          );
+          return (
+            <li key={r.key}>
+              {r.onClick ? (
+                <button type="button" onClick={r.onClick} className="flex w-full items-start gap-2.5 rounded-lg px-1 py-1 text-left hover:bg-surface-subtle">
+                  {body}
+                </button>
+              ) : (
+                <div className="flex items-start gap-2.5 px-1 py-1">{body}</div>
+              )}
+            </li>
+          );
+        })}
+      </ul>
+    </section>
   );
 }
 
@@ -628,6 +693,7 @@ export function LocationInspector() {
   const snap = useMapStore((s) => s.sheetSnap);
   const isMobile = useIsMobile();
   const [copied, setCopied] = useState(false);
+  const [moreOpen, setMoreOpen] = useState(false);
   const drag = useRef<{ y: number; h: number } | null>(null);
   const sheetRef = useRef<HTMLElement>(null);
 
@@ -644,7 +710,10 @@ export function LocationInspector() {
     if (sub) useMapStore.getState().setHighlight({ layerId: 'admin-subdistrict', key: 'pcode', value: sub.pcode });
   }, [admin.data, selection]);
 
-  useEffect(() => setCopied(false), [selection?.lat, selection?.lng]);
+  useEffect(() => {
+    setCopied(false);
+    setMoreOpen(false);
+  }, [selection?.lat, selection?.lng]);
 
   if (!selection) return null;
 
@@ -755,33 +824,45 @@ export function LocationInspector() {
       </header>
 
       <div className="stagger scroll-thin flex-1 space-y-2.5 overflow-y-auto overscroll-contain bg-surface-subtle/60 p-2.5 pb-6">
+        <QuickSummary conditions={conditions} hazards={hazards} />
         <ConditionsCardView q={conditions} />
         <HazardsCardView q={hazards} />
-        <VillageCardView q={village} />
-        <ContextCardView q={context} />
-        <AdminCardView q={admin} />
-        <PlannedCard section="satellite" sel={selection} />
-        <Card id="card-sources" title={t('inspector.sections.sources')} icon="info">
-          {uniqueRefs.length === 0 ? (
-            <EmptyState main={t('empty.noPublicData')} />
-          ) : (
-            <ul className="divide-y divide-line">
-              {uniqueRefs.map((r) => {
-                const src = findSource(r.sourceId);
-                if (!src) return null;
-                return (
-                  <li key={r.sourceId} className="py-2">
-                    <button type="button" className="text-left text-sm font-medium hover:text-accent" onClick={() => useMapStore.getState().showInfo(null, r.sourceId)}>
-                      {locale === 'en' ? src.organizationEn : src.organization}
-                    </button>
-                    <span className="block text-xs text-fg-subtle">{locale === 'en' ? src.datasetNameEn : src.datasetName}</span>
-                    <DataFreshness sourceId={r.sourceId} observedAt={r.observedAt} fetchedAt={r.fetchedAt} />
-                  </li>
-                );
-              })}
-            </ul>
-          )}
-        </Card>
+        <button
+          type="button"
+          aria-expanded={moreOpen}
+          aria-controls="inspector-more"
+          onClick={() => setMoreOpen((v) => !v)}
+          className="flex min-h-11 w-full items-center justify-center gap-1.5 rounded-xl border border-line bg-surface text-sm font-semibold text-fg-muted hover:text-fg"
+        >
+          {moreOpen ? t('summary.less') : t('summary.more')}
+          <Icon name="chevron" size={16} className={moreOpen ? 'rotate-180' : ''} />
+        </button>
+        <div id="inspector-more" hidden={!moreOpen} className="space-y-2.5">
+          <VillageCardView q={village} />
+          <ContextCardView q={context} />
+          <AdminCardView q={admin} />
+          <Card id="card-sources" title={t('inspector.sections.sources')} icon="info">
+            {uniqueRefs.length === 0 ? (
+              <EmptyState main={t('empty.noPublicData')} />
+            ) : (
+              <ul className="divide-y divide-line">
+                {uniqueRefs.map((r) => {
+                  const src = findSource(r.sourceId);
+                  if (!src) return null;
+                  return (
+                    <li key={r.sourceId} className="py-2">
+                      <button type="button" className="text-left text-sm font-medium hover:text-accent" onClick={() => useMapStore.getState().showInfo(null, r.sourceId)}>
+                        {locale === 'en' ? src.organizationEn : src.organization}
+                      </button>
+                      <span className="block text-xs text-fg-subtle">{locale === 'en' ? src.datasetNameEn : src.datasetName}</span>
+                      <DataFreshness sourceId={r.sourceId} observedAt={r.observedAt} fetchedAt={r.fetchedAt} />
+                    </li>
+                  );
+                })}
+              </ul>
+            )}
+          </Card>
+        </div>
       </div>
     </aside>
   );

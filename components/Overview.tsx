@@ -283,9 +283,6 @@ export function KpiChips() {
           {t('overview.chipWater', { status: top.official_status ?? '' })}
         </button>
       )}
-      <button type="button" className={chip} onClick={() => useMapStore.getState().setOverviewOpen(true)}>
-        <Icon name="province" size={15} /> {t('overview.title')}
-      </button>
     </div>
   );
 }
