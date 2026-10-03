@@ -57,7 +57,11 @@
     "minzoom": "Zoom ≥ {zoom}",
     "hiddenAtZoom": "Zoom in to see",
     "scenarioTitle": "What do you want to see?",
-    "customTitle": "Choose layers yourself"
+    "customTitle": "Choose layers yourself",
+    "allOn": "Show all",
+    "allOff": "Hide all",
+    "groupAllOn": "Show all in {group}",
+    "groupAllOff": "Hide all in {group}"
   },
   "legend": {
     "title": "Legend",

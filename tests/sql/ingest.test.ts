@@ -13,8 +13,9 @@ import { thaiwaterRain24h, thaiwaterWaterlevel } from '@/lib/adapters/thaiwater'
 import { usgsEarthquakes } from '@/lib/adapters/usgs';
 import { firmsHotspots } from '@/lib/adapters/firms';
 import { runIngest } from '@/lib/ingest/runner';
-import { connectedSources, earthquakesNear, nearestObservations, provinceMask, recentEarthquakes, renderTile, satelliteHazardsAt } from '@/lib/db/queries';
+import { connectedSources, earthquakesNear, geohazardsAt, nearestObservations, provinceMask, recentEarthquakes, renderTile, satelliteHazardsAt } from '@/lib/db/queries';
 import type { IngestAdapter } from '@/lib/ingest/types';
+import { LANDSLIDE_BANDS_DATASET, writeLandslideBands } from '@/lib/import/dmr';
 
 const { TEST_DATABASE_URL, CODAB_FILE } = process.env;
 const DB = 'n360_ingest_test';
@@ -117,6 +118,39 @@ suite('ingest pipeline (real samples)', () => {
     }
     const [{ n } = { n: -1 }] = await sql<{ n: number }[]>`select count(*)::int as n from admin_areas where tile_lo is null or tile_mid is null or tile_hi is null`;
     expect(n).toBe(0);
+  });
+
+  it('draws landslide susceptibility as smooth, non-overlapping bands inside the province, and reports the raw cell on tap', async () => {
+    const LEVELS = ['ต่ำมาก', 'ต่ำ', 'กลาง', 'สูง', 'สูงมาก'];
+    // A 6×6 block of 1 km-ish cells inland, plus one wide very-high cell running out to sea.
+    const cells: { id: string; grade: number; box: [number, number, number, number] }[] = [];
+    for (let i = 0; i < 6; i++)
+      for (let j = 0; j < 6; j++) cells.push({ id: `c${i}-${j}`, grade: 1 + ((i + j) % 5), box: [99.7 + i * 0.009, 8.4 + j * 0.009, 99.709 + i * 0.009, 8.409 + j * 0.009] });
+    cells.push({ id: 'sea', grade: 5, box: [99.95, 8.5, 100.8, 8.52] });
+    for (const c of cells)
+      await sql`
+        insert into hazard_zones (dataset, feature_id, source_id, props, geom)
+        values ('landslide-susceptibility', ${c.id}, 'dmr.landslide', ${sql.json({ grade: c.grade, level: LEVELS[c.grade - 1] })}::jsonb,
+                st_makeenvelope(${c.box[0]}, ${c.box[1]}, ${c.box[2]}, ${c.box[3]}, 4326))`;
+
+    expect(await writeLandslideBands(sql, null)).toBeGreaterThan(0);
+    const [r] = await sql<{ grades: number[]; valid: boolean; overlap: number; outside: number }[]>`
+      with b as (select (props->>'grade')::int as g, geom from hazard_zones where dataset = ${LANDSLIDE_BANDS_DATASET}),
+      prov as (select geom from admin_areas where pcode = 'TH80')
+      select (select array_agg(distinct g order by g) from b) as grades,
+             (select bool_and(st_isvalid(geom)) from b) as valid,
+             (select coalesce(sum(st_area(st_intersection(x.geom, y.geom))), 0) from b x join b y on x.g < y.g and st_intersects(x.geom, y.geom)) as overlap,
+             (select coalesce(sum(st_area(st_difference(b.geom, prov.geom))), 0) from b, prov) as outside`;
+    expect(r!.grades).toEqual([1, 2, 3, 4, 5]);
+    expect(r!.valid).toBe(true);
+    expect(Number(r!.overlap)).toBeLessThan(1e-9);
+    expect(Number(r!.outside)).toBeLessThan(1e-9);
+    expect((await renderTile(sql, 'landslide', 12, 3182, 1951)).length).toBeGreaterThan(0);
+
+    // A tap reports the agency's own cell, not the smoothed band.
+    const g = await geohazardsAt(sql, 99.7045, 8.4045);
+    expect(g.susceptibility).toMatchObject({ grade: 1, level: 'ต่ำมาก' });
+    await sql`delete from hazard_zones where dataset in ('landslide-susceptibility', ${LANDSLIDE_BANDS_DATASET})`;
   });
 
   it('keeps FIRMS hotspots only within the province + 5 km and finds them near a point', async () => {
