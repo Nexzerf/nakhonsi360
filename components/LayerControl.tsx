@@ -158,6 +158,32 @@ function Scenarios() {
   );
 }
 
+/** Switch a set of layers all on (adding to what is shown) or all off. */
+function setMany(ids: readonly string[], on: boolean) {
+  const s = useMapStore.getState();
+  for (const id of ids) s.clearLayerError(id);
+  const current = s.enabledLayers;
+  s.setLayers(on ? [...current, ...ids] : current.filter((id) => !ids.includes(id)));
+}
+
+/** "Show all" / "Hide all" for a set of layers: shows "Hide all" once every one is on. */
+function AllToggle({ ids, label, className = '' }: { ids: readonly string[]; label?: (allOn: boolean) => string; className?: string }) {
+  const t = useT();
+  const enabled = useMapStore((s) => s.enabledLayers);
+  if (!ids.length) return null;
+  const allOn = ids.every((id) => enabled.includes(id));
+  return (
+    <button
+      type="button"
+      onClick={() => setMany(ids, !allOn)}
+      aria-label={label?.(allOn)}
+      className={`inline-flex min-h-9 shrink-0 items-center rounded-full border px-3 text-xs font-semibold transition-colors ${allOn ? 'border-line bg-surface text-fg-muted hover:bg-surface-subtle' : 'border-accent/40 bg-surface-accent text-accent hover:border-accent'} ${className}`}
+    >
+      {allOn ? t('layers.allOff') : t('layers.allOn')}
+    </button>
+  );
+}
+
 function GroupSection({ group, layers, defaultOpen }: { group: (typeof LAYER_GROUPS)[number]; layers: LayerDef[]; defaultOpen: boolean }) {
   const t = useT();
   const locale = useMapStore((s) => s.locale);
@@ -168,21 +194,25 @@ function GroupSection({ group, layers, defaultOpen }: { group: (typeof LAYER_GRO
   const on = available.filter((l) => enabled.includes(l.id)).length;
   const phase = Math.min(...layers.map((l) => l.phase));
   const headId = `group-${group.id}`;
+  const groupName = placeName(locale, group.th, group.en)!;
   return (
     <section className="border-t border-line py-1 first:border-t-0" aria-labelledby={headId}>
-      <h3 id={headId}>
-        <button type="button" onClick={() => setOpen((o) => !o)} aria-expanded={open} className="flex min-h-11 w-full items-center gap-2 px-2 text-left">
-          <span className="flex-1 text-sm font-semibold">{placeName(locale, group.th, group.en)}</span>
-          {available.length > 0 ? (
-            <span className="tabular text-xs text-fg-subtle">
-              {on}/{available.length}
-            </span>
-          ) : (
-            <span className="chip">{t('layers.plannedPhase', { phase })}</span>
-          )}
-          <Icon name="chevron" size={16} className={`text-fg-subtle transition-transform ${open ? 'rotate-180' : ''}`} />
-        </button>
-      </h3>
+      <div className="flex items-center gap-1 pr-1">
+        <h3 id={headId} className="min-w-0 flex-1">
+          <button type="button" onClick={() => setOpen((o) => !o)} aria-expanded={open} className="flex min-h-11 w-full items-center gap-2 px-2 text-left">
+            <span className="flex-1 text-sm font-semibold">{groupName}</span>
+            {available.length > 0 ? (
+              <span className="tabular text-xs text-fg-subtle">
+                {on}/{available.length}
+              </span>
+            ) : (
+              <span className="chip">{t('layers.plannedPhase', { phase })}</span>
+            )}
+            <Icon name="chevron" size={16} className={`text-fg-subtle transition-transform ${open ? 'rotate-180' : ''}`} />
+          </button>
+        </h3>
+        <AllToggle ids={available.map((l) => l.id)} label={(allOn) => t(allOn ? 'layers.groupAllOff' : 'layers.groupAllOn', { group: groupName })} />
+      </div>
       {open && (
         <ul className="pb-1">
           {layers.map((l) => (
@@ -276,7 +306,10 @@ export function LayerControl() {
           </p>
         )}
 
-        <h3 className="mb-1.5 px-2 text-sm font-semibold">{t('layers.customTitle')}</h3>
+        <div className="mb-1.5 flex items-center justify-between gap-2 px-2">
+          <h3 className="text-sm font-semibold">{t('layers.customTitle')}</h3>
+          <AllToggle ids={LAYERS.filter((l) => layerUsable(l, data)).map((l) => l.id)} />
+        </div>
         <div className="rounded-lg border border-line">
           {LAYER_GROUPS.map((g) => {
             const layers = LAYERS.filter((l) => l.group === g.id && layerUsable(l, data));

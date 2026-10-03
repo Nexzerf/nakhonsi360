@@ -57,7 +57,11 @@
     "minzoom": "ซูม ≥ {zoom}",
     "hiddenAtZoom": "ซูมเข้าเพื่อดู",
     "scenarioTitle": "อยากดูเรื่องอะไร",
-    "customTitle": "ปรับชั้นข้อมูลเอง"
+    "customTitle": "ปรับชั้นข้อมูลเอง",
+    "allOn": "เปิดทั้งหมด",
+    "allOff": "ปิดทั้งหมด",
+    "groupAllOn": "เปิดทั้งหมดในหมวด {group}",
+    "groupAllOff": "ปิดทั้งหมดในหมวด {group}"
   },
   "legend": {
     "title": "คำอธิบายสัญลักษณ์",

@@ -211,7 +211,7 @@ const TILE_LAYERS: Record<string, TileLayerSql> = {
   roads: { sourceLayer: 'roads', from: 'osm_features', where: "(kind = 'road_major' or ($1 >= 14 and kind = 'road_minor'))", props: 'osm_id, kind, subkind, name_th, name_en' },
   coastline: { sourceLayer: 'coastline', from: 'osm_features', where: "kind = 'coastline'", props: 'osm_id' },
   // Department of Mineral Resources layers (scripts/import-dmr.ts).
-  landslide: { sourceLayer: 'landslide_susceptibility', from: 'hazard_zones', where: "dataset = 'landslide-susceptibility'", props: "feature_id as id, props->>'level' as level, (props->>'grade')::int as grade" },
+  landslide: { sourceLayer: 'landslide_susceptibility', from: 'hazard_zones', where: "dataset = 'landslide-bands'", props: "feature_id as id, props->>'level' as level, (props->>'grade')::int as grade" },
   'flash-flood': { sourceLayer: 'flash_flood', from: 'hazard_zones', where: "dataset = 'flash-flood'", props: "feature_id as id, props->>'subbasin' as subbasin" },
   'landslide-villages': { sourceLayer: 'landslide_villages', from: 'hazard_zones', where: "dataset = 'landslide-villages'", props: "feature_id as id, props->>'name_th' as name_th, props->>'moo' as moo, props->>'risk' as risk, props->>'year_be' as year_be" },
   'landslide-safe': { sourceLayer: 'landslide_safe', from: 'hazard_zones', where: "dataset = 'landslide-safe'", props: "feature_id as id, props->>'name_th' as name_th, props->>'village' as village, props->>'moo' as moo" },

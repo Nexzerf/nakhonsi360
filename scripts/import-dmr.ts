@@ -12,7 +12,7 @@
  */
 import { createHash } from 'node:crypto';
 import { connect, main, parseArgs, recordImport, summarize } from './_common';
-import { DMR_DATASETS, envelopeParam, featureId, layerUrl, pickProps, type DmrDataset } from '@/lib/import/dmr';
+import { DMR_DATASETS, LANDSLIDE_BANDS_DATASET, envelopeParam, writeLandslideBands, featureId, layerUrl, pickProps, type DmrDataset } from '@/lib/import/dmr';
 
 const UA = 'Nakhonsi360/0.1 (environmental map of Nakhon Si Thammarat; https://github.com/nexzerf/nakhonsi360)';
 /** Features per request (large polygons make big pages). */
@@ -156,6 +156,10 @@ main(async () => {
           insert into hazard_zones (dataset, feature_id, source_id, props, geom, import_id)
           select ${d.dataset}, feature_id, ${d.sourceId}, props, geom, ${importId} from stage`;
         console.log(`Imported ${n} (import id ${importId}); rejected ${rejections.length}: ${summarize(rejections)}`);
+        if (d.dataset === 'landslide-susceptibility') {
+          const bands = await writeLandslideBands(tx, importId);
+          console.log(`Display bands (${LANDSLIDE_BANDS_DATASET}): ${bands} polygons`);
+        }
       });
     }
   } finally {

@@ -228,8 +228,8 @@ export const LAYERS: readonly LayerDef[] = [
   {
     id: 'landslide', group: 'hazards', th: 'ความอ่อนไหวต่อดินถล่ม', en: 'Landslide susceptibility', icon: 'landslide',
     sourceIds: ['dmr.landslide'], phase: 3, defaultOn: false, minzoom: 0, sourceLayer: 'landslide_susceptibility',
-    zoomNoteTh: 'ระดับความอ่อนไหวต่อการเกิดดินถล่ม 5 ระดับ (ต่ำมาก–สูงมาก) ตามการประเมินของกรมทรัพยากรธรณี เป็นแผนที่ประเมินศักยภาพ ไม่ใช่การแจ้งเตือนสถานการณ์ปัจจุบัน พื้นที่ที่ไม่มีสีคือยังไม่ได้ประเมิน ไม่ได้แปลว่าปลอดภัย',
-    zoomNoteEn: 'Five landslide susceptibility levels (very low to very high) assessed by the Department of Mineral Resources. A susceptibility map, not a current warning; uncoloured areas were not assessed, which does not mean safe.',
+    zoomNoteTh: 'ระดับความอ่อนไหวต่อการเกิดดินถล่ม 5 ระดับ (ต่ำมาก–สูงมาก) ตามการประเมินของกรมทรัพยากรธรณี ข้อมูลต้นทางเป็นช่องกริดขนาด 1 กม. แผนที่นี้ปรับขอบให้เรียบและตัดตามเขตจังหวัดเพื่อให้อ่านง่าย แตะบนแผนที่เพื่อดูระดับของช่องกริดจริง เป็นแผนที่ประเมินศักยภาพ ไม่ใช่การแจ้งเตือนสถานการณ์ปัจจุบัน พื้นที่ที่ไม่มีสีคือยังไม่ได้ประเมิน ไม่ได้แปลว่าปลอดภัย',
+    zoomNoteEn: 'Five landslide susceptibility levels (very low to very high) assessed by the Department of Mineral Resources. The source is a 1 km grid; edges are smoothed and clipped to the province for display, and tapping the map shows the level of the actual grid cell. A susceptibility map, not a current warning; uncoloured areas were not assessed, which does not mean safe.',
     legend: { type: 'fill', color: '#f87171', outline: COLORS.danger },
   },
   {

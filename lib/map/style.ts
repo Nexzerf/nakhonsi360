@@ -235,7 +235,6 @@ export function overlayLayers(layer: LayerDef, locale: Locale): LayerSpecificati
             'fill-opacity': ['interpolate', ['linear'], ['zoom'], 8, 0.55, 14, 0.4] as never,
           },
         },
-        { ...base, id: id('-outline'), type: 'line', minzoom: 11, paint: { 'line-color': '#7f1d1d', 'line-width': 0.4, 'line-opacity': 0.4 } },
       ];
     case 'flash-flood':
       return [
@@ -263,7 +262,7 @@ export function overlayLayers(layer: LayerDef, locale: Locale): LayerSpecificati
     case 'landslide-safe': {
       const color = layer.id === 'landslide-safe' ? '#15803d' : '#dc2626';
       return [
-        { ...base, id: id(''), type: 'circle', paint: { 'circle-radius': ['interpolate', ['linear'], ['zoom'], 8, 3.5, 13, 6, 16, 8] as never, 'circle-color': color, 'circle-stroke-color': '#ffffff', 'circle-stroke-width': 1.5 } },
+        { ...base, id: id(''), type: 'circle', paint: { 'circle-radius': ['interpolate', ['linear'], ['zoom'], 8, 2.5, 11, 4, 13, 6, 16, 8] as never, 'circle-color': color, 'circle-stroke-color': '#ffffff', 'circle-stroke-width': ['interpolate', ['linear'], ['zoom'], 8, 0.75, 12, 1.5] as never } },
         {
           ...base,
           id: id('-label'),

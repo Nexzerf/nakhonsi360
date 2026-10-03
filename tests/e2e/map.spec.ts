@@ -55,6 +55,24 @@ test('layer panel lists every layer with an info button', async ({ page }) => {
   await expect(dialog.getByText('กรมการปกครอง กระทรวงมหาดไทย')).toBeVisible();
 });
 
+test('layer panel turns a whole group, or everything, on and off at once', async ({ page }) => {
+  await page.goto('/');
+  await page.getByRole('button', { name: /ชั้นข้อมูล|เปิดรายการชั้นข้อมูล/ }).click();
+  const panel = page.locator('#layer-panel');
+  const group = panel.locator('section', { has: page.getByRole('heading', { name: /เขตปกครอง/ }) });
+  const switches = group.getByRole('switch');
+  await group.getByRole('button', { name: 'เปิดทั้งหมดในหมวด เขตปกครอง' }).click();
+  for (const s of await switches.all()) await expect(s).toHaveAttribute('aria-checked', 'true');
+  await group.getByRole('button', { name: 'ปิดทั้งหมดในหมวด เขตปกครอง' }).click();
+  for (const s of await switches.all()) await expect(s).toHaveAttribute('aria-checked', 'false');
+
+  await panel.getByRole('button', { name: 'เปิดทั้งหมด', exact: true }).click();
+  await expect(panel.getByRole('button', { name: 'ปิดทั้งหมด', exact: true })).toBeVisible();
+  await expect(group.getByRole('button', { name: 'ปิดทั้งหมดในหมวด เขตปกครอง' })).toBeVisible();
+  await panel.getByRole('button', { name: 'ปิดทั้งหมด', exact: true }).click();
+  await expect(group.getByRole('button', { name: 'เปิดทั้งหมดในหมวด เขตปกครอง' })).toBeVisible();
+});
+
 test('touch targets are at least 44px', async ({ page }) => {
   await page.goto('/');
   const buttons = page.locator('main button:visible');
