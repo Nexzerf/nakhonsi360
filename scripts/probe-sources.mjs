@@ -1,18 +1,17 @@
-// Temporary: probe round 8 — GISTDA land use 1:25k as an image service, its legend, and tile export.
-const H = 'https://gistdaportal.gistda.or.th/arcgis/rest/services/Hosted/L09_LanduseSouth_GISTDA_25k';
-for (const u of [`${H}/MapServer?f=json`, `${H}/FeatureServer/0?f=json`]) {
-  const r = await fetch(u); const t = await r.text();
-  let d = {}; try { d = JSON.parse(t); } catch { /* */ }
-  console.log(`\n### ${u.split('/Hosted/')[1]} ${r.status} tiled=${!!d.tileInfo} caps=${d.capabilities} layers=${(d.layers ?? []).map((l) => l.name).join(',')} err=${JSON.stringify(d.error ?? '')}`);
-  const rend = d.drawingInfo?.renderer;
-  if (rend) console.log('renderer', rend.type, 'field', rend.field1, '\nclasses:', (rend.uniqueValueInfos ?? []).map((u) => `${u.value}=${u.label} rgb(${u.symbol?.color})`).join(' | ').slice(0, 2500));
+// Temporary: probe round 9 — two GeoJSON features (attributes as published) from each new ArcGIS dataset, for data/samples/dmr/sample.json.
+const BBOX = { xmin: 99.3, ymin: 7.7, xmax: 100.4, ymax: 9.4, spatialReference: { wkid: 4326 } };
+const sets = {
+  'DWR/Ramsar_Wetland_Revise_1Oct2020_by_ONEP': 'https://gis.dwr.go.th/arcgis/rest/services/Ramsar_Wetland_Revise_1Oct2020_by_ONEP/MapServer/0',
+  'DWR/พื้นที่ชุ่มน้ำท้องถิ่น': `https://gis.dwr.go.th/arcgis/rest/services/${encodeURIComponent('พื้นที่ชุ่มน้ำท้องถิ่น')}/MapServer/0`,
+  'GISTDA/14_แนวป่าชายเลนของทช': `https://gistdaportal.gistda.or.th/arcgis/rest/services/Hosted/${encodeURIComponent('14_แนวป่าชายเลนของทช')}/FeatureServer/0`,
+};
+const out = {};
+for (const [k, url] of Object.entries(sets)) {
+  const ids = await (await fetch(`${url}/query?where=1%3D1&geometry=${encodeURIComponent(JSON.stringify(BBOX))}&geometryType=esriGeometryEnvelope&inSR=4326&spatialRel=esriSpatialRelIntersects&returnIdsOnly=true&f=json`)).json();
+  const pick = (ids.objectIds ?? []).sort((a, b) => a - b).slice(0, 2);
+  const r = await fetch(`${url}/query?objectIds=${pick.join(',')}&outFields=*&outSR=4326&geometryPrecision=6&returnGeometry=false&f=geojson`);
+  const fc = await r.json();
+  out[k] = fc.features;
+  console.log(`### ${k}: ids=${(ids.objectIds ?? []).length} geojson=${r.status} features=${fc.features?.length}`);
 }
-const x = 11127000, y = 928000;
-for (const [label, u] of [
-  ['MapServer export', `${H}/MapServer/export?bbox=${x},${y},${x + 4000},${y + 4000}&bboxSR=3857&imageSR=3857&size=256,256&format=png32&transparent=true&f=image`],
-  ['FeatureServer query lul1 distinct', `${H}/FeatureServer/0/query?where=1%3D1&geometry=99.3,7.7,100.4,9.4&geometryType=esriGeometryEnvelope&inSR=4326&outFields=lul1_code,lul1_e,lul2_code,lul2_e&returnDistinctValues=true&returnGeometry=false&f=json`],
-]) {
-  const r = await fetch(u, { headers: { Origin: 'https://nakhonsi360.vercel.app' } });
-  const b = Buffer.from(await r.arrayBuffer());
-  console.log(`\n### ${label}: ${r.status} ${r.headers.get('content-type')} ${b.length}B acao=${r.headers.get('access-control-allow-origin')}\n${/json|text/.test(r.headers.get('content-type') ?? '') ? b.toString().slice(0, 2500) : ''}`);
-}
+console.log('### SAMPLE JSON\n' + JSON.stringify(out));
