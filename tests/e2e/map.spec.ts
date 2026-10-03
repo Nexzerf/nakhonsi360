@@ -29,7 +29,10 @@ test('clicking the map opens the inspector with honest empty states', async ({ p
   const inspector = page.locator('#inspector');
   await expect(inspector).toBeVisible();
   await expect(inspector.getByRole('heading', { name: 'สภาพปัจจุบัน' })).toBeVisible();
-  await expect(inspector.getByText('ไม่มีข้อมูลสาธารณะสำหรับพื้นที่นี้').first()).toBeVisible();
+  // Either real values (summarised first) or an honest "no public data" — never a placeholder.
+  await expect(inspector.getByText(/สรุปจุดนี้|ไม่มีข้อมูลสาธารณะสำหรับพื้นที่นี้/).first()).toBeVisible();
+  await inspector.getByRole('button', { name: 'ดูรายละเอียดเพิ่มเติม' }).click();
+  await expect(inspector.getByRole('heading', { name: 'แหล่งข้อมูล' })).toBeVisible();
   await expect(inspector.locator('[aria-busy="true"]')).toHaveCount(0, { timeout: 15_000 });
   expect(await inspector.innerText()).not.toMatch(FORBIDDEN);
 });

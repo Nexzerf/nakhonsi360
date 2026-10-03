@@ -69,6 +69,7 @@ interface MapState {
   setLocale: (l: Locale) => void;
   setBasemap: (b: BasemapId) => void;
   toggleLayer: (id: string) => void;
+  setLayers: (ids: readonly string[]) => void;
   select: (s: Selection | null) => void;
   setSheetSnap: (s: SheetSnap) => void;
   setLayerPanelOpen: (open: boolean) => void;
@@ -120,6 +121,7 @@ export const useMapStore = create<MapState>((set) => ({
     set((s) => ({
       enabledLayers: s.enabledLayers.includes(id) ? s.enabledLayers.filter((x) => x !== id) : [...s.enabledLayers, id],
     })),
+  setLayers: (ids) => set({ enabledLayers: [...new Set(ids)] }),
   select: (selection) => set((s) => ({ selection, sheetSnap: 'half', ...(selection ? { panel: s.picking ? s.panel : null, layerPanelOpen: false } : {}) })),
   setSheetSnap: (sheetSnap) => set({ sheetSnap }),
   setLayerPanelOpen: (layerPanelOpen) => set((s) => ({ layerPanelOpen, panel: layerPanelOpen ? null : s.panel })),

@@ -55,7 +55,9 @@
     "notImported": "No data yet",
     "plannedPhase": "Phase {phase}",
     "minzoom": "Zoom ≥ {zoom}",
-    "hiddenAtZoom": "Zoom in to see"
+    "hiddenAtZoom": "Zoom in to see",
+    "scenarioTitle": "What do you want to see?",
+    "customTitle": "Choose layers yourself"
   },
   "legend": {
     "title": "Legend",
@@ -515,5 +517,18 @@
     "surveyYear": "surveyed {year} (B.E.)",
     "dataYear": "data year {year}",
     "surveyNote": "Surveys and assessments by the Department of Mineral Resources, not a current warning."
+  },
+  "summary": {
+    "title": "This place at a glance",
+    "rain": "Rain in 24 h: {value} mm",
+    "water": "Water level: {status}",
+    "waterValue": "Water level {value} {unit}",
+    "landslide": "Landslide risk: {level}",
+    "landslideSource": "Department of Mineral Resources assessment",
+    "flashFlood": "Area with past flash floods",
+    "safe": "Nearest safe point: {name}",
+    "tapToSee": "tap to see on the map",
+    "more": "More details",
+    "less": "Hide details"
   }
 }
