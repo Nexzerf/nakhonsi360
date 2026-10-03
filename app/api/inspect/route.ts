@@ -1,6 +1,6 @@
 import { NextResponse, type NextRequest } from 'next/server';
 import { getDb, withTimeout, TimeoutError } from '@/lib/db/client';
-import { connectedSources, earthquakesNear, inspectAdmin, latestAtStations, latestImports, nearestFeatures, nearestObservations, nearestVillages, waterwayNamesNear } from '@/lib/db/queries';
+import { connectedSources, earthquakesNear, geohazardsAt, inspectAdmin, latestAtStations, latestImports, nearestFeatures, nearestObservations, nearestVillages, waterwayNamesNear } from '@/lib/db/queries';
 import { CONDITION_VARIABLES } from '@/lib/registry/stationRules';
 import { buildVariableConditions } from '@/lib/inspect/conditions';
 import { summarizeEarthquakes } from '@/lib/inspect/hazards';
@@ -186,15 +186,27 @@ async function conditionsCard(sql: NonNullable<ReturnType<typeof getDb>>, lng: n
 }
 
 async function hazardsCard(sql: NonNullable<ReturnType<typeof getDb>>, lng: number, lat: number): Promise<CardResult<HazardsCard>> {
-  const connected = await connectedSources(sql);
-  const pendingSourceIds = PLANNED.hazards.sourceIds.filter((id) => !connected.has(id));
-  if (!connected.has('usgs.earthquakes')) return { status: 'not_connected', ...PLANNED.hazards };
-  const earthquakes = summarizeEarthquakes(await earthquakesNear(sql, lng, lat, USGS_WINDOW_DAYS));
-  const [last] = await sql<{ finished_at: Date | null }[]>`
-    select finished_at from ingest_runs where source_id = 'usgs.earthquakes' and status in ('ok', 'partial') order by started_at desc limit 1`;
-  // The list is the catalog as of the last successful fetch (no new event is not a delay), so that time is
-  // the data time; each event shows its own origin time in the card.
-  const asOf = last?.finished_at ? new Date(last.finished_at).toISOString() : null;
-  const sources: SourceRef[] = [{ sourceId: 'usgs.earthquakes', observedAt: asOf, fetchedAt: asOf }];
-  return { status: 'ok', data: { earthquakes, pendingSourceIds }, sources };
+  const [connected, imports] = await Promise.all([connectedSources(sql), latestImports(sql)]);
+  const dmr = imports.get('dmr.landslide');
+  const shore = imports.get('dmr.shoreline');
+  const has = (id: string) => connected.has(id) || imports.has(id);
+  const pendingSourceIds = PLANNED.hazards.sourceIds.filter((id) => !has(id));
+  if (!connected.has('usgs.earthquakes') && !dmr && !shore) return { status: 'not_connected', ...PLANNED.hazards };
+
+  const sources: SourceRef[] = [];
+  let earthquakes = null;
+  if (connected.has('usgs.earthquakes')) {
+    earthquakes = summarizeEarthquakes(await earthquakesNear(sql, lng, lat, USGS_WINDOW_DAYS));
+    const [last] = await sql<{ finished_at: Date | null }[]>`
+      select finished_at from ingest_runs where source_id = 'usgs.earthquakes' and status in ('ok', 'partial') order by started_at desc limit 1`;
+    // The list is the catalog as of the last successful fetch (no new event is not a delay), so that time is
+    // the data time; each event shows its own origin time in the card.
+    const asOf = last?.finished_at ? new Date(last.finished_at).toISOString() : null;
+    sources.push({ sourceId: 'usgs.earthquakes', observedAt: asOf, fetchedAt: asOf });
+  }
+  const geohazard = dmr || shore ? await geohazardsAt(sql, lng, lat) : null;
+  // Survey data: no single observation date (each record carries its own survey year), so only the import time.
+  if (dmr) sources.push(ref('dmr.landslide', { ...dmr, sourceDate: null }));
+  if (shore) sources.push(ref('dmr.shoreline', { ...shore, sourceDate: null }));
+  return { status: 'ok', data: { geohazard, earthquakes, pendingSourceIds }, sources };
 }

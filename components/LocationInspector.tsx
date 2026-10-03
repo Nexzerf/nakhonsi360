@@ -5,10 +5,10 @@ import { useEffect, useRef, useState } from 'react';
 import { formatCoord, formatDateTime, formatDistance, formatRelative } from '@/lib/freshness/format';
 import { placeName } from '@/lib/i18n';
 import { findSource } from '@/lib/registry/sources';
-import { COLORS, type IconId } from '@/lib/registry/layers';
+import { COLORS, LANDSLIDE_GRADE_COLORS, shorelineColor, type IconId } from '@/lib/registry/layers';
 import { useIsMobile } from '@/lib/hooks';
 import { useMapStore, useT, type SheetSnap } from '@/lib/state/store';
-import type { AdminCard, CardResult, ConditionReading, ConditionsCard, ContextCard, EarthquakeEvent, FeatureKind, HazardsCard, InspectResponse, InspectSection, SourceRef, VariableConditions, VillageCard } from '@/lib/types';
+import type { AdminCard, CardResult, ConditionReading, ConditionsCard, ContextCard, EarthquakeEvent, FeatureKind, GeohazardPlace, GeohazardSummary, HazardsCard, InspectResponse, InspectSection, SourceRef, VariableConditions, VillageCard } from '@/lib/types';
 import { CONDITION_VARIABLES } from '@/lib/registry/stationRules';
 import { DataFreshness } from '@/components/DataFreshness';
 import { GeoBreadcrumb } from '@/components/GeoBreadcrumb';
@@ -464,8 +464,9 @@ function HazardsCardView({ q }: { q: SectionQuery<HazardsCard> }) {
   const nearestShown = eq?.nearest && eq.recent.some((e) => e.id === eq.nearest!.id);
   return (
     <Card id="card-hazards" title={t('inspector.sections.hazards')} icon="warning">
+      {r.data.geohazard && <Geohazards g={r.data.geohazard} />}
       {eq && vars && (
-        <div>
+        <div className={r.data.geohazard ? 'mt-3 border-t border-line pt-3' : ''}>
           <div className="mb-1 flex items-baseline justify-between gap-2">
             <span className="flex items-center gap-1.5 text-xs font-semibold text-fg-muted">
               <Icon name="earthquake" size={14} /> {t('hazards.earthquakes')}
@@ -504,6 +505,97 @@ function HazardsCardView({ q }: { q: SectionQuery<HazardsCard> }) {
       )}
       <SourceFooter refs={r.sources} />
     </Card>
+  );
+}
+
+function Geohazards({ g }: { g: GeohazardSummary }) {
+  const t = useT();
+  const locale = useMapStore((s) => s.locale);
+  const s = g.susceptibility;
+  return (
+    <div className="space-y-2.5">
+      <span className="flex items-center gap-1.5 text-xs font-semibold text-fg-muted">
+        <Icon name="landslide" size={14} /> {t('geohazard.title')}
+      </span>
+      {s ? (
+        <div className="flex items-start gap-2.5">
+          <span aria-hidden="true" className="mt-0.5 h-4 w-4 shrink-0 rounded border border-black/10" style={{ background: LANDSLIDE_GRADE_COLORS[s.grade ?? 0] ?? '#e5e7eb' }} />
+          <div className="min-w-0">
+            <p className="text-sm">
+              {t('geohazard.susceptibility')}: <strong>{s.level}</strong>
+            </p>
+            {s.desc && <p className="text-xs text-fg-subtle">{s.desc}</p>}
+          </div>
+        </div>
+      ) : (
+        <p className="text-xs text-fg-subtle">{t('geohazard.notAssessed')}</p>
+      )}
+      {g.inFlashFloodArea && (
+        <p className="flex items-start gap-2 rounded-lg bg-[#fb923c]/10 px-2.5 py-1.5 text-sm text-[#9a3412]">
+          <Icon name="flood" size={16} className="mt-0.5 shrink-0" /> {t('geohazard.flashFlood')}
+        </p>
+      )}
+      {g.riskVillages.length > 0 && (
+        <div>
+          <p className="text-[11px] text-fg-subtle">{t('geohazard.riskVillages')}</p>
+          <ul>
+            {g.riskVillages.map((v) => (
+              <li key={v.id}>
+                <PlaceRow p={v} color="#dc2626" detail={v.risk} />
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+      {g.safePoints.length > 0 && (
+        <div>
+          <p className="text-[11px] text-fg-subtle">{t('geohazard.safePoints')}</p>
+          <ul>
+            {g.safePoints.map((v) => (
+              <li key={v.id}>
+                <PlaceRow p={v} color="#15803d" detail={[v.moo ? t('geohazard.moo', { moo: v.moo }) : null, v.tambon ? `ต.${v.tambon}` : null].filter(Boolean).join(' ')} />
+              </li>
+            ))}
+          </ul>
+          <p className="mt-1 text-xs text-fg-subtle">{t('geohazard.safeNote')}</p>
+        </div>
+      )}
+      {g.coast && (
+        <p className="flex items-start gap-2 text-sm">
+          <span aria-hidden="true" className="mt-1.5 h-1 w-4 shrink-0 rounded" style={{ background: shorelineColor(g.coast.status) }} />
+          <span>
+            {t('geohazard.coast')}: <strong>{g.coast.status ?? '—'}</strong>
+            <span className="block text-xs text-fg-subtle">
+              {[g.coast.beach, formatDistance(g.coast.distanceM, locale), g.coast.year ? t('geohazard.dataYear', { year: g.coast.year }) : null].filter(Boolean).join(' · ')}
+            </span>
+          </span>
+        </p>
+      )}
+      <p className="text-xs text-fg-subtle">{t('geohazard.surveyNote')}</p>
+    </div>
+  );
+}
+
+function PlaceRow({ p, color, detail }: { p: GeohazardPlace; color: string; detail: string | null }) {
+  const t = useT();
+  const locale = useMapStore((s) => s.locale);
+  return (
+    <RowButton
+      onClick={() => {
+        const s = useMapStore.getState();
+        s.flyTo({ center: [p.lng, p.lat], zoom: 15 });
+        s.select({ lat: p.lat, lng: p.lng, label: [p.name, p.moo ? t('geohazard.moo', { moo: p.moo }) : null].filter(Boolean).join(' ') || undefined, kind: 'point' });
+      }}
+    >
+      <span aria-hidden="true" className="h-2.5 w-2.5 shrink-0 rounded-full" style={{ background: color }} />
+      <span className="min-w-0 flex-1">
+        <span className="block truncate text-sm">{p.name ?? '—'}</span>
+        <span className="block truncate text-xs text-fg-subtle">
+          {[detail, p.yearBe ? t('geohazard.surveyYear', { year: p.yearBe }) : null].filter(Boolean).join(' · ')}
+        </span>
+      </span>
+      <span className="tabular shrink-0 text-xs text-fg-subtle">{formatDistance(p.distanceM, locale)}</span>
+    </RowButton>
   );
 }
 

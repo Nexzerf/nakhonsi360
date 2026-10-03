@@ -12,6 +12,8 @@ import type {
   NearbyFeature,
   SearchHit,
   GazetteerType,
+  GeohazardPlace,
+  GeohazardSummary,
   VillageHit,
 } from '@/lib/types';
 
@@ -207,6 +209,13 @@ const TILE_LAYERS: Record<string, TileLayerSql> = {
   'water-bodies': { sourceLayer: 'water_bodies', from: 'osm_features', where: "kind = 'water'", props: 'osm_id, kind, subkind, name_th, name_en' },
   roads: { sourceLayer: 'roads', from: 'osm_features', where: "(kind = 'road_major' or ($1 >= 14 and kind = 'road_minor'))", props: 'osm_id, kind, subkind, name_th, name_en' },
   coastline: { sourceLayer: 'coastline', from: 'osm_features', where: "kind = 'coastline'", props: 'osm_id' },
+  // Department of Mineral Resources layers (scripts/import-dmr.ts).
+  landslide: { sourceLayer: 'landslide_susceptibility', from: 'hazard_zones', where: "dataset = 'landslide-susceptibility'", props: "feature_id as id, props->>'level' as level, (props->>'grade')::int as grade" },
+  'flash-flood': { sourceLayer: 'flash_flood', from: 'hazard_zones', where: "dataset = 'flash-flood'", props: "feature_id as id, props->>'subbasin' as subbasin" },
+  'landslide-villages': { sourceLayer: 'landslide_villages', from: 'hazard_zones', where: "dataset = 'landslide-villages'", props: "feature_id as id, props->>'name_th' as name_th, props->>'moo' as moo, props->>'risk' as risk, props->>'year_be' as year_be" },
+  'landslide-safe': { sourceLayer: 'landslide_safe', from: 'hazard_zones', where: "dataset = 'landslide-safe'", props: "feature_id as id, props->>'name_th' as name_th, props->>'village' as village, props->>'moo' as moo" },
+  'shoreline-change': { sourceLayer: 'shoreline_change', from: 'hazard_zones', where: "dataset = 'shoreline-change'", props: "feature_id as id, props->>'status' as status, props->>'beach' as beach, props->>'year' as year" },
+  erosion: { sourceLayer: 'coastal_area_change', from: 'hazard_zones', where: "dataset = 'coastal-area-change'", props: "feature_id as id, props->>'status' as status, props->>'beach' as beach, props->>'year' as year" },
 };
 
 export function isTileLayer(id: string): boolean {
@@ -268,6 +277,53 @@ export async function provinceMask(sql: Sql): Promise<{ type: 'Feature'; propert
       from admin_areas a where a.pcode = 'TH80' and a.level = 1`;
   if (!row?.geojson) return null;
   return { type: 'Feature', properties: {}, geometry: JSON.parse(row.geojson) };
+}
+
+// ---------------------------------------------------------------- geohazards (DMR)
+
+/** Department of Mineral Resources survey information at a point (see GeohazardSummary). */
+export async function geohazardsAt(sql: Sql, lng: number, lat: number): Promise<GeohazardSummary> {
+  const pt = sql`st_setsrid(st_makepoint(${lng}, ${lat}), 4326)`;
+  const [zones, places, coast] = await Promise.all([
+    sql<{ dataset: string; level: string | null; grade: string | null; descr: string | null }[]>`
+      select dataset, props->>'level' as level, props->>'grade' as grade, props->>'desc' as descr
+        from hazard_zones
+       where dataset in ('landslide-susceptibility', 'flash-flood') and st_intersects(geom, ${pt})
+       order by (props->>'grade')::int desc nulls last`,
+    sql<{ dataset: string; id: string; props: Record<string, string | null>; d: number; lng: number; lat: number }[]>`
+      select * from (
+        select dataset, feature_id as id, props, st_distance(geom::geography, ${pt}::geography) as d, st_x(geom) as lng, st_y(geom) as lat,
+               row_number() over (partition by dataset order by geom <-> ${pt}) as rn
+          from hazard_zones
+         where dataset in ('landslide-villages', 'landslide-safe')
+           and st_dwithin(geom::geography, ${pt}::geography, case when dataset = 'landslide-safe' then 20000 else 3000 end)
+      ) x where rn <= 3 order by dataset, d`,
+    sql<{ status: string | null; beach: string | null; year: string | null; d: number }[]>`
+      select props->>'status' as status, props->>'beach' as beach, props->>'year' as year, st_distance(geom::geography, ${pt}::geography) as d
+        from hazard_zones
+       where dataset = 'shoreline-change' and st_dwithin(geom::geography, ${pt}::geography, 3000)
+       order by d limit 1`,
+  ]);
+  const sus = zones.find((z) => z.dataset === 'landslide-susceptibility');
+  const place = (r: (typeof places)[number]): GeohazardPlace => ({
+    id: r.id,
+    name: r.props.name_th ?? null,
+    moo: r.props.moo ?? null,
+    tambon: r.props.tambon ?? null,
+    district: r.props.district ?? null,
+    yearBe: r.props.year_be != null ? String(r.props.year_be) : null,
+    risk: r.props.risk ?? null,
+    distanceM: Math.round(Number(r.d)),
+    lat: Number(r.lat),
+    lng: Number(r.lng),
+  });
+  return {
+    susceptibility: sus?.level ? { level: sus.level, grade: sus.grade !== null ? Number(sus.grade) : null, desc: sus.descr } : null,
+    inFlashFloodArea: zones.some((z) => z.dataset === 'flash-flood'),
+    riskVillages: places.filter((p) => p.dataset === 'landslide-villages').map(place),
+    safePoints: places.filter((p) => p.dataset === 'landslide-safe').map(place),
+    coast: coast[0] ? { status: coast[0].status, beach: coast[0].beach, year: coast[0].year != null ? String(coast[0].year) : null, distanceM: Math.round(Number(coast[0].d)) } : null,
+  };
 }
 
 // ---------------------------------------------------------------- live data

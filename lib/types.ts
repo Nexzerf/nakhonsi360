@@ -244,7 +244,37 @@ export interface EarthquakeSummary {
   nearest: EarthquakeEvent | null;
 }
 
+/** A Department of Mineral Resources point near the inspected location. */
+export interface GeohazardPlace {
+  id: string;
+  name: string | null;
+  moo: string | null;
+  tambon: string | null;
+  district: string | null;
+  /** Survey year as written by DMR (Buddhist era, sometimes two digits). */
+  yearBe: string | null;
+  /** Hazard type text for villages at risk, as published. */
+  risk: string | null;
+  distanceM: number;
+  lat: number;
+  lng: number;
+}
+
+/** Landslide / flash-flood / coastal survey information at a point (DMR). */
+export interface GeohazardSummary {
+  /** Susceptibility zone containing the point; null = not assessed there (not "safe"). */
+  susceptibility: { level: string; grade: number | null; desc: string | null } | null;
+  inFlashFloodArea: boolean;
+  /** Villages at risk within 3 km, nearest first. */
+  riskVillages: GeohazardPlace[];
+  /** Nearest temporary safe points within 20 km. */
+  safePoints: GeohazardPlace[];
+  /** Nearest shoreline-change segment within 3 km. */
+  coast: { status: string | null; beach: string | null; year: string | null; distanceM: number } | null;
+}
+
 export interface HazardsCard {
+  geohazard: GeohazardSummary | null;
   earthquakes: EarthquakeSummary | null;
   /** Hazard sources not connected yet. */
   pendingSourceIds: string[];

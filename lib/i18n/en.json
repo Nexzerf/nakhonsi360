@@ -501,5 +501,19 @@
     "status": "Status",
     "cameraId": "Camera ID",
     "location": "Location"
+  },
+  "geohazard": {
+    "title": "Geohazards (Department of Mineral Resources)",
+    "susceptibility": "Landslide susceptibility",
+    "notAssessed": "This point is outside the areas the Department of Mineral Resources assessed for landslide susceptibility (which does not mean safe).",
+    "flashFlood": "Inside an area affected by flash floods, debris flows or landslides",
+    "riskVillages": "Villages at risk within 3 km",
+    "safePoints": "Nearest temporary safe points",
+    "safeNote": "Safe points come from community-level surveys; confirm with local leaders before evacuating.",
+    "coast": "Shoreline near this point",
+    "moo": "Moo {moo}",
+    "surveyYear": "surveyed {year} (B.E.)",
+    "dataYear": "data year {year}",
+    "surveyNote": "Surveys and assessments by the Department of Mineral Resources, not a current warning."
   }
 }
