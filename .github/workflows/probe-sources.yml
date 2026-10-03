@@ -1,0 +1,26 @@
+name: Probe candidate sources (temporary)
+
+# Fetches candidate sources for layers that are not connected yet and prints
+# status and a short, key-redacted excerpt. Runs only on this development
+# branch; removed once the adapters exist.
+on:
+  push:
+    branches: [claude/sweet-gates-9vmjt7]
+    paths: [.github/workflows/probe-sources.yml, scripts/probe-sources.mjs]
+
+permissions:
+  contents: read
+
+jobs:
+  probe:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Probe
+        env:
+          GISTDA_API_KEY: ${{ secrets.GISTDA_API_KEY }}
+        run: node scripts/probe-sources.mjs
