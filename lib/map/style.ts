@@ -68,14 +68,16 @@ export function satelliteStyle(labels?: StyleSpecification, opts: { hiDpi?: bool
   };
 }
 
-export function basemapStyle(id: BasemapId): StyleSpecification | string {
-  if (id === 'satellite') return satelliteStyle();
+export function basemapStyle(id: BasemapId, opts: { hiDpi?: boolean } = {}): StyleSpecification | string {
+  if (id === 'satellite') return satelliteStyle(undefined, opts);
   if (id === 'terrain') {
     return rasterStyle(
       'opentopomap',
       ['a', 'b', 'c'].map((s) => `https://${s}.tile.opentopomap.org/{z}/{x}/{y}.png`),
       'ข้อมูล © <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a>, SRTM · รูปแบบ © <a href="https://opentopomap.org" target="_blank" rel="noopener">OpenTopoMap</a> (CC-BY-SA)',
       17,
+      // As for imagery: on sharp screens fetch the next zoom level's tiles, so 1 tile pixel = 1 screen pixel.
+      opts.hiDpi ? 128 : 256,
     );
   }
   return BASEMAP_STYLE_URL[id]!;

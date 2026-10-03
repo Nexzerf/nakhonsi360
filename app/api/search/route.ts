@@ -1,5 +1,6 @@
 import { NextResponse, type NextRequest } from 'next/server';
 import { getDb, withTimeout } from '@/lib/db/client';
+import { memo } from '@/lib/db/memo';
 import { searchGazetteer } from '@/lib/db/queries';
 import type { SearchResponse } from '@/lib/types';
 
@@ -14,7 +15,7 @@ export async function GET(req: NextRequest) {
   if (!sql) return NextResponse.json({ query: q, status: 'unavailable', hits: [] } satisfies SearchResponse);
 
   try {
-    const hits = await withTimeout(searchGazetteer(sql, q, limit), 4000);
+    const hits = await withTimeout(memo(sql, `search:${limit}:${q.toLowerCase()}`, 300_000, () => searchGazetteer(sql, q, limit)), 4000);
     return NextResponse.json({ query: q, status: 'ok', hits } satisfies SearchResponse, {
       headers: { 'Cache-Control': 'public, s-maxage=300, stale-while-revalidate=3600' },
     });

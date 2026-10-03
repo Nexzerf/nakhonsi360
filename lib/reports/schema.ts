@@ -108,7 +108,7 @@ export const LIMITS = {
   photosPerItem: 4,
   /** Photos per connection per hour. */
   photosPerHour: 30,
-  /** Bytes per stored photo (the browser resizes to ~1600 px JPEG first). */
+  /** Bytes per stored photo (the browser resizes to ~2048 px JPEG first). */
   photoMaxBytes: 2_500_000,
   /** How far back "when did you see it" may go. */
   observedMaxAgeHours: 72,

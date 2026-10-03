@@ -4,7 +4,7 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
 import { formatCoord } from '@/lib/freshness/format';
 import { HAZARDS, LIMITS, NEEDS, URGENCIES, WATER_HAZARDS, type HazardId, type NeedId, type UrgencyId, type WaterTrend } from '@/lib/reports/schema';
-import { rememberMyReport } from '@/lib/reports/client';
+import { rememberMyReport, expectOwnChange } from '@/lib/reports/client';
 import { useMapStore, useT } from '@/lib/state/store';
 import type { AdminCard, CardResult, InspectResponse } from '@/lib/types';
 import { PrimaryCallButtons } from '@/components/EmergencyDirectory';
@@ -150,6 +150,7 @@ export function ReportForm() {
         }
         setSentId(body.id);
         useMapStore.getState().setDraftLocation(null);
+        expectOwnChange();
         qc.invalidateQueries({ queryKey: ['reports'] });
         window.dispatchEvent(new Event('n360-reports-changed'));
         return;

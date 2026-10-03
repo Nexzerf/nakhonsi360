@@ -1,6 +1,7 @@
 import { NextResponse, type NextRequest } from 'next/server';
 import { getDb, withTimeout, TimeoutError } from '@/lib/db/client';
-import { connectedSources, earthquakesNear, geohazardsAt, inspectAdmin, satelliteHazardsAt, latestAtStations, latestImports, nearestFeatures, nearestObservations, nearestVillages, waterwayNamesNear } from '@/lib/db/queries';
+import { memo } from '@/lib/db/memo';
+import { earthquakesNear, lastSuccessfulRuns, geohazardsAt, inspectAdmin, satelliteHazardsAt, latestAtStations, latestImports, nearestFeatures, nearestObservations, nearestVillages, waterwayNamesNear } from '@/lib/db/queries';
 import { CONDITION_VARIABLES } from '@/lib/registry/stationRules';
 import { buildVariableConditions } from '@/lib/inspect/conditions';
 import { summarizeEarthquakes } from '@/lib/inspect/hazards';
@@ -19,6 +20,22 @@ const PLANNED: Record<'conditions' | 'hazards' | 'satellite', { phase: number; s
   hazards: { phase: 2, sourceIds: ['usgs.earthquakes', 'gistda.flood', 'firms.hotspots', 'dmr.landslide', 'dmcr.coast'] },
   satellite: { phase: 4, sourceIds: ['copernicus.sentinel2'] },
 };
+
+type Db = NonNullable<ReturnType<typeof getDb>>;
+
+/** Point-independent facts every inspection needs; shared across visitors for 30 s. */
+function sourceMeta(sql: Db) {
+  return memo(sql, 'inspect:meta', 30_000, async () => {
+    const [imports, okRuns] = await Promise.all([latestImports(sql), lastSuccessfulRuns(sql)]);
+    return { imports, okRuns, connected: new Set(okRuns.keys()) };
+  });
+}
+
+/** CDN cache for a complete answer; never keep one with a failed or timed-out card. */
+function cacheHeaders(out: InspectResponse): Record<string, string> {
+  const failed = Object.values(out.sections).some((s) => s && (s.status === 'error' || s.status === 'timeout'));
+  return { 'Cache-Control': failed ? 'no-store' : 'public, max-age=0, s-maxage=60, stale-while-revalidate=240' };
+}
 
 function ref(sourceId: string, imp: ImportRecord | undefined): SourceRef {
   return { sourceId, observedAt: imp?.sourceDate ?? null, fetchedAt: imp?.importedAt ?? null };
@@ -67,12 +84,12 @@ export async function GET(req: NextRequest) {
     : Promise.resolve();
   if (wantDb.every((s) => s === 'hazards')) {
     await hazardsTask;
-    return NextResponse.json(out, { headers: { 'Cache-Control': 'no-store' } });
+    return NextResponse.json(out, { headers: cacheHeaders(out) });
   }
 
   let imports: Map<string, ImportRecord>;
   try {
-    imports = await withTimeout(latestImports(sql), CARD_TIMEOUT_MS);
+    imports = (await withTimeout(sourceMeta(sql), CARD_TIMEOUT_MS)).imports;
   } catch (err) {
     console.error('[api/inspect] imports', err);
     for (const s of wantDb) if (s !== 'hazards') out.sections[s] = err instanceof TimeoutError ? { status: 'timeout' } : { status: 'error' };
@@ -84,7 +101,7 @@ export async function GET(req: NextRequest) {
   const osm = imports.get('osm.geofabrik');
 
   // Admin containment is shared: the other cards use it to tell "outside the province" apart from "no data".
-  const adminPromise = hdx ? guarded(async () => ({ status: 'ok' as const, data: await inspectAdmin(sql, lng, lat), sources: [ref('hdx.cod-ab-tha', hdx)] })) : null;
+  const adminPromise = hdx ? guarded(async () => ({ status: 'ok' as const, data: await memo(sql, `admin:${lat}:${lng}`, 60_000, () => inspectAdmin(sql, lng, lat)), sources: [ref('hdx.cod-ab-tha', hdx)] })) : null;
 
   const outside = async (): Promise<boolean> => {
     if (!adminPromise) return false;
@@ -155,11 +172,11 @@ export async function GET(req: NextRequest) {
   }
 
   await Promise.all(tasks);
-  return NextResponse.json(out, { headers: { 'Cache-Control': 'no-store' } });
+  return NextResponse.json(out, { headers: cacheHeaders(out) });
 }
 
-async function conditionsCard(sql: NonNullable<ReturnType<typeof getDb>>, lng: number, lat: number, outsideArea: boolean): Promise<CardResult<ConditionsCard>> {
-  const connected = await connectedSources(sql);
+async function conditionsCard(sql: Db, lng: number, lat: number, outsideArea: boolean): Promise<CardResult<ConditionsCard>> {
+  const { connected } = await sourceMeta(sql);
   const anyConnected = CONDITION_VARIABLES.some((v) => v.sourceIds.some((id) => connected.has(id)));
   if (!anyConnected) return { status: 'not_connected', ...PLANNED.conditions };
   if (outsideArea) return { status: 'empty', reason: 'outside_study_area', sources: [] };
@@ -185,8 +202,8 @@ async function conditionsCard(sql: NonNullable<ReturnType<typeof getDb>>, lng: n
   return { status: 'ok', data: { variables }, sources };
 }
 
-async function hazardsCard(sql: NonNullable<ReturnType<typeof getDb>>, lng: number, lat: number): Promise<CardResult<HazardsCard>> {
-  const [connected, imports] = await Promise.all([connectedSources(sql), latestImports(sql)]);
+async function hazardsCard(sql: Db, lng: number, lat: number): Promise<CardResult<HazardsCard>> {
+  const { connected, imports, okRuns } = await sourceMeta(sql);
   const dmr = imports.get('dmr.landslide');
   const shore = imports.get('dmr.shoreline');
   const has = (id: string) => connected.has(id) || imports.has(id);
@@ -199,20 +216,19 @@ async function hazardsCard(sql: NonNullable<ReturnType<typeof getDb>>, lng: numb
   let earthquakes = null;
   if (connected.has('usgs.earthquakes')) {
     earthquakes = summarizeEarthquakes(await earthquakesNear(sql, lng, lat, USGS_WINDOW_DAYS));
-    const [last] = await sql<{ finished_at: Date | null }[]>`
-      select finished_at from ingest_runs where source_id = 'usgs.earthquakes' and status in ('ok', 'partial') order by started_at desc limit 1`;
     // The list is the catalog as of the last successful fetch (no new event is not a delay), so that time is
     // the data time; each event shows its own origin time in the card.
-    const asOf = last?.finished_at ? new Date(last.finished_at).toISOString() : null;
+    const asOf = okRuns.get('usgs.earthquakes') ?? null;
     sources.push({ sourceId: 'usgs.earthquakes', observedAt: asOf, fetchedAt: asOf });
   }
-  const geohazard = dmr || shore ? await geohazardsAt(sql, lng, lat) : null;
-  const satellite = floodConnected || hotspotsConnected ? { ...(await satelliteHazardsAt(sql, lng, lat)), floodConnected, hotspotsConnected } : null;
+  const [geohazard, satHits] = await Promise.all([
+    dmr || shore ? geohazardsAt(sql, lng, lat) : null,
+    floodConnected || hotspotsConnected ? satelliteHazardsAt(sql, lng, lat) : null,
+  ]);
+  const satellite = satHits ? { ...satHits, floodConnected, hotspotsConnected } : null;
   for (const id of ['gistda.flood', 'firms.hotspots'] as const) {
     if (!connected.has(id)) continue;
-    const [last] = await sql<{ finished_at: Date | null }[]>`
-      select finished_at from ingest_runs where source_id = ${id} and status in ('ok', 'partial') order by started_at desc limit 1`;
-    const at = last?.finished_at ? new Date(last.finished_at).toISOString() : null;
+    const at = okRuns.get(id) ?? null;
     sources.push({ sourceId: id, observedAt: at, fetchedAt: at });
   }
   // Survey data: no single observation date (each record carries its own survey year), so only the import time.

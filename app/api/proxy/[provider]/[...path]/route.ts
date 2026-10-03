@@ -12,6 +12,6 @@ const PROVIDERS: Record<string, never> = {};
 
 export async function GET(_req: NextRequest, ctx: { params: Promise<{ provider: string; path: string[] }> }) {
   const { provider } = await ctx.params;
-  if (!(provider in PROVIDERS)) return NextResponse.json({ error: 'unknown provider' }, { status: 404 });
+  if (!Object.hasOwn(PROVIDERS, provider)) return NextResponse.json({ error: 'unknown provider' }, { status: 404 });
   return NextResponse.json({ error: 'not implemented' }, { status: 501 });
 }

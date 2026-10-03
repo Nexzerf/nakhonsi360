@@ -4,6 +4,8 @@ import { getDb, withTimeout } from '@/lib/db/client';
 import { insertReport, listPublicReports } from '@/lib/reports/db';
 import { HAZARDS, validateReport } from '@/lib/reports/schema';
 import { reporterHash, sameOrigin } from '@/lib/reports/hash';
+import { memo } from '@/lib/db/memo';
+import { REPORT_READ_CACHE, REPORT_READ_TTL_MS } from '@/lib/reports/cache';
 
 export const dynamic = 'force-dynamic';
 
@@ -22,8 +24,11 @@ export async function GET(req: NextRequest) {
   const hazardParam = p.get('hazard');
   const hazard = hazardParam && HAZARDS.some((h) => h.id === hazardParam) ? hazardParam : null;
   try {
-    const reports = await withTimeout(listPublicReports(sql, { hours, openOnly: p.get('open') === '1', hazard }), 6000);
-    const headers = { 'Cache-Control': 'no-store' };
+    const fresh = p.has('fresh');
+    const openOnly = p.get('open') === '1';
+    const load = () => listPublicReports(sql, { hours, openOnly, hazard });
+    const reports = await withTimeout(fresh ? load() : memo(sql, `reports:${hours}:${openOnly}:${hazard}`, REPORT_READ_TTL_MS, load), 6000);
+    const headers = { 'Cache-Control': fresh ? 'no-store' : REPORT_READ_CACHE };
     if (p.get('format') === 'geojson') {
       const fc: GeoJSON.FeatureCollection = {
         type: 'FeatureCollection',

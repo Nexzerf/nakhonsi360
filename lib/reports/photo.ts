@@ -4,13 +4,14 @@
  * Prepare a photo in the browser before upload:
  * 1. read what the file says (capture time, GPS) — kept only to show how
  *    the photo relates to the report, never stored as coordinates;
- * 2. resize to at most 1600 px and re-encode as JPEG, which drops all
+ * 2. resize to at most 2048 px and re-encode as JPEG, which drops all
  *    metadata (camera, exact location) and keeps uploads small on weak
  *    mobile connections.
  */
+import { expectOwnChange } from '@/lib/reports/client';
 import { LIMITS } from '@/lib/reports/schema';
 
-export const MAX_EDGE = 1600;
+export const MAX_EDGE = 2048;
 
 export interface PreparedPhoto {
   key: string;
@@ -82,9 +83,9 @@ export async function preparePhoto(file: File): Promise<PreparedPhoto> {
   if (!ctx) throw new Error('canvas');
   ctx.drawImage(img, 0, 0, width, height);
   if ('close' in img) img.close();
-  let quality = 0.82;
+  let quality = 0.88;
   let blob: Blob | null = null;
-  // Step quality down until it fits (rarely needed at 1600 px).
+  // Step quality down until it fits (rarely needed at 2048 px).
   for (; quality >= 0.5; quality -= 0.12) {
     blob = await new Promise<Blob | null>((res) => canvas.toBlob(res, 'image/jpeg', quality));
     if (blob && blob.size <= LIMITS.photoMaxBytes) break;
@@ -128,7 +129,10 @@ export async function uploadPhotos(
     }
     try {
       const r = await fetch(`/api/reports/${reportId}/photos`, { method: 'POST', body: form });
-      if (r.ok) sent++;
+      if (r.ok) {
+        sent++;
+        expectOwnChange();
+      }
       else failed++;
     } catch {
       failed++;

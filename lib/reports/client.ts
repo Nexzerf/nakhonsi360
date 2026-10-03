@@ -7,12 +7,24 @@ import type { PublicReport, ReportPhoto, ReportUpdate } from '@/lib/reports/sche
 /** How often open views re-check for new reports and status changes. */
 export const REPORTS_REFRESH_MS = 15_000;
 
+/**
+ * Report reads are shared through the CDN for a few seconds. After this
+ * browser changes something, read past that cache for a short while so the
+ * change shows at once (see lib/reports/cache.ts).
+ */
+let freshUntil = 0;
+export function expectOwnChange() {
+  freshUntil = Date.now() + 20_000;
+}
+/** `?fresh=…` / `&fresh=…` while this browser's own change may still be cached, else ''. */
+export const freshParam = (sep: '?' | '&') => (Date.now() < freshUntil ? `${sep}fresh=${Date.now()}` : '');
+
 export function useReports(opts: { hours?: number; enabled?: boolean } = {}) {
   const hours = opts.hours ?? 72;
   return useQuery<{ generatedAt: string; reports: PublicReport[] }>({
     queryKey: ['reports', hours],
     queryFn: async ({ signal }) => {
-      const r = await fetch(`/api/reports?hours=${hours}`, { signal });
+      const r = await fetch(`/api/reports?hours=${hours}${freshParam('&')}`, { signal });
       if (!r.ok) throw new Error(`reports ${r.status}`);
       return r.json();
     },
@@ -27,7 +39,7 @@ export function useReport(id: string | null) {
   return useQuery<{ report: PublicReport; updates: ReportUpdate[]; photos: ReportPhoto[] }>({
     queryKey: ['report', id],
     queryFn: async ({ signal }) => {
-      const r = await fetch(`/api/reports/${id}`, { signal });
+      const r = await fetch(`/api/reports/${id}${freshParam('?')}`, { signal });
       if (!r.ok) throw new Error(`report ${r.status}`);
       return r.json();
     },
