@@ -30,6 +30,8 @@ function sourceStatus(id: string, data: SourcesResponse | undefined): SourceStat
  */
 export function layerUsable(layer: LayerDef, data: SourcesResponse | undefined): boolean {
   if (isLayerAvailable(layer)) return true;
+  // Tiles served straight from the agency: usable whenever the source is listed as external.
+  if (layer.raster?.tiles && layer.sourceIds.some((id) => sourceStatus(id, data) === 'external')) return true;
   return layer.sourceIds.some((id) => LIVE_STATES.includes(sourceStatus(id, data)));
 }
 
@@ -52,6 +54,7 @@ export function layerStatus(layer: LayerDef, data: SourcesResponse | undefined):
 export function layerHasData(layer: LayerDef, data: SourcesResponse | undefined): boolean {
   // Fetched live from the municipality on request; /api/cctv reports its own availability.
   if (layer.cctv) return true;
+  if (layer.raster?.tiles && layer.sourceIds.some((id) => sourceStatus(id, data) === 'external')) return true;
   if (process.env.NEXT_PUBLIC_PMTILES_BASE_URL && isLayerAvailable(layer) && layer.sourceLayer) return true;
   const s = layerStatus(layer, data);
   return layer.sourceLayer ? s === 'ok' : s === 'ok' || s === 'degraded';

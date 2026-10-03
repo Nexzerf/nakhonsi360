@@ -271,6 +271,15 @@ export interface GeohazardSummary {
   safePoints: GeohazardPlace[];
   /** Nearest shoreline-change segment within 3 km. */
   coast: { status: string | null; beach: string | null; year: string | null; distanceM: number } | null;
+  /** DMCR mangrove zone containing the point. */
+  mangrove: { areaRai: number | null } | null;
+  /** Registered wetland (ONEP register) containing the point. */
+  wetland: { name: string | null; class: string | null } | null;
+  /**
+   * GISTDA recurrent-flood map at the point: years with flooding out of the
+   * ten (2011–2020); 0 = none detected there; null = not available (service down).
+   */
+  floodYears?: { years: number; flooded: number[] } | null;
 }
 
 /** What satellites recently detected at or near a point (GISTDA flood, NASA FIRMS hotspots). */
@@ -326,4 +335,23 @@ export interface SearchResponse {
   query: string;
   status: 'ok' | 'unavailable' | 'error';
   hits: SearchHit[];
+}
+
+/** /api/warnings: TMD announcements currently in effect. */
+export interface WarningsResponse {
+  status: 'ok' | 'not_connected' | 'unavailable';
+  /** When TMD's announcement list was last fetched successfully. */
+  checkedAt: string | null;
+  warnings: {
+    id: string;
+    announcedAt: string;
+    effectStart: string | null;
+    effectEnd: string | null;
+    titleTh: string;
+    titleEn: string | null;
+    headlineTh: string | null;
+    headlineEn: string | null;
+    urlTh: string | null;
+    urlEn: string | null;
+  }[];
 }

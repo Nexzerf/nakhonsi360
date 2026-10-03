@@ -24,7 +24,8 @@
     "fetch:sources": "tsx scripts/fetch-sources.ts",
     "import:all": "tsx scripts/import-all.ts",
     "build:pmtiles": "bash scripts/build-pmtiles.sh",
-    "ingest": "tsx scripts/ingest.ts"
+    "ingest": "tsx scripts/ingest.ts",
+    "refresh:imagery": "tsx scripts/refresh-imagery.ts"
   },
   "engines": {
     "node": ">=20"

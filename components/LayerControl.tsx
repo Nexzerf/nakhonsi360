@@ -1,11 +1,12 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { BASEMAPS, LAYERS, LAYER_GROUPS, LAYER_SCENARIOS, MAX_VISIBLE_OVERLAYS, type BasemapId, type LayerDef } from '@/lib/registry/layers';
 import { useSources, layerStatus, layerHasData, layerUsable } from '@/lib/hooks';
 import { useMapStore, useT } from '@/lib/state/store';
 import { placeName } from '@/lib/i18n';
-import { formatDateTime } from '@/lib/freshness/format';
+import { formatDate, formatDateTime } from '@/lib/freshness/format';
 import { Icon } from '@/components/Icon';
 import { Dot, STATUS_COLOR } from '@/components/DataFreshness';
 
@@ -34,6 +35,22 @@ function layerColor(layer: LayerDef): string {
   return layer.legend.type === 'fill' ? layer.legend.outline : layer.legend.color;
 }
 
+/** "ภาพวันที่ …" for raster layers whose scenes change (from their TileJSON). */
+function useImageryDates(layer: LayerDef | null): string | null {
+  const t = useT();
+  const locale = useMapStore((s) => s.locale);
+  const url = layer?.raster?.tilejson ?? null;
+  const { data } = useQuery<{ dataFrom: string | null; dataTo: string | null }>({
+    queryKey: ['tilejson', url],
+    queryFn: async ({ signal }) => (await fetch(url!, { signal })).json(),
+    enabled: url !== null,
+    staleTime: 10 * 60_000,
+  });
+  if (!data?.dataTo) return null;
+  const day = (iso: string) => formatDate(new Date(iso), locale);
+  return data.dataFrom && day(data.dataFrom) !== day(data.dataTo) ? t('layers.imageryRange', { from: day(data.dataFrom), to: day(data.dataTo) }) : t('layers.imageryDay', { day: day(data.dataTo) });
+}
+
 function LayerRow({ layer }: { layer: LayerDef }) {
   const t = useT();
   const locale = useMapStore((s) => s.locale);
@@ -49,11 +66,13 @@ function LayerRow({ layer }: { layer: LayerDef }) {
   const noteId = `layer-${layer.id}-note`;
   const lastImport = layer.sourceIds.map((id) => data?.sources.find((s) => s.id === id)?.health.lastImport?.importedAt).find(Boolean);
 
+  const imagery = useImageryDates(available && enabled ? layer : null);
   let note: string | null = null;
   if (!available) note = t('layers.plannedPhase', { phase: layer.phase });
   else if (failedAt) note = `${t('error.loadFailed')}${lastImport ? ` · ${t('error.lastSuccess', { time: formatDateTime(new Date(lastImport), locale) })}` : ''}`;
   else if (!hasData) note = status === 'unknown' ? t('status.dbDown') : t('layers.notImported');
   else if (enabled && zoom < layer.minzoom) note = `${t('layers.hiddenAtZoom')} · ${t('layers.minzoom', { zoom: layer.minzoom })}`;
+  else if (imagery) note = imagery;
 
   const toggle = () => {
     useMapStore.getState().clearLayerError(layer.id);

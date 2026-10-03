@@ -49,6 +49,9 @@ import {
   stationLayers,
   stationSource,
   vectorSource,
+  rasterLayers,
+  rasterSource,
+  WIND_ARROW_IMAGE,
 } from '@/lib/map/style';
 import { THAILAND_ENVELOPE } from '@/lib/geo/bbox';
 import { ESRI_PROTOCOL, loadEsriTile } from '@/lib/map/esriImagery';
@@ -59,10 +62,12 @@ const PMTILES_BASE = process.env.NEXT_PUBLIC_PMTILES_BASE_URL || undefined;
 
 /** Draw order, bottom to top. */
 const Z_ORDER = [
+  'sentinel2', 'landuse', 'ndvi', 'soil-moisture', 'flood-recurrent', 'mangroves', 'wetlands',
   'landslide', 'flash-flood', 'erosion', 'flood',
   'water-bodies', 'water-reservoirs', 'roads', 'coastline', 'shoreline-change', 'water-streams', 'water-canals', 'water-rivers',
   'admin-subdistrict', 'admin-district', 'admin-province', 'villages', 'landslide-villages', 'landslide-safe',
-  'rain-24h', 'water-stations', 'hotspots', 'earthquake', 'cctv', 'citizen-reports',
+  'weather-stations', 'temperature', 'wind', 'pm25', 'aqi',
+  'rain-24h', 'water-stations', 'hotspots', 'earthquake', 'cctv', 'citizen-reports', 'weather-warnings',
 ];
 
 const URGENCY_COLORS = Object.fromEntries(URGENCIES.map((u) => [u.id, u.color]));
@@ -138,6 +143,30 @@ async function fetchStyle(url: string, timeoutMs = 8000): Promise<StyleSpecifica
  * Edge smoothing (MSAA) helps lines and area edges on standard-density
  * screens, where pixels are big enough to show stair steps.
  */
+/** A dark arrow pointing up with a white edge, 2× for sharp screens. */
+function windArrowImage(): ImageData {
+  const size = 56;
+  const c = document.createElement('canvas');
+  c.width = c.height = size;
+  const g = c.getContext('2d')!;
+  g.beginPath();
+  g.moveTo(28, 4);
+  g.lineTo(46, 30);
+  g.lineTo(34, 30);
+  g.lineTo(34, 52);
+  g.lineTo(22, 52);
+  g.lineTo(22, 30);
+  g.lineTo(10, 30);
+  g.closePath();
+  g.lineJoin = 'round';
+  g.lineWidth = 4;
+  g.strokeStyle = '#ffffff';
+  g.stroke();
+  g.fillStyle = '#1e293b';
+  g.fill();
+  return g.getImageData(0, 0, size, size);
+}
+
 function sharpRendering(): { maxCanvasSize: [number, number]; canvasContextAttributes: { antialias: boolean } } {
   let max = 4096;
   try {
@@ -217,6 +246,10 @@ export function EnvironmentalMap({ initialBounds }: { initialBounds: BBox | null
     }
     mapRef.current = map;
     map.getCanvas().setAttribute('aria-label', t('app.mapLabel'));
+    // Images our layers use, drawn here so they never depend on a basemap sprite.
+    map.on('styleimagemissing', (e: { id: string }) => {
+      if (e.id === WIND_ARROW_IMAGE && !map.hasImage(e.id)) map.addImage(e.id, windArrowImage(), { pixelRatio: 2 });
+    });
     map.addControl(new maplibregl.ScaleControl({ unit: 'metric' }), 'bottom-left');
 
     // With the province extent known, the map shows only the province.
@@ -380,6 +413,12 @@ export function EnvironmentalMap({ initialBounds }: { initialBounds: BBox | null
     );
     for (const layer of active) {
       const srcId = overlaySourceId(layer.id);
+      if (layer.banner) continue;
+      if (layer.raster) {
+        if (!map.getSource(srcId)) map.addSource(srcId, rasterSource(layer, origin));
+        for (const spec of rasterLayers(layer)) map.addLayer(spec);
+        continue;
+      }
       if (layer.variable) {
         if (!map.getSource(srcId)) map.addSource(srcId, stationSource(layer, origin));
         for (const spec of stationLayers(layer, locale)) map.addLayer(spec);

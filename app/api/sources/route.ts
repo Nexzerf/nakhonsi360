@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import { getDb } from '@/lib/db/client';
 import { memo } from '@/lib/db/memo';
 import { latestImports, latestRuns } from '@/lib/db/queries';
-import { SOURCES, IMPORTED_SOURCE_IDS } from '@/lib/registry/sources';
+import { SOURCES, IMPORTED_SOURCE_IDS, EXTERNAL_TILE_SOURCE_IDS } from '@/lib/registry/sources';
 import { CURRENT_PHASE } from '@/lib/registry/layers';
 import type { SourceHealth, SourceStatus, SourcesResponse, DataSource } from '@/lib/types';
 
@@ -37,7 +37,7 @@ export async function GET() {
     const lastImport = imports.get(src.id) ?? null;
     const lastRun = runs.get(src.id) ?? null;
     let status: SourceStatus;
-    if (src.id.startsWith('basemap.') || src.id === 'nst.cctv') status = 'external';
+    if (src.id.startsWith('basemap.') || src.id === 'nst.cctv' || EXTERNAL_TILE_SOURCE_IDS.includes(src.id)) status = 'external';
     else if (src.kind === 'community') status = database === 'ok' ? 'ok' : 'unknown';
     else if (database !== 'ok') status = src.phase > CURRENT_PHASE ? 'not_connected' : 'unknown';
     else if (imported.has(src.id)) status = lastImport ? 'ok' : 'not_imported';

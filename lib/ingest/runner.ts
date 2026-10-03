@@ -84,7 +84,10 @@ export async function runIngest(
     if (raw === undefined) {
       const bbox = await studyAreaBBox(sql);
       if (!bbox) return await fail('province extent missing: import admin boundaries first');
-      const ctx: FetchContext = { bbox, env, fetch: opts.fetchImpl ?? fetch, userAgent: USER_AGENT };
+      const points = await sql<{ pcode: string; lng: number; lat: number }[]>`
+        select pcode, st_x(p) as lng, st_y(p) as lat from (select pcode, st_pointonsurface(geom) as p from admin_areas where level = 2) d`;
+      const districtPoints = new Map(points.map((r) => [r.pcode, [Number(r.lng), Number(r.lat)] as [number, number]]));
+      const ctx: FetchContext = { bbox, env, fetch: opts.fetchImpl ?? fetch, userAgent: USER_AGENT, districtPoints };
       raw = await adapter.fetchRaw(ctx);
       await opts.onRaw?.(raw);
     }

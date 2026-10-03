@@ -61,7 +61,9 @@
     "allOn": "Show all",
     "allOff": "Hide all",
     "groupAllOn": "Show all in {group}",
-    "groupAllOff": "Hide all in {group}"
+    "groupAllOff": "Hide all in {group}",
+    "imageryRange": "Data from {from} – {to}",
+    "imageryDay": "Data of {day}"
   },
   "legend": {
     "title": "Legend",
@@ -509,7 +511,7 @@
     "location": "Location"
   },
   "geohazard": {
-    "title": "Geohazards (Department of Mineral Resources)",
+    "title": "Hazard-prone and natural areas",
     "susceptibility": "Landslide susceptibility",
     "notAssessed": "This point is outside the areas the Department of Mineral Resources assessed for landslide susceptibility (which does not mean safe).",
     "flashFlood": "Inside an area affected by flash floods, debris flows or landslides",
@@ -520,7 +522,14 @@
     "moo": "Moo {moo}",
     "surveyYear": "surveyed {year} (B.E.)",
     "dataYear": "data year {year}",
-    "surveyNote": "Surveys and assessments by the Department of Mineral Resources, not a current warning."
+    "surveyNote": "Surveys and assessments by the Department of Mineral Resources, not a current warning.",
+    "floodYears": "Recurrent flooding: flooded in {years} of 10 years",
+    "floodYearsNone": "The recurrent-flood map shows no flooding here in 2011–2020",
+    "floodYearsList": "Years:",
+    "floodYearsSource": "from satellite images 2011–2020 (GISTDA)",
+    "wetland": "Registered wetland",
+    "mangrove": "Inside a mangrove zone (DMCR)",
+    "mangroveArea": "This patch is about {rai} rai"
   },
   "summary": {
     "title": "This place at a glance",
@@ -546,5 +555,15 @@
     "latest": "latest {time}",
     "noHotspots": "No hotspots within 5 km in the last 3 days",
     "note": "Satellites can miss flooding under cloud or in built-up areas, and a hotspot may be open burning or another heat source; not confirmed on the ground."
+  },
+  "warnings": {
+    "title": "Thai Meteorological Department warnings",
+    "active": "{count} TMD announcement(s) in effect",
+    "none": "No TMD warning is in effect right now",
+    "effect": "In effect {from} – {to}",
+    "full": "Read the full announcement",
+    "hide": "Hide warnings",
+    "note": "National announcements: check which areas each one covers",
+    "checked": "checked {time}"
   }
 }

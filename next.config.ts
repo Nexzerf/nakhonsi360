@@ -10,7 +10,18 @@ const pmtilesOrigin = (() => {
 })();
 
 /** Hosts the browser talks to directly: basemaps, satellite imagery, the CCTV player. */
-const MAP_HOSTS = ['https://tiles.openfreemap.org', 'https://*.tile.opentopomap.org', 'https://server.arcgisonline.com', pmtilesOrigin].filter(Boolean).join(' ');
+const MAP_HOSTS = [
+  'https://tiles.openfreemap.org',
+  'https://*.tile.opentopomap.org',
+  'https://server.arcgisonline.com',
+  // Raster overlays loaded straight from the agencies (they send CORS headers).
+  'https://gistdaportal.gistda.or.th',
+  'https://gibs.earthdata.nasa.gov',
+  'https://planetarycomputer.microsoft.com',
+  pmtilesOrigin,
+]
+  .filter(Boolean)
+  .join(' ');
 
 const CSP = [
   "default-src 'self'",
