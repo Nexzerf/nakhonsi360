@@ -8,7 +8,7 @@ import { findSource } from '@/lib/registry/sources';
 import { COLORS, LANDSLIDE_GRADE_COLORS, shorelineColor, type IconId } from '@/lib/registry/layers';
 import { useIsMobile } from '@/lib/hooks';
 import { useMapStore, useT, type SheetSnap } from '@/lib/state/store';
-import type { AdminCard, CardResult, ConditionReading, ConditionsCard, ContextCard, EarthquakeEvent, FeatureKind, GeohazardPlace, GeohazardSummary, HazardsCard, InspectResponse, InspectSection, SourceRef, VariableConditions, VillageCard } from '@/lib/types';
+import type { AdminCard, CardResult, ConditionReading, ConditionsCard, ContextCard, EarthquakeEvent, FeatureKind, GeohazardPlace, GeohazardSummary, HazardsCard, SatelliteHazards, InspectResponse, InspectSection, SourceRef, VariableConditions, VillageCard } from '@/lib/types';
 import { CONDITION_VARIABLES } from '@/lib/registry/stationRules';
 import { DataFreshness } from '@/components/DataFreshness';
 import { GeoBreadcrumb } from '@/components/GeoBreadcrumb';
@@ -464,9 +464,14 @@ function HazardsCardView({ q }: { q: SectionQuery<HazardsCard> }) {
   const nearestShown = eq?.nearest && eq.recent.some((e) => e.id === eq.nearest!.id);
   return (
     <Card id="card-hazards" title={t('inspector.sections.hazards')} icon="warning">
-      {r.data.geohazard && <Geohazards g={r.data.geohazard} />}
+      {r.data.satellite && <SatelliteSection s={r.data.satellite} />}
+      {r.data.geohazard && (
+        <div className={r.data.satellite ? 'mt-3 border-t border-line pt-3' : ''}>
+          <Geohazards g={r.data.geohazard} />
+        </div>
+      )}
       {eq && vars && (
-        <div className={r.data.geohazard ? 'mt-3 border-t border-line pt-3' : ''}>
+        <div className={r.data.geohazard || r.data.satellite ? 'mt-3 border-t border-line pt-3' : ''}>
           <div className="mb-1 flex items-baseline justify-between gap-2">
             <span className="flex items-center gap-1.5 text-xs font-semibold text-fg-muted">
               <Icon name="earthquake" size={14} /> {t('hazards.earthquakes')}
@@ -505,6 +510,43 @@ function HazardsCardView({ q }: { q: SectionQuery<HazardsCard> }) {
       )}
       <SourceFooter refs={r.sources} />
     </Card>
+  );
+}
+
+function SatelliteSection({ s }: { s: SatelliteHazards }) {
+  const t = useT();
+  const locale = useMapStore((st) => st.locale);
+  return (
+    <div className="space-y-2">
+      <span className="flex items-center gap-1.5 text-xs font-semibold text-fg-muted">
+        <Icon name="satellite" size={14} /> {t('satHazard.title')}
+      </span>
+      {s.floodConnected &&
+        (s.flood ? (
+          <p className="flex items-start gap-2 rounded-lg bg-[#38bdf8]/12 px-2.5 py-1.5 text-sm text-[#075985]">
+            <Icon name="flood" size={16} className="mt-0.5 shrink-0" />
+            <span>
+              {s.flood.distanceM === 0 ? t('satHazard.floodHere') : t('satHazard.floodNear', { distance: formatDistance(s.flood.distanceM, locale) })}
+              <span className="block text-xs opacity-80">{[s.flood.subdistrict, s.flood.district, t('satHazard.reported', { time: formatRelative(new Date(s.flood.observedAt), locale) })].filter(Boolean).join(' · ')}</span>
+            </span>
+          </p>
+        ) : (
+          <p className="text-sm text-fg-muted">{t('satHazard.noFlood')}</p>
+        ))}
+      {s.hotspotsConnected && (
+        <p className="text-sm">
+          {s.hotspots.count > 0 ? (
+            <span className="text-danger">
+              {t('satHazard.hotspots', { n: s.hotspots.count, distance: formatDistance(s.hotspots.nearestM ?? 0, locale) })}
+              {s.hotspots.latestAt && <span className="block text-xs text-fg-subtle">{t('satHazard.latest', { time: formatRelative(new Date(s.hotspots.latestAt), locale) })}</span>}
+            </span>
+          ) : (
+            <span className="text-fg-muted">{t('satHazard.noHotspots')}</span>
+          )}
+        </p>
+      )}
+      <p className="text-xs text-fg-subtle">{t('satHazard.note')}</p>
+    </div>
   );
 }
 
@@ -611,6 +653,7 @@ function QuickSummary({ conditions, hazards }: { conditions: SectionQuery<Condit
   const rain = vars.find((v) => v.variable === 'rain_24h')?.readings[0];
   const water = vars.find((v) => v.variable === 'water_level')?.readings[0];
   const geo = hazards.data?.status === 'ok' ? hazards.data.data.geohazard : null;
+  const sat = hazards.data?.status === 'ok' ? hazards.data.data.satellite : null;
   const safe = geo?.safePoints[0];
   const station = (r: ConditionReading) => placeName(locale, r.stationNameTh, r.stationNameEn) ?? r.stationId;
   const fmt = (n: number, d = 1) => n.toLocaleString(locale === 'th' ? 'th-TH' : 'en-GB', { maximumFractionDigits: d });
@@ -631,6 +674,17 @@ function QuickSummary({ conditions, hazards }: { conditions: SectionQuery<Condit
       text: water.officialStatus ? t('summary.water', { status: water.officialStatus }) : t('summary.waterValue', { value: fmt(water.value, 2), unit: water.unit }),
       sub: `${station(water)}${water.riverName ? ` · ${water.riverName}` : ''} · ${formatDistance(water.distanceM, locale)}`,
     });
+  }
+  if (sat?.flood) {
+    rows.push({
+      key: 'satflood',
+      color: '#38bdf8',
+      text: sat.flood.distanceM === 0 ? t('satHazard.floodHere') : t('satHazard.floodNear', { distance: formatDistance(sat.flood.distanceM, locale) }),
+      sub: t('satHazard.reported', { time: formatRelative(new Date(sat.flood.observedAt), locale) }),
+    });
+  }
+  if (sat && sat.hotspots.count > 0) {
+    rows.push({ key: 'hot', color: '#dc2626', text: t('satHazard.hotspots', { n: sat.hotspots.count, distance: formatDistance(sat.hotspots.nearestM ?? 0, locale) }), sub: t('summary.hotspotSource') });
   }
   if (geo?.susceptibility) {
     rows.push({ key: 'landslide', color: LANDSLIDE_GRADE_COLORS[geo.susceptibility.grade ?? 0] ?? '#e5e7eb', text: t('summary.landslide', { level: geo.susceptibility.level }), sub: t('summary.landslideSource') });

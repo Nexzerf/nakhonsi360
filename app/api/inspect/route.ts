@@ -1,6 +1,6 @@
 import { NextResponse, type NextRequest } from 'next/server';
 import { getDb, withTimeout, TimeoutError } from '@/lib/db/client';
-import { connectedSources, earthquakesNear, geohazardsAt, inspectAdmin, latestAtStations, latestImports, nearestFeatures, nearestObservations, nearestVillages, waterwayNamesNear } from '@/lib/db/queries';
+import { connectedSources, earthquakesNear, geohazardsAt, inspectAdmin, satelliteHazardsAt, latestAtStations, latestImports, nearestFeatures, nearestObservations, nearestVillages, waterwayNamesNear } from '@/lib/db/queries';
 import { CONDITION_VARIABLES } from '@/lib/registry/stationRules';
 import { buildVariableConditions } from '@/lib/inspect/conditions';
 import { summarizeEarthquakes } from '@/lib/inspect/hazards';
@@ -16,7 +16,7 @@ const ALL_SECTIONS: InspectSection[] = ['admin', 'village', 'context', 'conditio
 /** Sections whose sources are built in later phases. */
 const PLANNED: Record<'conditions' | 'hazards' | 'satellite', { phase: number; sourceIds: string[] }> = {
   conditions: { phase: 2, sourceIds: ['thaiwater.rain24h', 'thaiwater.waterlevel', 'tmd.weather', 'air4thai.aqi'] },
-  hazards: { phase: 2, sourceIds: ['usgs.earthquakes', 'gistda.flood', 'gistda.hotspots', 'firms.hotspots', 'dmr.landslide', 'dmcr.coast'] },
+  hazards: { phase: 2, sourceIds: ['usgs.earthquakes', 'gistda.flood', 'firms.hotspots', 'dmr.landslide', 'dmcr.coast'] },
   satellite: { phase: 4, sourceIds: ['copernicus.sentinel2'] },
 };
 
@@ -191,7 +191,9 @@ async function hazardsCard(sql: NonNullable<ReturnType<typeof getDb>>, lng: numb
   const shore = imports.get('dmr.shoreline');
   const has = (id: string) => connected.has(id) || imports.has(id);
   const pendingSourceIds = PLANNED.hazards.sourceIds.filter((id) => !has(id));
-  if (!connected.has('usgs.earthquakes') && !dmr && !shore) return { status: 'not_connected', ...PLANNED.hazards };
+  const floodConnected = connected.has('gistda.flood');
+  const hotspotsConnected = connected.has('firms.hotspots');
+  if (!connected.has('usgs.earthquakes') && !dmr && !shore && !floodConnected && !hotspotsConnected) return { status: 'not_connected', ...PLANNED.hazards };
 
   const sources: SourceRef[] = [];
   let earthquakes = null;
@@ -205,8 +207,16 @@ async function hazardsCard(sql: NonNullable<ReturnType<typeof getDb>>, lng: numb
     sources.push({ sourceId: 'usgs.earthquakes', observedAt: asOf, fetchedAt: asOf });
   }
   const geohazard = dmr || shore ? await geohazardsAt(sql, lng, lat) : null;
+  const satellite = floodConnected || hotspotsConnected ? { ...(await satelliteHazardsAt(sql, lng, lat)), floodConnected, hotspotsConnected } : null;
+  for (const id of ['gistda.flood', 'firms.hotspots'] as const) {
+    if (!connected.has(id)) continue;
+    const [last] = await sql<{ finished_at: Date | null }[]>`
+      select finished_at from ingest_runs where source_id = ${id} and status in ('ok', 'partial') order by started_at desc limit 1`;
+    const at = last?.finished_at ? new Date(last.finished_at).toISOString() : null;
+    sources.push({ sourceId: id, observedAt: at, fetchedAt: at });
+  }
   // Survey data: no single observation date (each record carries its own survey year), so only the import time.
   if (dmr) sources.push(ref('dmr.landslide', { ...dmr, sourceDate: null }));
   if (shore) sources.push(ref('dmr.shoreline', { ...shore, sourceDate: null }));
-  return { status: 'ok', data: { geohazard, earthquakes, pendingSourceIds }, sources };
+  return { status: 'ok', data: { satellite, geohazard, earthquakes, pendingSourceIds }, sources };
 }

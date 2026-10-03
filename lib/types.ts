@@ -273,7 +273,18 @@ export interface GeohazardSummary {
   coast: { status: string | null; beach: string | null; year: string | null; distanceM: number } | null;
 }
 
+/** What satellites recently detected at or near a point (GISTDA flood, NASA FIRMS hotspots). */
+export interface SatelliteHazards {
+  /** Flood cell (last 7 days) covering the point, or the nearest within 2 km. */
+  flood: { distanceM: number; observedAt: string; district: string | null; subdistrict: string | null } | null;
+  /** Hotspots within 5 km in the last 3 days. */
+  hotspots: { count: number; nearestM: number | null; latestAt: string | null };
+  floodConnected: boolean;
+  hotspotsConnected: boolean;
+}
+
 export interface HazardsCard {
+  satellite: SatelliteHazards | null;
   geohazard: GeohazardSummary | null;
   earthquakes: EarthquakeSummary | null;
   /** Hazard sources not connected yet. */

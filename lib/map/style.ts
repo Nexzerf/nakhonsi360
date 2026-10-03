@@ -371,6 +371,37 @@ export function hazardSource(layer: LayerDef, origin: string): SourceSpecificati
   return { type: 'geojson', data: `${origin}/api/layers/${layer.id}` };
 }
 
+/** Satellite flood cells (GISTDA): translucent water blue with a darker edge. */
+export function floodLayers(layer: LayerDef): LayerSpecification[] {
+  const source = overlaySourceId(layer.id);
+  const id = (s: string) => `${OVERLAY_PREFIX}${layer.id}${s}`;
+  return [
+    { id: id(''), type: 'fill', source, paint: { 'fill-color': '#38bdf8', 'fill-opacity': 0.55 } },
+    { id: id('-outline'), type: 'line', source, paint: { 'line-color': '#0369a1', 'line-width': 1 } },
+  ];
+}
+
+/** Thermal hotspots (NASA FIRMS): fire-coloured dots with a soft glow, larger when hotter (FRP). */
+export function hotspotLayers(layer: LayerDef): LayerSpecification[] {
+  const source = overlaySourceId(layer.id);
+  const id = (s: string) => `${OVERLAY_PREFIX}${layer.id}${s}`;
+  const color = layer.legend.type === 'circle' ? layer.legend.color : '#dc2626';
+  return [
+    { id: id('-glow'), type: 'circle', source, paint: { 'circle-radius': ['interpolate', ['linear'], ['zoom'], 8, 9, 14, 16] as never, 'circle-color': color, 'circle-opacity': 0.18, 'circle-blur': 0.6 } },
+    {
+      id: id(''),
+      type: 'circle',
+      source,
+      paint: {
+        'circle-radius': ['interpolate', ['linear'], ['coalesce', ['get', 'frp_mw'], 1], 0, 3.5, 20, 6, 100, 9] as never,
+        'circle-color': color,
+        'circle-stroke-color': '#ffffff',
+        'circle-stroke-width': 1.2,
+      },
+    },
+  ];
+}
+
 /**
  * Earthquake epicentres. Circle size follows the magnitude USGS publishes;
  * one colour, because no severity class is published with the event.

@@ -58,7 +58,7 @@ export interface LayerDef {
   /** Live station layers: the observation variable served by /api/layers/:id as GeoJSON. */
   variable?: string;
   /** Live hazard-event layers: the hazard_features kind served by /api/layers/:id as GeoJSON. */
-  hazardKind?: 'earthquake';
+  hazardKind?: 'earthquake' | 'flood' | 'hotspot';
   /** Citizen reports, served by /api/reports?format=geojson. */
   reports?: true;
   /** City CCTV cameras, served by /api/cctv?format=geojson. */
@@ -209,10 +209,22 @@ export const LAYERS: readonly LayerDef[] = [
   { id: 'aqi', group: 'air', th: 'AQI', en: 'AQI', icon: 'air', sourceIds: ['air4thai.aqi'], phase: 2, defaultOn: false, minzoom: 0, legend: { type: 'circle', color: '#6b7280', stroke: '#fff', radius: 5 } },
 
   // Hazards
-  { id: 'flood', group: 'hazards', th: 'น้ำท่วม', en: 'Flood', icon: 'flood', sourceIds: ['gistda.flood'], phase: 2, defaultOn: false, minzoom: 0, legend: { type: 'fill', color: '#67e8f9', outline: COLORS.flood } },
-  { id: 'flood-recurrent', group: 'hazards', th: 'น้ำท่วมซ้ำซาก', en: 'Recurrent flood', icon: 'flood', sourceIds: ['gistda.flood'], phase: 2, defaultOn: false, minzoom: 0, legend: { type: 'fill', color: '#a5f3fc', outline: COLORS.flood, pattern: 'hatch' } },
+  {
+    id: 'flood', group: 'hazards', th: 'น้ำท่วมจากดาวเทียม (7 วัน)', en: 'Flooding seen by satellite (7 days)', icon: 'flood',
+    sourceIds: ['gistda.flood'], phase: 2, defaultOn: false, minzoom: 0, hazardKind: 'flood',
+    zoomNoteTh: 'พื้นที่น้ำท่วมที่ GISTDA ตรวจพบจากภาพดาวเทียมในช่วง 7 วันล่าสุด (เป็นช่องหกเหลี่ยม) ไม่มีสีแปลว่าดาวเทียมไม่พบน้ำท่วม ไม่ได้รับประกันว่าไม่มีน้ำท่วม (เช่น ใต้เมฆหรือในเมือง)',
+    zoomNoteEn: 'Flood water GISTDA detected in satellite images over the last 7 days (hexagon cells). No colour means none was detected, not a guarantee (e.g. under cloud or in built-up areas).',
+    legend: { type: 'fill', color: '#38bdf8', outline: COLORS.flood },
+  },
+  { id: 'flood-recurrent', group: 'hazards', th: 'น้ำท่วมซ้ำซาก', en: 'Recurrent flood', icon: 'flood', sourceIds: ['gistda.flood-recurrent'], phase: 2, defaultOn: false, minzoom: 0, legend: { type: 'fill', color: '#a5f3fc', outline: COLORS.flood, pattern: 'hatch' } },
   { id: 'soil-moisture', group: 'hazards', th: 'ภัยแล้ง / ความชื้นในดิน', en: 'Drought / soil moisture', icon: 'drought', sourceIds: ['gistda.soilmoisture'], phase: 3, defaultOn: false, minzoom: 0, legend: { type: 'fill', color: '#fed7aa', outline: COLORS.drought } },
-  { id: 'hotspots', group: 'hazards', th: 'จุดความร้อน', en: 'Hotspots', icon: 'fire', sourceIds: ['gistda.hotspots', 'firms.hotspots'], phase: 2, defaultOn: false, minzoom: 0, legend: { type: 'circle', color: COLORS.fire, stroke: '#fff', radius: 4 } },
+  {
+    id: 'hotspots', group: 'hazards', th: 'จุดความร้อน/ไฟ (3 วัน)', en: 'Fire hotspots (3 days)', icon: 'fire',
+    sourceIds: ['firms.hotspots'], phase: 2, defaultOn: false, minzoom: 0, hazardKind: 'hotspot',
+    zoomNoteTh: 'จุดความร้อนจากดาวเทียม VIIRS และ MODIS ของ NASA FIRMS ช่วง 3 วันล่าสุด อาจเป็นไฟป่า การเผาในที่โล่ง หรือแหล่งความร้อนอื่น ยังไม่ได้ยืนยันในพื้นที่',
+    zoomNoteEn: 'Thermal hotspots from NASA FIRMS (VIIRS and MODIS) over the last 3 days: wildfire, open burning or another heat source; not confirmed on the ground.',
+    legend: { type: 'circle', color: COLORS.fire, stroke: '#fff', radius: 4 },
+  },
   {
     id: 'landslide', group: 'hazards', th: 'ความอ่อนไหวต่อดินถล่ม', en: 'Landslide susceptibility', icon: 'landslide',
     sourceIds: ['dmr.landslide'], phase: 3, defaultOn: false, minzoom: 0, sourceLayer: 'landslide_susceptibility',
@@ -311,7 +323,7 @@ const BOUNDARIES = ['admin-province', 'admin-district'];
 
 export const LAYER_SCENARIOS: readonly LayerScenario[] = [
   { id: 'basic', th: 'ภาพรวม', en: 'Overview', descTh: 'รายงานเหตุ ระดับน้ำ แม่น้ำ', descEn: 'Reports, water levels, rivers', icon: 'province', layers: DEFAULT_LAYER_IDS },
-  { id: 'flood', th: 'น้ำท่วม', en: 'Floods', descTh: 'ระดับน้ำ ฝน 24 ชม. น้ำป่า', descEn: 'Water levels, 24-h rain, flash floods', icon: 'flood', layers: ['citizen-reports', 'water-stations', 'rain-24h', 'water-rivers', 'flash-flood', ...BOUNDARIES] },
+  { id: 'flood', th: 'น้ำท่วม', en: 'Floods', descTh: 'น้ำท่วมจากดาวเทียม ระดับน้ำ ฝน', descEn: 'Satellite flooding, water levels, rain', icon: 'flood', layers: ['citizen-reports', 'flood', 'water-stations', 'rain-24h', 'water-rivers', 'flash-flood', ...BOUNDARIES] },
   { id: 'landslide', th: 'ดินถล่ม', en: 'Landslides', descTh: 'พื้นที่เสี่ยง จุดปลอดภัย', descEn: 'Risk areas, safe points', icon: 'landslide', layers: ['citizen-reports', 'landslide', 'landslide-safe', 'landslide-villages', ...BOUNDARIES] },
   { id: 'coast', th: 'ชายฝั่ง', en: 'Coast', descTh: 'การกัดเซาะชายฝั่ง', descEn: 'Coastal erosion', icon: 'coastline', layers: ['citizen-reports', 'shoreline-change', 'erosion', ...BOUNDARIES] },
 ];

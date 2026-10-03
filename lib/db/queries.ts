@@ -14,6 +14,7 @@ import type {
   GazetteerType,
   GeohazardPlace,
   GeohazardSummary,
+  SatelliteHazards,
   VillageHit,
 } from '@/lib/types';
 
@@ -414,6 +415,39 @@ export interface EarthquakeRow {
 
 export async function recentEarthquakes(sql: Sql, days = 30): Promise<EarthquakeRow[]> {
   return sql<EarthquakeRow[]>`select * from recent_earthquakes(${days})`;
+}
+
+/** Satellite detections near a point: GISTDA flood cells (7 days, 2 km) and FIRMS hotspots (3 days, 5 km). */
+export async function satelliteHazardsAt(sql: Sql, lng: number, lat: number): Promise<Omit<SatelliteHazards, 'floodConnected' | 'hotspotsConnected'>> {
+  const pt = sql`st_setsrid(st_makepoint(${lng}, ${lat}), 4326)`;
+  const [[flood], [hot]] = await Promise.all([
+    sql<{ d: number; observed_at: Date; district: string | null; subdistrict: string | null }[]>`
+      select st_distance(geom::geography, ${pt}::geography) as d, observed_at,
+             properties->>'district_th' as district, properties->>'subdistrict_th' as subdistrict
+        from hazard_features
+       where kind = 'flood' and observed_at >= now() - interval '7 days'
+         and st_dwithin(geom::geography, ${pt}::geography, 2000)
+       order by d limit 1`,
+    sql<{ n: number; nearest: number | null; latest: Date | null }[]>`
+      select count(*)::int as n, min(st_distance(geom::geography, ${pt}::geography)) as nearest, max(observed_at) as latest
+        from hazard_features
+       where kind = 'hotspot' and observed_at >= now() - interval '3 days'
+         and st_dwithin(geom::geography, ${pt}::geography, 5000)`,
+  ]);
+  return {
+    flood: flood ? { distanceM: Math.round(Number(flood.d)), observedAt: new Date(flood.observed_at).toISOString(), district: flood.district, subdistrict: flood.subdistrict } : null,
+    hotspots: { count: hot?.n ?? 0, nearestM: hot?.nearest != null ? Math.round(Number(hot.nearest)) : null, latestAt: hot?.latest ? new Date(hot.latest).toISOString() : null },
+  };
+}
+
+/** Recent hazard features of one kind (flood cells, hotspots) as stored, newest first. */
+export async function recentHazards(sql: Sql, kind: 'flood' | 'hotspot', days: number): Promise<{ source_id: string; feature_key: string; observed_at: Date; fetched_at: Date; properties: Record<string, unknown>; geojson: string }[]> {
+  return sql`
+    select source_id, feature_key, observed_at, fetched_at, properties, st_asgeojson(geom, 6) as geojson
+      from hazard_features
+     where kind = ${kind} and observed_at >= now() - make_interval(days => ${days})
+     order by observed_at desc
+     limit 5000`;
 }
 
 export async function earthquakesNear(sql: Sql, lng: number, lat: number, days = 30): Promise<(EarthquakeRow & { distance_m: number })[]> {

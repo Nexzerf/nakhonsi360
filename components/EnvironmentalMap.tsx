@@ -30,6 +30,8 @@ import {
   DRAFT_SOURCE,
   draftLayers,
   earthquakeLayers,
+  floodLayers,
+  hotspotLayers,
   hazardSource,
   highlightLayers,
   localizeBasemap,
@@ -55,10 +57,10 @@ const PMTILES_BASE = process.env.NEXT_PUBLIC_PMTILES_BASE_URL || undefined;
 
 /** Draw order, bottom to top. */
 const Z_ORDER = [
-  'landslide', 'flash-flood', 'erosion',
+  'landslide', 'flash-flood', 'erosion', 'flood',
   'water-bodies', 'water-reservoirs', 'roads', 'coastline', 'shoreline-change', 'water-streams', 'water-canals', 'water-rivers',
   'admin-subdistrict', 'admin-district', 'admin-province', 'villages', 'landslide-villages', 'landslide-safe',
-  'rain-24h', 'water-stations', 'earthquake', 'cctv', 'citizen-reports',
+  'rain-24h', 'water-stations', 'hotspots', 'earthquake', 'cctv', 'citizen-reports',
 ];
 
 const URGENCY_COLORS = Object.fromEntries(URGENCIES.map((u) => [u.id, u.color]));
@@ -67,7 +69,7 @@ const CCTV_COLORS = Object.fromEntries(CCTV_MODES.map((m) => [m.id, m.color]));
 /** Live station layers, clickable like villages. */
 const STATION_LAYER_IDS = ['water-stations', 'rain-24h'];
 /** Live GeoJSON layers refreshed on a timer. */
-const LIVE_LAYER_IDS = [...STATION_LAYER_IDS, 'earthquake'];
+const LIVE_LAYER_IDS = [...STATION_LAYER_IDS, 'earthquake', 'flood', 'hotspots'];
 const QUAKE_LAYER = `${OVERLAY_PREFIX}earthquake`;
 const REPORT_LAYER = `${OVERLAY_PREFIX}citizen-reports`;
 const CCTV_LAYER = `${OVERLAY_PREFIX}cctv`;
@@ -366,9 +368,10 @@ export function EnvironmentalMap({ initialBounds }: { initialBounds: BBox | null
         for (const spec of cctvLayers(layer, CCTV_COLORS, CCTV_OTHER_COLOR, cctvMode, cameraId)) map.addLayer(spec);
         continue;
       }
-      if (layer.hazardKind === 'earthquake') {
+      if (layer.hazardKind) {
         if (!map.getSource(srcId)) map.addSource(srcId, hazardSource(layer, origin));
-        for (const spec of earthquakeLayers(layer)) map.addLayer(spec);
+        const specs = layer.hazardKind === 'earthquake' ? earthquakeLayers(layer) : layer.hazardKind === 'flood' ? floodLayers(layer) : hotspotLayers(layer);
+        for (const spec of specs) map.addLayer(spec);
         continue;
       }
       if (!map.getSource(srcId)) map.addSource(srcId, vectorSource(layer, origin, PMTILES_BASE));
