@@ -38,17 +38,27 @@ const list = async (label, url, filter = () => true) => {
   } catch { console.log(r.text.slice(0, 500)); return null; }
 };
 
-// ---------------- Air4Thai over http (no redirect)
-const a = await probe('air4thai http no-redirect', 'http://air4thai.pcd.go.th/services/getNewAQI_JSON.php', { redirect: 'manual' }, 300);
-console.log('location:', a ? '' : '-');
-await probe('air4thai http region', 'http://air4thai.pcd.go.th/forappV2/getAQI_JSON.php', { redirect: 'manual' }, 300);
-
+// ---------------- Air4Thai certificate: names and chain; air4thai.net host
+try {
+  console.log('\n### air4thai cert SAN\n' + execSync('echo | openssl s_client -connect air4thai.pcd.go.th:443 -servername air4thai.pcd.go.th 2>/dev/null | openssl x509 -noout -subject -issuer -ext subjectAltName -dates', { encoding: 'utf8' }));
+  console.log('\n### air4thai.net cert\n' + execSync('echo | openssl s_client -connect air4thai.net:443 -servername air4thai.net 2>&1 | grep -E "^ *[0-9] s:|^ *i:|Verify return" | head -8', { encoding: 'utf8' }));
+} catch (e) { console.log('openssl failed', e.message); }
+await probe('air4thai.net API', 'https://air4thai.net/services/getNewAQI_JSON.php', {}, 300);
+await probe('LE YR1 intermediate', 'https://letsencrypt.org/certs/2024/yr1.pem', {}, 200);
+await probe('LE YR1 der', 'https://letsencrypt.org/certs/2024/yr1.der', {}, 50);
+await probe('LE root YR', 'https://letsencrypt.org/certs/gen-y/root-yr.pem', {}, 200);
+// Fetch with our own CA list = Node roots + LE intermediates (verification still on).
+try {
+  const tls = await import('node:tls');
+  const { Agent, fetch: ufetch } = await import('node:module').then(() => import('undici')).catch(() => ({}));
+  console.log('undici available:', !!Agent);
+} catch (e) { console.log('tls/undici', e.message); }
 // ---------------- GISTDA PM2.5
 for (const p of ['/rest/getPm25byProvince', '/rest/getPm25byAmphoe?pv_idn=80', '/rest/getPm25byTambon?pv_idn=80', '/rest/getPm25AmphoebyProvince?pv_idn=80', '/rest/getPM25byAmphoe?pv_idn=80', '/rest/getPm25byAmphoe/80', '/rest/pred/getPm25byAmphoe?pv_idn=80', '/rest/getPm25byStation', '/rest/getPm25Raster', '/rest']) {
   const r = await probe(`pm25.gistda ${p}`, `https://pm25.gistda.or.th${p}`, {}, 250);
-  if (r?.status === 200 && p.includes('Province')) {
-    const d = JSON.parse(r.text); console.log(JSON.stringify(d.data.find((x) => x.pv_idn === 80)));
-  }
+  try {
+    if (r?.status === 200 && p.includes('Amphoe?')) console.log(JSON.stringify(JSON.parse(r.text).data.map((x) => [x.ap_idn, x.ap_tn, x.pm25?.toFixed(1), x.dt])));
+  } catch { /* not JSON */ }
 }
 
 // ---------------- GISTDA portal (flood frequency, drought, DMCR)
