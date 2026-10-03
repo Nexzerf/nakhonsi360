@@ -55,8 +55,9 @@ const PMTILES_BASE = process.env.NEXT_PUBLIC_PMTILES_BASE_URL || undefined;
 
 /** Draw order, bottom to top. */
 const Z_ORDER = [
-  'water-bodies', 'water-reservoirs', 'roads', 'coastline', 'water-streams', 'water-canals', 'water-rivers',
-  'admin-subdistrict', 'admin-district', 'admin-province', 'villages',
+  'landslide', 'flash-flood', 'erosion',
+  'water-bodies', 'water-reservoirs', 'roads', 'coastline', 'shoreline-change', 'water-streams', 'water-canals', 'water-rivers',
+  'admin-subdistrict', 'admin-district', 'admin-province', 'villages', 'landslide-villages', 'landslide-safe',
   'rain-24h', 'water-stations', 'earthquake', 'cctv', 'citizen-reports',
 ];
 
@@ -260,6 +261,15 @@ export function EnvironmentalMap({ initialBounds }: { initialBounds: BBox | null
         useMapStore.getState().select({ lat, lng, label: p.name_th, kind: 'village', highlight: p.id ? { layerId: 'villages', key: 'id', value: p.id } : undefined });
         return;
       }
+      // Department of Mineral Resources points: a safe point or a village at risk, by its own name.
+      const dmrLayers = ['landslide-safe', 'landslide-villages'].map((l) => `${OVERLAY_PREFIX}${l}`).filter((l) => map.getLayer(l));
+      const dmr = dmrLayers.length ? map.queryRenderedFeatures(e.point, { layers: dmrLayers })[0] : undefined;
+      if (dmr && dmr.geometry.type === 'Point') {
+        const [lng, lat] = dmr.geometry.coordinates as [number, number];
+        const p = dmr.properties as { name_th?: string; moo?: string };
+        useMapStore.getState().select({ lat, lng, label: [p.name_th, p.moo ? `หมู่ ${p.moo}` : null].filter(Boolean).join(' ') || undefined, kind: 'point' });
+        return;
+      }
       useMapStore.getState().select({ lat: e.lngLat.lat, lng: e.lngLat.lng, kind: 'point' });
     });
     map.on('mousemove', (e) => {
@@ -267,7 +277,7 @@ export function EnvironmentalMap({ initialBounds }: { initialBounds: BBox | null
         map.getCanvas().style.cursor = 'crosshair';
         return;
       }
-      const hit = [`${OVERLAY_PREFIX}villages`, QUAKE_LAYER, REPORT_LAYER, CCTV_LAYER, ...STATION_LAYER_IDS.flatMap((id) => [`${OVERLAY_PREFIX}${id}`, `${OVERLAY_PREFIX}${id}-cluster`])].filter((id) => map.getLayer(id));
+      const hit = [`${OVERLAY_PREFIX}villages`, `${OVERLAY_PREFIX}landslide-safe`, `${OVERLAY_PREFIX}landslide-villages`, QUAKE_LAYER, REPORT_LAYER, CCTV_LAYER, ...STATION_LAYER_IDS.flatMap((id) => [`${OVERLAY_PREFIX}${id}`, `${OVERLAY_PREFIX}${id}-cluster`])].filter((id) => map.getLayer(id));
       const over = hit.length > 0 && map.queryRenderedFeatures(e.point, { layers: hit }).length > 0;
       map.getCanvas().style.cursor = over ? 'pointer' : 'crosshair';
     });

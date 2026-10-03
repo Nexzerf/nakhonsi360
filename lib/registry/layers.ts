@@ -68,6 +68,19 @@ export interface LayerDef {
   zoomNoteEn?: string;
 }
 
+/** Landslide susceptibility grades 1 (very low) … 5 (very high), as coded by the Department of Mineral Resources. */
+export const LANDSLIDE_GRADE_COLORS: Record<number, string> = { 1: '#fef9c3', 2: '#fde68a', 3: '#fdba74', 4: '#f87171', 5: '#b91c1c' };
+
+/** Shoreline / coastal area status as published (Thai text) → colour. */
+export function shorelineColor(status: string | null | undefined): string {
+  const s = status ?? '';
+  if (s.includes('รุนแรง')) return '#b91c1c';
+  if (s.includes('กัดเซาะ')) return '#f97316';
+  if (s.includes('สะสม')) return '#2563eb';
+  if (s.includes('คงสภาพ')) return '#64748b';
+  return '#9ca3af';
+}
+
 export const COLORS = {
   province: '#1f2937',
   district: '#4b5563',
@@ -200,7 +213,34 @@ export const LAYERS: readonly LayerDef[] = [
   { id: 'flood-recurrent', group: 'hazards', th: 'น้ำท่วมซ้ำซาก', en: 'Recurrent flood', icon: 'flood', sourceIds: ['gistda.flood'], phase: 2, defaultOn: false, minzoom: 0, legend: { type: 'fill', color: '#a5f3fc', outline: COLORS.flood, pattern: 'hatch' } },
   { id: 'soil-moisture', group: 'hazards', th: 'ภัยแล้ง / ความชื้นในดิน', en: 'Drought / soil moisture', icon: 'drought', sourceIds: ['gistda.soilmoisture'], phase: 3, defaultOn: false, minzoom: 0, legend: { type: 'fill', color: '#fed7aa', outline: COLORS.drought } },
   { id: 'hotspots', group: 'hazards', th: 'จุดความร้อน', en: 'Hotspots', icon: 'fire', sourceIds: ['gistda.hotspots', 'firms.hotspots'], phase: 2, defaultOn: false, minzoom: 0, legend: { type: 'circle', color: COLORS.fire, stroke: '#fff', radius: 4 } },
-  { id: 'landslide', group: 'hazards', th: 'ดินถล่ม', en: 'Landslide risk', icon: 'landslide', sourceIds: ['dmr.landslide'], phase: 3, defaultOn: false, minzoom: 0, legend: { type: 'fill', color: '#fecaca', outline: COLORS.danger, pattern: 'dots' } },
+  {
+    id: 'landslide', group: 'hazards', th: 'ความอ่อนไหวต่อดินถล่ม', en: 'Landslide susceptibility', icon: 'landslide',
+    sourceIds: ['dmr.landslide'], phase: 3, defaultOn: false, minzoom: 0, sourceLayer: 'landslide_susceptibility',
+    zoomNoteTh: 'ระดับความอ่อนไหวต่อการเกิดดินถล่ม 5 ระดับ (ต่ำมาก–สูงมาก) ตามการประเมินของกรมทรัพยากรธรณี เป็นแผนที่ประเมินศักยภาพ ไม่ใช่การแจ้งเตือนสถานการณ์ปัจจุบัน พื้นที่ที่ไม่มีสีคือยังไม่ได้ประเมิน ไม่ได้แปลว่าปลอดภัย',
+    zoomNoteEn: 'Five landslide susceptibility levels (very low to very high) assessed by the Department of Mineral Resources. A susceptibility map, not a current warning; uncoloured areas were not assessed, which does not mean safe.',
+    legend: { type: 'fill', color: '#f87171', outline: COLORS.danger },
+  },
+  {
+    id: 'flash-flood', group: 'hazards', th: 'พื้นที่น้ำป่าไหลหลาก/ดินถล่ม', en: 'Flash flood & debris flow areas', icon: 'flood',
+    sourceIds: ['dmr.landslide'], phase: 3, defaultOn: false, minzoom: 0, sourceLayer: 'flash_flood',
+    zoomNoteTh: 'พื้นที่ที่ได้รับผลกระทบจากดินถล่ม น้ำป่าไหลหลาก และน้ำท่วมฉับพลัน ตามข้อมูลกรมทรัพยากรธรณี',
+    zoomNoteEn: 'Areas affected by debris flows, flash floods and landslides, from the Department of Mineral Resources.',
+    legend: { type: 'fill', color: '#fb923c', outline: '#c2410c' },
+  },
+  {
+    id: 'landslide-villages', group: 'hazards', th: 'หมู่บ้านเสี่ยงดินถล่ม/น้ำป่า', en: 'Villages at landslide/flash-flood risk', icon: 'village',
+    sourceIds: ['dmr.landslide'], phase: 3, defaultOn: false, minzoom: 0, sourceLayer: 'landslide_villages',
+    zoomNoteTh: 'หมู่บ้านที่กรมทรัพยากรธรณีจัดเป็นพื้นที่เสี่ยงภัยระดับชุมชน พร้อมประเภทภัยและปีที่สำรวจ',
+    zoomNoteEn: 'Villages the Department of Mineral Resources mapped as at risk at community level, with the hazard type and survey year.',
+    legend: { type: 'circle', color: '#dc2626', stroke: '#fff', radius: 5 },
+  },
+  {
+    id: 'landslide-safe', group: 'hazards', th: 'จุดปลอดภัยชั่วคราว (ดินถล่ม)', en: 'Temporary safe points (landslide)', icon: 'village',
+    sourceIds: ['dmr.landslide'], phase: 3, defaultOn: false, minzoom: 0, sourceLayer: 'landslide_safe',
+    zoomNoteTh: 'จุดปลอดภัยชั่วคราวจากแผ่นดินถล่มที่กรมทรัพยากรธรณีกำหนดร่วมกับชุมชน เช่น วัด โรงเรียน ควรตรวจสอบกับผู้นำชุมชนก่อนใช้จริง',
+    zoomNoteEn: 'Temporary landslide safe points set by the Department of Mineral Resources with communities (temples, schools). Check with local leaders before relying on them.',
+    legend: { type: 'circle', color: '#15803d', stroke: '#fff', radius: 5 },
+  },
   {
     id: 'earthquake', group: 'hazards', th: 'แผ่นดินไหว', en: 'Earthquakes', icon: 'earthquake',
     sourceIds: ['usgs.earthquakes', 'tmd.earthquake'], phase: 2, defaultOn: false, minzoom: 0, hazardKind: 'earthquake',
@@ -210,8 +250,20 @@ export const LAYERS: readonly LayerDef[] = [
   },
 
   // Coast — Phase 3
-  { id: 'shoreline-change', group: 'coast', th: 'การเปลี่ยนแปลงแนวชายฝั่ง', en: 'Shoreline change', icon: 'coastline', sourceIds: ['dmr.shoreline'], phase: 3, defaultOn: false, minzoom: 0, legend: { type: 'line', color: COLORS.coastline, width: 2 } },
-  { id: 'erosion', group: 'coast', th: 'การกัดเซาะ', en: 'Coastal erosion', icon: 'erosion', sourceIds: ['dmcr.coast'], phase: 3, defaultOn: false, minzoom: 0, legend: { type: 'line', color: COLORS.erosion, width: 3 } },
+  {
+    id: 'shoreline-change', group: 'coast', th: 'การเปลี่ยนแปลงแนวชายฝั่ง', en: 'Shoreline change', icon: 'coastline',
+    sourceIds: ['dmr.shoreline'], phase: 3, defaultOn: false, minzoom: 0, sourceLayer: 'shoreline_change',
+    zoomNoteTh: 'สถานภาพแนวชายฝั่ง (กัดเซาะรุนแรง / กัดเซาะปานกลาง / คงสภาพ / สะสมตัว) จากการเปรียบเทียบของกรมทรัพยากรธรณี ปีข้อมูล 2015–2019 ไม่ใช่สภาพปัจจุบัน',
+    zoomNoteEn: 'Shoreline status (severe erosion / moderate erosion / stable / accretion) compared by the Department of Mineral Resources; data years 2015–2019, not current conditions.',
+    legend: { type: 'line', color: '#f97316', width: 3 },
+  },
+  {
+    id: 'erosion', group: 'coast', th: 'พื้นที่กัดเซาะ/สะสมตัวชายฝั่ง', en: 'Coastal erosion & accretion areas', icon: 'erosion',
+    sourceIds: ['dmr.shoreline'], phase: 3, defaultOn: false, minzoom: 0, sourceLayer: 'coastal_area_change',
+    zoomNoteTh: 'พื้นที่ชายฝั่งที่ถูกกัดเซาะหรือสะสมตัว ตามกรมทรัพยากรธรณี ปีข้อมูล 2015–2019',
+    zoomNoteEn: 'Coastal areas lost to erosion or gained by accretion, from the Department of Mineral Resources; data years 2015–2019.',
+    legend: { type: 'fill', color: '#fdba74', outline: '#c2410c' },
+  },
   { id: 'mangroves', group: 'coast', th: 'ป่าชายเลน', en: 'Mangroves', icon: 'mangrove', sourceIds: ['dmcr.coast'], phase: 3, defaultOn: false, minzoom: 0, legend: { type: 'fill', color: '#86efac', outline: COLORS.forest } },
 
   // Environment — Phase 3

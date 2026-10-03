@@ -1,0 +1,237 @@
+{
+ "_sample": {
+  "obtained": "2026-10-03",
+  "service": "https://gisportal.dmr.go.th/arcgis/rest/services",
+  "note": "First features returned for the province extent (f=geojson, outSR=4326), geometry trimmed to type only; attributes unmodified."
+ },
+ "HAZARD/LANDSLIDE_SUSCEPTIBILITY": [
+  {
+   "id": 53224,
+   "properties": {
+    "OBJECTID": 53224,
+    "Id": 46139,
+    "gridcode": 2,
+    "Level_T": "ต่ำ",
+    "Level_E": "Low",
+    "Desc_T": "พื้นที่ระดับความอ่อนไหวดินถล่มต่ำ มีโอกาสเกิดดินถล่มน้อย",
+    "Desc_E": "Areas in this zone appear conditionally stable showing fewer indications of landslide susceptibility. Landslide events are rarely possible but may occur at slopes, which are undercut, e.g. by road construction.",
+    "Shape.STArea()": 6000000,
+    "Shape.STLength()": 12000
+   },
+   "geometry_type": "Polygon"
+  },
+  {
+   "id": 53225,
+   "properties": {
+    "OBJECTID": 53225,
+    "Id": 46138,
+    "gridcode": 3,
+    "Level_T": "กลาง",
+    "Level_E": "Medium",
+    "Desc_T": "พื้นที่ระดับความอ่อนไหวดินถล่มปานกลาง ดินถล่มอาจเกิดขึ้นได้บ้างตามลักษณะของฤดูกาล",
+    "Desc_E": "Landslide events may occasionally happen in these areas, either triggered by strong rainfall, earthquakes or caused by inadequate landuse in steep slopes and by slope undercutting associated with road construction.",
+    "Shape.STArea()": 2000000,
+    "Shape.STLength()": 6000
+   },
+   "geometry_type": "Polygon"
+  }
+ ],
+ "HAZARD/VILLLAGE_RISK": [
+  {
+   "id": 41772,
+   "properties": {
+    "OBJECTID": 41772,
+    "VRISK_ID": 6970,
+    "MOO": "7",
+    "VILLAGE": "เหนือคลอง",
+    "TAMBON": "ทุ่งโพธิ์",
+    "DISTRICT": "จุฬาภรณ์",
+    "PROVINCE": "นครศรีธรรมราช",
+    "RISK_CLASS": 4,
+    "RISK_DESC": "แผ่นดินถล่ม น้ำป่าไหลหลาก และดินไหล",
+    "YEAR_MAP": 2559,
+    "UTM_E": 585453,
+    "UTM_N": 893044,
+    "ZONE": "47",
+    "REMARK": null
+   },
+   "geometry_type": "Point"
+  },
+  {
+   "id": 41773,
+   "properties": {
+    "OBJECTID": 41773,
+    "VRISK_ID": 6342,
+    "MOO": "4",
+    "VILLAGE": "กงตาก",
+    "TAMBON": "ช้างซ้าย",
+    "DISTRICT": "กาญจนดิษฐ์",
+    "PROVINCE": "สุราษฎร์ธานี",
+    "RISK_CLASS": 20,
+    "RISK_DESC": "น้ำป่าไหลหลาก และน้ำท่วมฉับพลัน",
+    "YEAR_MAP": 2556,
+    "UTM_E": 550481,
+    "UTM_N": 991884,
+    "ZONE": "47",
+    "REMARK": null
+   },
+   "geometry_type": "Point"
+  }
+ ],
+ "HAZARD/SAFE_LANDSLIDE_AREA": [
+  {
+   "id": 23939,
+   "properties": {
+    "OBJECTID": 23939,
+    "SAFE_ID": 5111,
+    "UTM_E": 592323,
+    "UTM_N": 940861,
+    "ZONE": "47",
+    "MOO": "8",
+    "PLACE": "วัดเขาปูน",
+    "VILLAGE": "บ้านเขาปูน",
+    "TAMBON": "พรหมโลก",
+    "DISTRICT": "พรหมคีรี",
+    "PROVINCE": "นครศรีธรรมราช",
+    "YEAR_MAP": 2557,
+    "REMARK": " ",
+    "REMARK_2": " "
+   },
+   "geometry_type": "Point"
+  },
+  {
+   "id": 23940,
+   "properties": {
+    "OBJECTID": 23940,
+    "SAFE_ID": 5110,
+    "UTM_E": 591537,
+    "UTM_N": 941593,
+    "ZONE": "47",
+    "MOO": "8",
+    "PLACE": "โรงเรียนวัดเขาปูน",
+    "VILLAGE": "บ้านเขาปูน",
+    "TAMBON": "พรหมโลก",
+    "DISTRICT": "พรหมคีรี",
+    "PROVINCE": "นครศรีธรรมราช",
+    "YEAR_MAP": 2557,
+    "REMARK": " ",
+    "REMARK_2": " "
+   },
+   "geometry_type": "Point"
+  }
+ ],
+ "HAZARD/DEBRIS_FLOOD": [
+  {
+   "id": 21228,
+   "properties": {
+    "OBJECTID": 21228,
+    "F25BASIN_T": "ลุ่มน้ำภาคใต้ฝั่งตะวันตก",
+    "F25BASIN_E": "Peninsula - West Coast Basin",
+    "SUBBASIN_T": "แม่น้ำตรัง",
+    "LS_HA_TYPE": "Debris Flood/Flash Flood",
+    "REMARK": "Debris Flood/Flash Flood",
+    "CREATEBY": " ",
+    "Shape.STArea()": 9588.92785789,
+    "Shape.STLength()": 679.6625093872418
+   },
+   "geometry_type": "Polygon"
+  },
+  {
+   "id": 21229,
+   "properties": {
+    "OBJECTID": 21229,
+    "F25BASIN_T": "ลุ่มน้ำภาคใต้ฝั่งตะวันตก",
+    "F25BASIN_E": "Peninsula - West Coast Basin",
+    "SUBBASIN_T": "แม่น้ำตรัง",
+    "LS_HA_TYPE": "Debris Flood/Flash Flood",
+    "REMARK": "Debris Flood/Flash Flood",
+    "CREATEBY": " ",
+    "Shape.STArea()": 12373.225858785,
+    "Shape.STLength()": 1116.343247963896
+   },
+   "geometry_type": "Polygon"
+  }
+ ],
+ "ENVI/COASTAL_CHANGE": [
+  {
+   "id": 1911,
+   "properties": {
+    "OBJECTID": 1911,
+    "MAJOR_LITT": "ระบบกลุ่มหาดหลักทะเลอ่าวไทยตอนล่าง",
+    "LITT_CELL": "ระบบกลุ่มหาดแหลมตะลุมพุก-แหลมโพธิ์",
+    "BEACH_NAME": "ระบบหาดแหลมตะลุมพุก-แหลมสมิหลา",
+    "STATUS_T": "ชายฝั่งสะสมตัว",
+    "STATUS_E": "depositional coast",
+    "LENGTH_m": 1353.1334658,
+    "YEAR_COMPI": 2015,
+    "DATE_COMPI": 1434499200000,
+    "COMPARE_Y": "November 2014, June 2015",
+    "TAMBON": "ท่าบอน",
+    "DISTRICT": "ระโนด",
+    "PROVINCE": "สงขลา",
+    "Shape.STLength()": 1353.1334658042167
+   },
+   "geometry_type": "LineString"
+  },
+  {
+   "id": 1912,
+   "properties": {
+    "OBJECTID": 1912,
+    "MAJOR_LITT": "ระบบกลุ่มหาดหลักทะเลอ่าวไทยตอนล่าง",
+    "LITT_CELL": "ระบบกลุ่มหาดแหลมตะลุมพุก-แหลมโพธิ์",
+    "BEACH_NAME": "ระบบหาดแหลมตะลุมพุก-แหลมสมิหลา",
+    "STATUS_T": "ชายฝั่งสะสมตัว",
+    "STATUS_E": "depositional coast",
+    "LENGTH_m": 1041.53562715,
+    "YEAR_COMPI": 2015,
+    "DATE_COMPI": 1434499200000,
+    "COMPARE_Y": "November 2014, June 2015",
+    "TAMBON": "ท่าบอน",
+    "DISTRICT": "ระโนด",
+    "PROVINCE": "สงขลา",
+    "Shape.STLength()": 1041.5356271510564
+   },
+   "geometry_type": "LineString"
+  }
+ ],
+ "ENVI/AREA_CHANGE": [
+  {
+   "id": 2000,
+   "properties": {
+    "OBJECTID": 2000,
+    "MAJOR_LITT": "ระบบหาดหลักทะเลอ่าวไทยตอนล่าง",
+    "LITT_CELL": "ระบบกลุ่มหาดแหลมตะลุมพุก-แหลมโพธิ์",
+    "BEACH_NAME": "ระบบหาดแหลมตะลุมพุก-แหลมสมิหลา",
+    "STATUS_T": "พื้นที่สะสมตัว",
+    "STATUS_E": "depositional area",
+    "AREA_sqm": 2769.53412624,
+    "YEAR_COMPI": 2015,
+    "TAMBON": "ท่าบอน",
+    "DISTRICT": "ระโนด",
+    "PROVINCE": "สงขลา",
+    "Shape.STArea()": 2769.53412623,
+    "Shape.STLength()": 2712.1508533570072
+   },
+   "geometry_type": "MultiPolygon"
+  },
+  {
+   "id": 2001,
+   "properties": {
+    "OBJECTID": 2001,
+    "MAJOR_LITT": "ระบบหาดหลักทะเลอ่าวไทยตอนล่าง",
+    "LITT_CELL": "ระบบกลุ่มหาดแหลมตะลุมพุก-แหลมโพธิ์",
+    "BEACH_NAME": "ระบบหาดแหลมตะลุมพุก-แหลมสมิหลา",
+    "STATUS_T": "พื้นที่คงสภาพ",
+    "STATUS_E": "stable area",
+    "AREA_sqm": 2228.28605326,
+    "YEAR_COMPI": 2015,
+    "TAMBON": "ท่าบอน",
+    "DISTRICT": "ระโนด",
+    "PROVINCE": "สงขลา",
+    "Shape.STArea()": 2228.286053295,
+    "Shape.STLength()": 2582.1301759164007
+   },
+   "geometry_type": "MultiPolygon"
+  }
+ ]
+}

@@ -17,6 +17,7 @@
     "import:admin": "tsx scripts/import-admin.ts",
     "import:villages": "tsx scripts/import-villages.ts",
     "import:osm": "tsx scripts/import-osm.ts",
+    "import:dmr": "tsx scripts/import-dmr.ts",
     "fetch:sources": "tsx scripts/fetch-sources.ts",
     "import:all": "tsx scripts/import-all.ts",
     "build:pmtiles": "bash scripts/build-pmtiles.sh",

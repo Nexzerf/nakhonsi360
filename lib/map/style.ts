@@ -5,7 +5,7 @@
  */
 import type { LayerSpecification, SourceSpecification, StyleSpecification } from 'maplibre-gl';
 import type { BasemapId, LayerDef } from '@/lib/registry/layers';
-import { COLORS } from '@/lib/registry/layers';
+import { COLORS, LANDSLIDE_GRADE_COLORS } from '@/lib/registry/layers';
 import { ESRI_MAX_ZOOM, ESRI_PROTOCOL } from '@/lib/map/esriImagery';
 import type { Locale } from '@/lib/freshness/format';
 
@@ -224,6 +224,56 @@ export function overlayLayers(layer: LayerDef, locale: Locale): LayerSpecificati
       ];
     case 'coastline':
       return [{ ...base, id: id(''), type: 'line', paint: { 'line-color': COLORS.coastline, 'line-width': 1.5 } }];
+    case 'landslide':
+      return [
+        {
+          ...base,
+          id: id(''),
+          type: 'fill',
+          paint: {
+            'fill-color': ['match', ['get', 'grade'], ...Object.entries(LANDSLIDE_GRADE_COLORS).flatMap(([g, c]) => [Number(g), c]), '#e5e7eb'] as never,
+            'fill-opacity': ['interpolate', ['linear'], ['zoom'], 8, 0.55, 14, 0.4] as never,
+          },
+        },
+        { ...base, id: id('-outline'), type: 'line', minzoom: 11, paint: { 'line-color': '#7f1d1d', 'line-width': 0.4, 'line-opacity': 0.4 } },
+      ];
+    case 'flash-flood':
+      return [
+        { ...base, id: id(''), type: 'fill', paint: { 'fill-color': '#fb923c', 'fill-opacity': 0.45 } },
+        { ...base, id: id('-outline'), type: 'line', paint: { 'line-color': '#c2410c', 'line-width': 1 } },
+      ];
+    case 'shoreline-change':
+    case 'erosion': {
+      const color = [
+        'case',
+        ['in', 'รุนแรง', ['coalesce', ['get', 'status'], '']], '#b91c1c',
+        ['in', 'กัดเซาะ', ['coalesce', ['get', 'status'], '']], '#f97316',
+        ['in', 'สะสม', ['coalesce', ['get', 'status'], '']], '#2563eb',
+        ['in', 'คงสภาพ', ['coalesce', ['get', 'status'], '']], '#64748b',
+        '#9ca3af',
+      ] as never;
+      return layer.id === 'erosion'
+        ? [
+            { ...base, id: id(''), type: 'fill', paint: { 'fill-color': color, 'fill-opacity': 0.55 } },
+            { ...base, id: id('-outline'), type: 'line', paint: { 'line-color': color, 'line-width': 1.2 } },
+          ]
+        : [{ ...base, id: id(''), type: 'line', layout: { 'line-cap': 'round' }, paint: { 'line-color': color, 'line-width': ['interpolate', ['linear'], ['zoom'], 8, 3, 14, 6] as never } }];
+    }
+    case 'landslide-villages':
+    case 'landslide-safe': {
+      const color = layer.id === 'landslide-safe' ? '#15803d' : '#dc2626';
+      return [
+        { ...base, id: id(''), type: 'circle', paint: { 'circle-radius': ['interpolate', ['linear'], ['zoom'], 8, 3.5, 13, 6, 16, 8] as never, 'circle-color': color, 'circle-stroke-color': '#ffffff', 'circle-stroke-width': 1.5 } },
+        {
+          ...base,
+          id: id('-label'),
+          type: 'symbol',
+          minzoom: 12,
+          layout: { 'text-field': ['get', 'name_th'] as never, 'text-font': LABEL_FONT, 'text-size': OVERLAY_LABEL_SIZE, 'text-offset': [0, 0.9], 'text-anchor': 'top', 'text-optional': true },
+          paint: { 'text-color': color, 'text-halo-color': '#ffffff', 'text-halo-width': 1.5 },
+        },
+      ];
+    }
     default:
       return [];
   }

@@ -8,9 +8,9 @@ on:
   workflow_dispatch:
     inputs:
       only:
-        description: 'Sources to fetch (comma list of hdx,dopa,osm)'
+        description: 'Sources to import (comma list of hdx,dopa,osm,dmr; dmr = Department of Mineral Resources hazard layers)'
         type: string
-        default: 'hdx,dopa,osm'
+        default: 'hdx,dopa,osm,dmr'
       build_pmtiles:
         description: 'Also build PMTiles (artifact)'
         type: boolean
@@ -44,6 +44,13 @@ jobs:
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
         run: npm run import:all
+      # Department of Mineral Resources hazard/coastal layers, queried from its map
+      # services (no file to fetch). Needs the province boundary, imported above or earlier.
+      - name: Import DMR hazard layers
+        if: ${{ contains(inputs.only, 'dmr') }}
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+        run: npm run import:dmr
       - name: Build PMTiles
         if: ${{ inputs.build_pmtiles }}
         env:

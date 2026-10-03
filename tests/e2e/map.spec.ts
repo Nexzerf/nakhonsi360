@@ -46,7 +46,7 @@ test('layer panel lists every layer with an info button', async ({ page }) => {
   await page.getByRole('button', { name: /ชั้นข้อมูล|เปิดรายการชั้นข้อมูล/ }).click();
   const panel = page.locator('#layer-panel');
   await expect(panel).toBeVisible();
-  await panel.getByRole('button', { name: /ข้อมูลแหล่งที่มา: หมู่บ้าน/ }).click();
+  await panel.getByRole('button', { name: /ข้อมูลแหล่งที่มา: หมู่บ้าน \(จุดที่ตั้ง\)/ }).click();
   const dialog = page.getByRole('dialog', { name: /แหล่งที่มาของข้อมูล/ });
   await expect(dialog).toBeVisible();
   await expect(dialog.getByText('กรมการปกครอง กระทรวงมหาดไทย')).toBeVisible();
