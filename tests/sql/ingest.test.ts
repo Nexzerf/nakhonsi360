@@ -33,6 +33,17 @@ suite('ingest pipeline (real samples)', () => {
     await admin.end();
     const u = new URL(TEST_DATABASE_URL!);
     u.pathname = `/${DB}`;
+    // Mimic Supabase: API roles that get every privilege on new objects in public.
+    const db = postgres(u.toString(), { max: 1, onnotice: () => {} });
+    await db.unsafe(`
+      do $$ begin
+        if not exists (select 1 from pg_roles where rolname = 'anon') then create role anon nologin; end if;
+        if not exists (select 1 from pg_roles where rolname = 'authenticated') then create role authenticated nologin; end if;
+      end $$;
+      alter default privileges in schema public grant all on tables to anon, authenticated;
+      alter default privileges in schema public grant all on sequences to anon, authenticated;
+      alter default privileges in schema public grant all on functions to anon, authenticated;`);
+    await db.end();
     const env = { ...process.env, DATABASE_URL: u.toString() };
     const tsx = (script: string, args: string[]) => execFileSync('npx', ['tsx', path.join(root, 'scripts', script), ...args], { cwd: root, env, stdio: 'pipe' });
     tsx('migrate.ts', []);
@@ -82,6 +93,27 @@ suite('ingest pipeline (real samples)', () => {
     const r = await runIngest(sql, keyed, { env: {} });
     expect(r.status).toBe('error');
     expect(r.error).toContain('FIRMS_MAP_KEY');
+  });
+
+  it('gives the Supabase API roles no way into our tables or functions', async () => {
+    const tables = await sql<{ t: string; privs: string }[]>`
+      select c.relname as t, string_agg(distinct g.privilege_type, ',') as privs
+        from pg_class c join pg_namespace n on n.oid = c.relnamespace
+        join information_schema.role_table_grants g on g.table_schema = n.nspname and g.table_name = c.relname
+       where n.nspname = 'public' and g.grantee in ('anon', 'authenticated')
+         and not exists (select 1 from pg_depend d where d.objid = c.oid and d.deptype = 'e')  -- PostGIS's own tables and views
+       group by c.relname`;
+    expect(tables).toEqual([]);
+    const fns = await sql<{ f: string }[]>`
+      select p.proname as f from pg_proc p join pg_namespace n on n.oid = p.pronamespace
+       where n.nspname = 'public'
+         and not exists (select 1 from pg_depend d where d.objid = p.oid and d.deptype = 'e')  -- skip PostGIS etc.
+         and (has_function_privilege('anon', p.oid, 'execute') or has_function_privilege('authenticated', p.oid, 'execute'))`;
+    expect(fns.map((r) => r.f)).toEqual([]);
+    const [srs] = await sql<{ write: boolean; read: boolean }[]>`
+      select has_table_privilege('anon', 'spatial_ref_sys', 'insert') or has_table_privilege('anon', 'spatial_ref_sys', 'truncate') as write,
+             has_table_privilege('anon', 'spatial_ref_sys', 'select') as read`;
+    expect(srs!.write).toBe(false);
   });
 
   it('masks everything outside the province, and nothing inside it', async () => {

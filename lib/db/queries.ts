@@ -330,6 +330,15 @@ export async function geohazardsAt(sql: Sql, lng: number, lat: number): Promise<
 // ---------------------------------------------------------------- live data
 
 /** Sources that have delivered data at least once (a successful or partial ingest run). */
+/** Finish time of each live source's last successful run; its keys are the connected sources. */
+export async function lastSuccessfulRuns(sql: Sql): Promise<Map<string, string | null>> {
+  const rows = await sql<{ source_id: string; finished_at: Date | null }[]>`
+    select distinct on (source_id) source_id, finished_at
+      from ingest_runs where status in ('ok', 'partial')
+     order by source_id, started_at desc`;
+  return new Map(rows.map((r) => [r.source_id, toIso(r.finished_at)]));
+}
+
 export async function connectedSources(sql: Sql): Promise<Set<string>> {
   const rows = await sql<{ source_id: string }[]>`select distinct source_id from ingest_runs where status in ('ok', 'partial')`;
   return new Set(rows.map((r) => r.source_id));

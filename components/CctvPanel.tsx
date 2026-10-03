@@ -156,9 +156,31 @@ function StatusText({ status }: { status: Camera['status'] }) {
   return <span>{t('cctv.unknown')}</span>;
 }
 
+const HD_KEY = 'n360.cctvHd';
+
+/** Sharpest by default; the low-bitrate stream when the viewer asked to save data or the connection is slow, or chose it before. */
+function initialHd(): boolean {
+  try {
+    const saved = localStorage.getItem(HD_KEY);
+    if (saved !== null) return saved === '1';
+  } catch {
+    // storage blocked: fall through
+  }
+  const c = (navigator as Navigator & { connection?: { saveData?: boolean; effectiveType?: string } }).connection;
+  return !(c?.saveData || (c?.effectiveType && c.effectiveType !== '4g'));
+}
+
 function CameraView({ cam }: { cam: Camera }) {
   const t = useT();
-  const [hd, setHd] = useState(false);
+  const [hd, setHdState] = useState(initialHd);
+  const setHd = (v: boolean) => {
+    setHdState(v);
+    try {
+      localStorage.setItem(HD_KEY, v ? '1' : '0');
+    } catch {
+      // not remembered, still switched
+    }
+  };
   const [loaded, setLoaded] = useState<string | null>(null);
   const src = streamUrl(cam.id, hd);
 

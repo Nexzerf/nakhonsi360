@@ -1,6 +1,8 @@
 'use client';
 
-import maplibregl, { type Map as MlMap, type StyleSpecification, type GeoJSONSource } from 'maplibre-gl';
+import { freshParam } from '@/lib/reports/client';
+import * as maplibregl from 'maplibre-gl';
+import type { Map as MlMap, StyleSpecification, GeoJSONSource } from 'maplibre-gl';
 import { Protocol } from 'pmtiles';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useMapStore, useT } from '@/lib/state/store';
@@ -128,6 +130,28 @@ async function fetchStyle(url: string, timeoutMs = 8000): Promise<StyleSpecifica
   }
 }
 
+
+/**
+ * Draw at the screen's full resolution. MapLibre caps the canvas at 4096 px
+ * and quietly lowers the pixel ratio above that, which blurs the map on big
+ * high-density screens (5K, 4K at 2×); raise the cap to what the GPU allows.
+ * Edge smoothing (MSAA) helps lines and area edges on standard-density
+ * screens, where pixels are big enough to show stair steps.
+ */
+function sharpRendering(): { maxCanvasSize: [number, number]; canvasContextAttributes: { antialias: boolean } } {
+  let max = 4096;
+  try {
+    const gl = document.createElement('canvas').getContext('webgl2') ?? document.createElement('canvas').getContext('webgl');
+    if (gl) {
+      max = Math.min(8192, gl.getParameter(gl.MAX_RENDERBUFFER_SIZE) as number, gl.getParameter(gl.MAX_TEXTURE_SIZE) as number);
+      gl.getExtension('WEBGL_lose_context')?.loseContext();
+    }
+  } catch {
+    // keep the default
+  }
+  return { maxCanvasSize: [max, max], canvasContextAttributes: { antialias: window.devicePixelRatio < 2 } };
+}
+
 export function EnvironmentalMap({ initialBounds }: { initialBounds: BBox | null }) {
   const containerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<MlMap | null>(null);
@@ -159,6 +183,8 @@ export function EnvironmentalMap({ initialBounds }: { initialBounds: BBox | null
   useEffect(() => {
     if (!containerRef.current || mapRef.current) return;
     if (!esriProtocolRegistered) {
+      // The worker is copied to public/ by scripts/copy-maplibre-worker.mjs.
+      maplibregl.setWorkerUrl(`/vendor/maplibre-${maplibregl.getVersion()}/maplibre-gl-worker.mjs`);
       maplibregl.addProtocol(ESRI_PROTOCOL, loadEsriTile);
       esriProtocolRegistered = true;
     }
@@ -182,6 +208,7 @@ export function EnvironmentalMap({ initialBounds }: { initialBounds: BBox | null
         // 2D until the 3D view is switched on (which raises the limit).
         maxPitch: 0,
         cooperativeGestures: false,
+        ...sharpRendering(),
       });
     } catch (err) {
       console.error('[map] init failed', err);
@@ -307,7 +334,7 @@ export function EnvironmentalMap({ initialBounds }: { initialBounds: BBox | null
     const map = mapRef.current;
     if (!map) return;
     let cancelled = false;
-    const style = basemapStyle(basemap);
+    const style = basemapStyle(basemap, { hiDpi: window.devicePixelRatio >= 1.5 });
     (async () => {
       try {
         // Satellite: imagery plus Thai place/road names borrowed from the vector basemap (imagery alone if that fails).
@@ -486,7 +513,7 @@ export function EnvironmentalMap({ initialBounds }: { initialBounds: BBox | null
   useEffect(() => {
     const refresh = () => {
       const src = mapRef.current?.getSource(overlaySourceId('citizen-reports')) as GeoJSONSource | undefined;
-      src?.setData(`${window.location.origin}/api/reports?format=geojson&hours=72`);
+      src?.setData(`${window.location.origin}/api/reports?format=geojson&hours=72${freshParam('&')}`);
     };
     const id = setInterval(refresh, REPORT_REFRESH_MS);
     window.addEventListener('n360-reports-changed', refresh);

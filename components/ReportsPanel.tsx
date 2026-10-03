@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { formatDateTime, formatDistance, formatRelative } from '@/lib/freshness/format';
 import { useQueryClient } from '@tanstack/react-query';
 import { HAZARDS, LIMITS, NEEDS, STATUSES, UPDATE_ACTIONS, URGENCIES, WATER_DEPTH_PRESETS, WATER_HAZARDS, WATER_TRENDS, type PublicReport, type ReportPhoto, type ReportUpdate, type UpdateActionId, type WaterTrend } from '@/lib/reports/schema';
-import { REPORTS_REFRESH_MS, editTokenFor, saveHelperName, savedHelperName, useMyReports, useReport, useReports } from '@/lib/reports/client';
+import { REPORTS_REFRESH_MS, editTokenFor, saveHelperName, savedHelperName, useMyReports, useReport, useReports, expectOwnChange } from '@/lib/reports/client';
 import { telHref } from '@/lib/registry/emergency';
 import { useMapStore, useT } from '@/lib/state/store';
 import { SidePanel } from '@/components/SidePanel';
@@ -353,6 +353,7 @@ function HelpBox({ r, mine }: { r: PublicReport; mine: boolean }) {
         }
         reset();
         setMsg({ ok: true, text });
+        expectOwnChange();
         qc.invalidateQueries({ queryKey: ['report', r.id] });
         qc.invalidateQueries({ queryKey: ['reports'] });
         window.dispatchEvent(new Event('n360-reports-changed'));
@@ -521,7 +522,10 @@ function ReportDetail({ id }: { id: string }) {
   const flag = async () => {
     if (!window.confirm(t('help.flagConfirm'))) return;
     const res = await fetch(`/api/reports/${r.id}/flag`, { method: 'POST' }).catch(() => null);
-    if (res?.ok) setFlagged(true);
+    if (res?.ok) {
+      expectOwnChange();
+      setFlagged(true);
+    }
   };
   return (
     <SidePanel id="reports-panel" title={label(locale, h)} onBack={back}>

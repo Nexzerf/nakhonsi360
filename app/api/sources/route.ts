@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { getDb } from '@/lib/db/client';
+import { memo } from '@/lib/db/memo';
 import { latestImports, latestRuns } from '@/lib/db/queries';
 import { SOURCES, IMPORTED_SOURCE_IDS } from '@/lib/registry/sources';
 import { CURRENT_PHASE } from '@/lib/registry/layers';
@@ -25,7 +26,7 @@ export async function GET() {
 
   if (sql) {
     try {
-      [imports, runs] = await Promise.all([latestImports(sql), latestRuns(sql)]);
+      [imports, runs] = await memo(sql, 'sources', 15_000, () => Promise.all([latestImports(sql), latestRuns(sql)]));
     } catch (err) {
       console.error('[api/sources]', err);
       database = 'error';
