@@ -111,7 +111,7 @@ export function MapApp({ initialBounds }: { initialBounds: BBox | null }) {
               <OverviewCards />
               <div className="mt-3 space-y-2.5">
                 <MapLegend />
-                <StatusBar />
+                <StatusBar inline />
               </div>
             </SidePanel>
           )}

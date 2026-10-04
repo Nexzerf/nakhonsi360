@@ -84,6 +84,22 @@ test('touch targets are at least 44px', async ({ page }) => {
   }
 });
 
+test('data source status list can be scrolled to its end', async ({ page }) => {
+  await page.setViewportSize({ width: page.viewportSize()!.width, height: 520 });
+  await page.goto('/');
+  const mobile = page.viewportSize()!.width < 768;
+  if (mobile) await page.locator('nav button').filter({ hasText: 'ภาพรวม' }).first().click();
+  const scope = mobile ? page.locator('#overview-panel') : page.locator('main');
+  await scope.locator('[aria-controls="status-details"]').last().click();
+  const details = page.locator('#status-details');
+  const link = details.getByRole('link', { name: /เกี่ยวกับข้อมูล/ });
+  await link.scrollIntoViewIfNeeded();
+  await expect(link).toBeInViewport();
+  // The top of the list never ends up above the screen, where nothing can scroll to it.
+  await details.locator('li').first().scrollIntoViewIfNeeded();
+  await expect(details.locator('li').first()).toBeInViewport();
+});
+
 test('report form: emergency numbers first, one step at a time, clear errors for missing answers', async ({ page, context }) => {
   await context.grantPermissions(['geolocation']);
   await context.setGeolocation({ latitude: 8.43, longitude: 99.96 });

@@ -9,8 +9,13 @@ import { CURRENT_PHASE } from '@/lib/registry/layers';
 import { Dot, STATUS_COLOR } from '@/components/DataFreshness';
 import { Icon } from '@/components/Icon';
 
-/** Per-provider health dots and the latest update, for sources active in this phase. */
-export function StatusBar() {
+/**
+ * Per-provider health dots and the latest update, for sources active in this phase.
+ * Floating over the map the list opens upwards; `inline` (inside a scrolling
+ * panel) opens it downwards in the flow, since content pushed above the top
+ * of a scroll box can never be scrolled to.
+ */
+export function StatusBar({ inline = false }: { inline?: boolean }) {
   const t = useT();
   const locale = useMapStore((s) => s.locale);
   const { data, isError } = useSources();
@@ -59,9 +64,16 @@ export function StatusBar() {
         <Icon name="chevron" size={14} className={`transition-transform ${open ? '' : 'rotate-180'}`} />
       </button>
       {open && (
-        <div id="status-details" className="panel rise absolute right-0 bottom-full mb-2 w-80 max-w-[calc(100vw-1.5rem)] overflow-hidden">
+        <div
+          id="status-details"
+          className={
+            inline
+              ? 'panel rise mt-2 overflow-hidden'
+              : 'panel rise absolute right-0 bottom-full mb-2 flex max-h-[calc(100dvh-10rem)] w-80 max-w-[calc(100vw-1.5rem)] flex-col overflow-hidden'
+          }
+        >
           <p className="eyebrow border-b border-line px-4 py-2.5">{t('status.label')}</p>
-          <ul className="py-1">
+          <ul className={inline ? 'py-1' : 'scroll-thin min-h-0 flex-1 overflow-y-auto overscroll-contain py-1'}>
             {active.map((s) => (
               <li key={s.id}>
                 <button type="button" className="flex min-h-12 w-full items-center gap-3 px-4 text-left hover:bg-surface-subtle" onClick={() => useMapStore.getState().showInfo(null, s.id)}>
