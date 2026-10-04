@@ -26,6 +26,37 @@ export function PrimaryCallButtons({ locale }: { locale: Locale }) {
   );
 }
 
+/** Two-word labels for the compact buttons (full names stay in the accessible name). */
+const SHORT: Record<string, [string, string]> = {
+  'ems-1669': ['เจ็บป่วย', 'Medical'],
+  'police-191': ['ตำรวจ', 'Police'],
+  'fire-199': ['ดับเพลิง/กู้ภัย', 'Fire/rescue'],
+  'ddpm-1784': ['ปภ.', 'Disaster'],
+};
+
+/** One row of call buttons (number + short name) for the top of forms. */
+export function CompactCallButtons({ locale }: { locale: Locale }) {
+  const contacts = PRIMARY_EMERGENCY_IDS.map((id) => EMERGENCY_CONTACTS.find((c) => c.id === id)!);
+  return (
+    <div className="grid grid-cols-4 gap-1.5">
+      {contacts.map((c) => (
+        <a
+          key={c.id}
+          href={telHref(c.number)}
+          className="flex min-h-12 flex-col items-center justify-center rounded-lg bg-danger/10 px-1 py-1 text-danger hover:bg-danger/15"
+          aria-label={`${translate(locale, 'emergency.call')} ${c.number} ${locale === 'en' ? c.nameEn : c.nameTh}`}
+        >
+          <span className="tabular flex items-center gap-1 text-base leading-tight font-bold">
+            <Icon name="phone" size={13} className="shrink-0" />
+            {c.number}
+          </span>
+          <span className="line-clamp-1 text-[11px] leading-tight text-fg-muted">{SHORT[c.id]?.[locale === 'en' ? 1 : 0] ?? (locale === 'en' ? c.nameEn : c.nameTh)}</span>
+        </a>
+      ))}
+    </div>
+  );
+}
+
 function ContactRow({ c, locale }: { c: EmergencyContact; locale: Locale }) {
   const t = (k: string, v?: Record<string, string | number>) => translate(locale, k, v);
   return (
