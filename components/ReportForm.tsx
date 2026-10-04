@@ -16,6 +16,7 @@ import { Icon } from '@/components/Icon';
 const label = (locale: string, x: { th: string; en: string }) => (locale === 'en' ? x.en : x.th);
 
 type Step = 1 | 2 | 3;
+const FORM_ID = 'report-form';
 const STEPS: Step[] = [1, 2, 3];
 
 /** One question: a clear title, an optional one-line hint, its answer, and its error right under it. */
@@ -127,9 +128,11 @@ export function ReportForm() {
   // New step: back to its top, and move focus there for screen readers and keyboards.
   // Not on opening, so the emergency numbers above the steps stay in view.
   const shownStep = useRef(step);
+  const stepShownAt = useRef(0);
   useEffect(() => {
     if (shownStep.current === step) return;
     shownStep.current = step;
+    stepShownAt.current = Date.now();
     topRef.current?.scrollIntoView({ block: 'start' });
     topRef.current?.focus({ preventScroll: true });
   }, [step]);
@@ -181,6 +184,8 @@ export function ReportForm() {
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (step !== 3) return goTo((step + 1) as Step);
+    // "Send" appears where "Next" was: a double tap on Next must not send.
+    if (Date.now() - stepShownAt.current < 700) return;
     for (const s of [1, 2] as Step[]) {
       const m = missing(s);
       if (Object.keys(m).length) {
@@ -278,7 +283,29 @@ export function ReportForm() {
   const shownNeeds = moreNeeds || needs.some((n) => !commonNeeds.some((c) => c.id === n)) ? NEEDS : commonNeeds;
 
   return (
-    <SidePanel id="report-panel" title={t('report.title')}>
+    <SidePanel
+      id="report-panel"
+      title={t('report.title')}
+      footer={
+        // Always-visible actions at the bottom of the panel.
+        <>
+          {step > 1 && (
+            <button key="back" type="button" onClick={() => goTo((step - 1) as Step)} className="flex min-h-12 items-center justify-center gap-1.5 rounded-xl border-2 border-line px-4 text-[15px] font-medium hover:border-line-strong">
+              <Icon name="chevron" size={16} className="rotate-90" /> {t('report.back')}
+            </button>
+          )}
+          {step < 3 ? (
+            <button key="next" type="submit" form={FORM_ID} className="flex min-h-12 flex-1 items-center justify-center gap-1.5 rounded-xl bg-niello px-4 text-base font-semibold text-white">
+              {t('report.next')} <Icon name="chevron" size={16} className="-rotate-90" />
+            </button>
+          ) : (
+            <button key="send" type="submit" form={FORM_ID} disabled={sending} className="flex min-h-12 flex-1 items-center justify-center gap-2 rounded-xl bg-danger px-4 text-base font-semibold text-white disabled:opacity-60">
+              <Icon name="send" /> {phase === 'photos' ? t('photos.uploading') : sending ? t('report.sending') : t('report.send')}
+            </button>
+          )}
+        </>
+      }
+    >
       {/* Life at risk: call first. One compact row, so the form starts on the first screen. */}
       <div className="rounded-xl bg-danger/5 p-2.5">
         <p className="mb-2 flex items-center gap-1.5 text-sm font-semibold text-danger">
@@ -315,7 +342,7 @@ export function ReportForm() {
         <h3 className="font-display text-xl font-semibold">{stepTitle[step - 1]}</h3>
       </div>
 
-      <form onSubmit={submit} noValidate className="mt-3">
+      <form id={FORM_ID} onSubmit={submit} noValidate className="mt-3">
         {step === 1 && (
           <>
             <Question id="report-hazard" title={t('report.hazard')} error={err('hazard')}>
@@ -472,23 +499,6 @@ export function ReportForm() {
           </p>
         )}
 
-        {/* Always-visible actions at the bottom of the panel. */}
-        <div className="sticky -bottom-8 z-10 -mx-3 -mb-8 mt-6 flex gap-2 border-t border-line bg-surface px-3 pt-3 pb-[max(0.75rem,env(safe-area-inset-bottom))]">
-          {step > 1 && (
-            <button type="button" onClick={() => goTo((step - 1) as Step)} className="flex min-h-12 items-center justify-center gap-1.5 rounded-xl border-2 border-line px-4 text-[15px] font-medium hover:border-line-strong">
-              <Icon name="chevron" size={16} className="rotate-90" /> {t('report.back')}
-            </button>
-          )}
-          {step < 3 ? (
-            <button type="submit" className="flex min-h-12 flex-1 items-center justify-center gap-1.5 rounded-xl bg-niello px-4 text-base font-semibold text-white">
-              {t('report.next')} <Icon name="chevron" size={16} className="-rotate-90" />
-            </button>
-          ) : (
-            <button type="submit" disabled={sending} className="flex min-h-12 flex-1 items-center justify-center gap-2 rounded-xl bg-danger px-4 text-base font-semibold text-white disabled:opacity-60">
-              <Icon name="send" /> {phase === 'photos' ? t('photos.uploading') : sending ? t('report.sending') : t('report.send')}
-            </button>
-          )}
-        </div>
       </form>
     </SidePanel>
   );
