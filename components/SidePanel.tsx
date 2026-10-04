@@ -10,7 +10,22 @@ import { Icon } from '@/components/Icon';
  * (not unmounted) while the user picks a location on the map, so a
  * half-filled form is kept.
  */
-export function SidePanel({ id, title, onBack, onClose, children }: { id: string; title: string; onBack?: () => void; onClose?: () => void; children: React.ReactNode }) {
+export function SidePanel({
+  id,
+  title,
+  onBack,
+  onClose,
+  footer,
+  children,
+}: {
+  id: string;
+  title: string;
+  onBack?: () => void;
+  onClose?: () => void;
+  /** Actions pinned below the scrolling content (outside it, not position: sticky, which iOS Safari repaints badly). */
+  footer?: React.ReactNode;
+  children: React.ReactNode;
+}) {
   const t = useT();
   const isMobile = useIsMobile();
   const picking = useMapStore((s) => s.picking);
@@ -55,7 +70,8 @@ export function SidePanel({ id, title, onBack, onClose, children }: { id: string
           <Icon name="close" />
         </button>
       </header>
-      <div className="scroll-thin flex-1 overflow-y-auto overscroll-contain p-3 pb-8">{children}</div>
+      <div className={`scroll-thin flex-1 overflow-y-auto overscroll-contain p-3 ${footer ? 'pb-4' : 'pb-8'}`}>{children}</div>
+      {footer && <div className="flex shrink-0 gap-2 border-t border-line bg-surface p-3">{footer}</div>}
     </aside>
   );
 }
