@@ -84,19 +84,41 @@ test('touch targets are at least 44px', async ({ page }) => {
   }
 });
 
-test('report form: emergency numbers first, clear errors for missing answers', async ({ page }) => {
+test('report form: emergency numbers first, one step at a time, clear errors for missing answers', async ({ page, context }) => {
+  await context.grantPermissions(['geolocation']);
+  await context.setGeolocation({ latitude: 8.43, longitude: 99.96 });
   await page.goto('/');
   await page.getByRole('button', { name: 'รายงานเหตุ', exact: true }).first().click();
   const panel = page.locator('#report-panel');
   await expect(panel).toBeVisible();
+  await expect(panel.getByRole('link', { name: /โทร 1669/ })).toBeInViewport();
   await expect(panel.getByRole('link', { name: /โทร 1669/ })).toHaveAttribute('href', 'tel:1669');
-  await panel.getByRole('button', { name: 'ส่งรายงาน' }).click();
+  const next = panel.getByRole('button', { name: 'ถัดไป' });
+
+  // Step 1: what happened. Nothing chosen → says what is missing, stays put.
+  await next.click();
   await expect(panel.getByText('เลือกประเภทเหตุ')).toBeVisible();
   await panel.getByRole('button', { name: 'น้ำท่วม', exact: true }).click();
   await expect(panel.getByText('เลือกประเภทเหตุ')).toHaveCount(0);
-  // Water depth only appears for water hazards.
+  await panel.getByRole('button', { name: /อันตรายถึงชีวิต/ }).first().click();
+  await next.click();
+
+  // Step 2: where. A location is required before going on.
+  await expect(panel.getByRole('heading', { name: 'ที่ไหน เมื่อไร' })).toBeVisible();
+  await next.click();
+  await expect(panel.getByRole('alert').first()).toBeVisible();
+  await panel.getByRole('button', { name: /ใช้ตำแหน่งปัจจุบันของฉัน/ }).click();
+  await next.click();
+
+  // Step 3: details. Water depth only appears for water hazards.
+  await expect(panel.getByRole('button', { name: 'ส่งรายงาน' })).toBeVisible();
   await expect(panel.getByRole('group', { name: 'น้ำกำลัง' })).toBeVisible();
+  await panel.getByRole('button', { name: 'ย้อนกลับ' }).click();
+  await panel.getByRole('button', { name: 'ย้อนกลับ' }).click();
   await panel.getByRole('button', { name: 'ไฟไหม้ / ไฟป่า' }).click();
+  await next.click();
+  await next.click();
+  await expect(panel.getByRole('button', { name: 'ส่งรายงาน' })).toBeVisible();
   await expect(panel.getByRole('group', { name: 'น้ำกำลัง' })).toHaveCount(0);
   expect(await panel.innerText()).not.toMatch(FORBIDDEN);
 });
@@ -111,17 +133,25 @@ test('emergency numbers page works without the map and dials directly', async ({
   await expect(page.getByRole('heading', { name: 'Emergency numbers', level: 1 })).toBeVisible();
 });
 
-test('photos are shrunk in the browser and show what their file says', async ({ page }) => {
+test('photos are shrunk in the browser and show what their file says', async ({ page, context }) => {
+  await context.grantPermissions(['geolocation']);
+  await context.setGeolocation({ latitude: 8.43, longitude: 99.96 });
   await page.goto('/');
   await page.getByRole('button', { name: 'รายงานเหตุ', exact: true }).first().click();
   const panel = page.locator('#report-panel');
+  const next = panel.getByRole('button', { name: 'ถัดไป' });
+  await panel.getByRole('button', { name: 'น้ำท่วม', exact: true }).click();
+  await panel.getByRole('button', { name: /อันตรายถึงชีวิต/ }).first().click();
+  await next.click();
+  await panel.getByRole('button', { name: /ใช้ตำแหน่งปัจจุบันของฉัน/ }).click();
+  // "When did you see it" offers a custom time limited to the last 72 hours.
+  await panel.getByRole('button', { name: 'ระบุเวลาเอง' }).click();
+  await expect(panel.getByLabel('ระบุเวลาเอง', { exact: true }).last()).toHaveAttribute('type', 'datetime-local');
+  await next.click();
   // Synthetic test image (not data): an EXIF capture time and GPS position.
   await panel.getByLabel('เลือกรูปภาพ').setInputFiles('tests/e2e/fixtures/synthetic-flood.jpg');
   await expect(panel.getByText('มีพิกัดในไฟล์')).toBeVisible({ timeout: 15_000 });
   await expect(panel.getByRole('button', { name: /ถ่ายรูป \/ เลือกรูป \(1\/4\)/ })).toBeVisible();
   await panel.getByRole('button', { name: 'เอารูปนี้ออก' }).click();
   await expect(panel.getByText('มีพิกัดในไฟล์')).toHaveCount(0);
-  // "When did you see it" offers a custom time limited to the last 72 hours.
-  await panel.getByRole('button', { name: 'ระบุเวลาเอง' }).click();
-  await expect(panel.getByLabel('ระบุเวลาเอง', { exact: true }).last()).toHaveAttribute('type', 'datetime-local');
 });

@@ -15,7 +15,7 @@ export function Toggle({ pressed, onClick, children, color }: { pressed: boolean
       type="button"
       aria-pressed={pressed}
       onClick={onClick}
-      className={`flex min-h-11 items-center gap-2 rounded-lg border px-3 py-1.5 text-left text-sm ${pressed ? 'border-accent bg-surface-accent font-medium text-fg' : 'border-line text-fg-muted hover:border-line-strong'}`}
+      className={`flex min-h-11 items-center gap-2 rounded-xl border-2 px-3 py-1.5 text-left text-[15px] ${pressed ? 'border-accent bg-surface-accent font-semibold text-fg' : 'border-line text-fg hover:border-line-strong'}`}
       style={pressed && color ? { borderColor: color, background: `color-mix(in srgb, ${color} 10%, transparent)` } : undefined}
     >
       {children}
@@ -29,19 +29,20 @@ export function DepthPicker({ depth, setDepth, trend, setTrend }: { depth: strin
   const locale = useMapStore((s) => s.locale);
   return (
     <>
-      <div className="flex flex-wrap gap-1.5">
+      <div className="flex flex-wrap gap-2">
         {WATER_DEPTH_PRESETS.map((p) => (
           <Toggle key={p.cm} pressed={depth === String(p.cm)} onClick={() => setDepth(depth === String(p.cm) ? '' : String(p.cm))}>
             {label(locale, p)} <span className="tabular text-xs text-fg-subtle">~{p.cm}</span>
           </Toggle>
         ))}
       </div>
-      <label className="mt-1.5 flex items-center gap-2 text-xs text-fg-muted">
+      <label className="mt-2.5 flex items-center gap-2 text-[15px] text-fg-muted">
         {t('report.depthExact')}
-        <input inputMode="numeric" value={depth} onChange={(e) => setDepth(e.target.value.replace(/\D/g, '').slice(0, 4))} className="tabular min-h-11 w-24 rounded-md border border-line bg-surface px-3 text-sm text-fg" aria-label={t('report.depthExact')} />
+        <input inputMode="numeric" value={depth} onChange={(e) => setDepth(e.target.value.replace(/\D/g, '').slice(0, 4))} className="tabular min-h-12 w-24 rounded-xl border-2 border-line bg-surface px-3 text-[15px] text-fg focus:border-accent" aria-label={t('report.depthExact')} />
         {t('units.cm')}
       </label>
-      <div className="mt-2 flex flex-wrap gap-1.5" role="group" aria-label={t('report.waterTrend')}>
+      <p className="mt-3 mb-1.5 text-[13px] text-fg-muted">{t('report.waterTrend')}</p>
+      <div className="flex flex-wrap gap-2" role="group" aria-label={t('report.waterTrend')}>
         {WATER_TRENDS.map((w) => (
           <Toggle key={w.id} pressed={trend === w.id} onClick={() => setTrend(trend === w.id ? null : w.id)}>
             {label(locale, w)}
@@ -76,7 +77,7 @@ export function ObservedPicker({ value, onChange }: { value: Observed; onChange:
   const isCustom = 'custom' in value;
   return (
     <>
-      <div className="flex flex-wrap gap-1.5">
+      <div className="flex flex-wrap gap-2">
         {OBSERVED_PRESETS.map((p) => (
           <Toggle key={p.minutes} pressed={!isCustom && value.minutes === p.minutes} onClick={() => onChange({ minutes: p.minutes })}>
             {label(locale, p)}
@@ -93,7 +94,7 @@ export function ObservedPicker({ value, onChange }: { value: Observed; onChange:
           min={localInput(new Date(now.getTime() - LIMITS.observedMaxAgeHours * 3_600_000))}
           max={localInput(now)}
           onChange={(e) => onChange({ custom: e.target.value })}
-          className="tabular mt-1.5 min-h-11 rounded-md border border-line bg-surface px-3 text-sm"
+          className="tabular mt-2 min-h-12 rounded-xl border-2 border-line bg-surface px-3 text-[15px] focus:border-accent"
           aria-label={t('report.observedCustom')}
         />
       )}
@@ -167,7 +168,7 @@ export function PhotoPicker({ photos, setPhotos }: { photos: PreparedPhoto[]; se
           type="button"
           onClick={() => inputRef.current?.click()}
           disabled={busy > 0}
-          className="flex min-h-11 w-full items-center justify-center gap-2 rounded-lg border border-dashed border-line-strong px-3 text-sm font-medium hover:border-accent disabled:opacity-60"
+          className="flex min-h-14 w-full items-center justify-center gap-2 rounded-xl border-2 border-dashed border-line-strong px-3 text-[15px] font-medium hover:border-accent disabled:opacity-60"
         >
           <Icon name="camera" size={18} /> {busy > 0 ? t('photos.processing') : t('photos.add', { n: photos.length, max: LIMITS.photosPerItem })}
         </button>
