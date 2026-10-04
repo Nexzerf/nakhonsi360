@@ -37,12 +37,10 @@ export default function AboutDataPage() {
                   <dd>{s.license}</dd>
                   <dt className="text-fg-subtle">Attribution</dt>
                   <dd>{s.attribution}</dd>
-                  <dt className="text-fg-subtle">Endpoint</dt>
-                  <dd className="break-all">{s.endpoint}</dd>
                   <dt className="text-fg-subtle">API key</dt>
                   <dd>{s.requiresKey ? 'ต้องใช้ (ฝั่งเซิร์ฟเวอร์) / required (server-side)' : 'ไม่ต้องใช้ / not required'}</dd>
                   <dt className="text-fg-subtle">Verification</dt>
-                  <dd>{s.verified ? `ตรวจสอบแล้ว ${s.verifiedAt}` : s.verificationNote}</dd>
+                  <dd>{s.verified ? `ตรวจสอบแล้ว / verified ${s.verifiedAt}` : 'ยังไม่ได้ตรวจสอบ / not verified yet'}</dd>
                 </dl>
               </li>
             ))}

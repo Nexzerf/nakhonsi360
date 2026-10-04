@@ -153,6 +153,7 @@
     "importCounts": "Records in source file {source} · imported {imported} · rejected {rejected}",
     "sourceFile": "Source file",
     "noImport": "Not imported yet",
+    "allDetails": "Licences and full details",
     "zoomNote": "Display"
   },
   "freshness": {

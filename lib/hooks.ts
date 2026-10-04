@@ -25,13 +25,14 @@ function sourceStatus(id: string, data: SourcesResponse | undefined): SourceStat
 }
 
 /**
- * A layer can be switched on when its phase is built, or — for later-phase
- * live layers — as soon as one of its sources has delivered data.
+ * A layer can be switched on when its phase is built, when its data comes
+ * straight from the provider (external), or — for later-phase live layers —
+ * as soon as one of its sources has delivered data.
  */
 export function layerUsable(layer: LayerDef, data: SourcesResponse | undefined): boolean {
   if (isLayerAvailable(layer)) return true;
-  // Tiles served straight from the agency: usable whenever the source is listed as external.
-  if (layer.raster?.tiles && layer.sourceIds.some((id) => sourceStatus(id, data) === 'external')) return true;
+  // Served straight from the provider (agency tiles, the municipality's cameras): usable whenever the source is listed as external.
+  if (layer.sourceIds.some((id) => sourceStatus(id, data) === 'external')) return true;
   return layer.sourceIds.some((id) => LIVE_STATES.includes(sourceStatus(id, data)));
 }
 
