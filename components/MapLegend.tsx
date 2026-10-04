@@ -47,7 +47,7 @@ export function MapLegend() {
         <Icon name="chevron" size={16} className={`text-fg-subtle transition-transform ${open ? '' : 'rotate-180'}`} />
       </button>
       {open && (
-        <div className="border-t border-line px-3 py-2">
+        <div className="scroll-thin max-h-[calc(100dvh-16rem)] overflow-y-auto overscroll-contain border-t border-line px-3 py-2">
           {active.length === 0 ? (
             <p className="py-1 text-xs text-fg-subtle">{t('legend.none')}</p>
           ) : (
