@@ -11,7 +11,11 @@ import type { DataSource, SourceHealth } from '@/lib/types';
 import { Dot, STATUS_COLOR } from '@/components/DataFreshness';
 import { Icon } from '@/components/Icon';
 
-/** Full metadata for one source: organisation, dataset, licence, dates, counts, link. */
+/**
+ * What a person needs about one source: who publishes it, what it is, how
+ * often it updates, how fresh our copy is, and a link to the original.
+ * Licences, endpoints and verification notes live on /about-data.
+ */
 export function SourceDetails({ source, health }: { source: DataSource; health?: SourceHealth }) {
   const t = useT();
   const locale = useMapStore((s) => s.locale);
@@ -19,18 +23,15 @@ export function SourceDetails({ source, health }: { source: DataSource; health?:
   const rows: Array<[string, React.ReactNode]> = [
     [t('provenance.organization'), locale === 'en' ? source.organizationEn : source.organization],
     [t('provenance.dataset'), locale === 'en' ? source.datasetNameEn : source.datasetName],
-    [t('provenance.coverage'), source.coverage],
     [
       t('provenance.updates'),
       source.expectedUpdateMinutes === null ? t('provenance.static') : t('provenance.everyMinutes', { minutes: source.expectedUpdateMinutes }),
     ],
-    [t('provenance.license'), source.license],
     [t('provenance.attribution'), source.attribution],
   ];
   if (imp) {
     rows.push([t('provenance.observed'), imp.sourceDate ? formatDate(new Date(imp.sourceDate), locale) : t('provenance.observedUnknown')]);
     rows.push([t('provenance.fetched'), formatDateTime(new Date(imp.importedAt), locale)]);
-    rows.push([t('provenance.sourceFile'), <span key="f" className="break-all">{imp.sourceFile}{imp.sourceVersion ? ` (${imp.sourceVersion})` : ''}</span>]);
     rows.push([
       '',
       <span key="c" className="tabular">
@@ -62,7 +63,6 @@ export function SourceDetails({ source, health }: { source: DataSource; health?:
         ))}
       </dl>
       {!imp && health && (health.status === 'not_imported' || health.status === 'unknown') && <p className="text-sm text-fg-muted">{t('provenance.noImport')}</p>}
-      <p className="text-xs text-fg-subtle">{source.verificationNote}</p>
       <a href={source.endpoint.replace(/\{[^}]+\}.*$/, '')} target="_blank" rel="noopener noreferrer" className="inline-flex min-h-11 items-center gap-1 text-sm text-accent underline">
         {t('provenance.link')} <Icon name="external" size={16} />
       </a>
@@ -129,6 +129,9 @@ export function DataProvenanceDialog() {
                 </section>
               );
             })}
+            <a href="/about-data" className="inline-flex min-h-11 items-center gap-1 text-sm text-fg-muted underline">
+              {t('provenance.allDetails')} <span aria-hidden="true">→</span>
+            </a>
           </div>
         </div>
       )}

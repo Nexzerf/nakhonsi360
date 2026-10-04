@@ -153,6 +153,7 @@
     "importCounts": "จำนวนระเบียนในไฟล์ต้นทาง {source} · นำเข้า {imported} · ปฏิเสธ {rejected}",
     "sourceFile": "ไฟล์ต้นทาง",
     "noImport": "ยังไม่มีการนำเข้า",
+    "allDetails": "สัญญาอนุญาตและรายละเอียดทั้งหมด",
     "zoomNote": "การแสดงผล"
   },
   "freshness": {
