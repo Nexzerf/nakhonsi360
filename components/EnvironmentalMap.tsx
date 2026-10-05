@@ -57,6 +57,7 @@ import { THAILAND_ENVELOPE } from '@/lib/geo/bbox';
 import { ESRI_PROTOCOL, loadEsriTile } from '@/lib/map/esriImagery';
 import type { BBox } from '@/lib/types';
 import { Icon } from '@/components/Icon';
+import { MapCrashed, mapStarted } from '@/components/MapErrorBoundary';
 
 const PMTILES_BASE = process.env.NEXT_PUBLIC_PMTILES_BASE_URL || undefined;
 
@@ -245,6 +246,7 @@ export function EnvironmentalMap({ initialBounds }: { initialBounds: BBox | null
       return;
     }
     mapRef.current = map;
+    mapStarted();
     map.getCanvas().setAttribute('aria-label', t('app.mapLabel'));
     // Images our layers use, drawn here so they never depend on a basemap sprite.
     map.on('styleimagemissing', (e: { id: string }) => {
@@ -601,13 +603,7 @@ export function EnvironmentalMap({ initialBounds }: { initialBounds: BBox | null
     );
   };
 
-  if (mapFailed) {
-    return (
-      <div className="absolute inset-0 flex items-center justify-center bg-surface-subtle p-6 text-center text-fg-muted">
-        {t('error.mapCrashed')}
-      </div>
-    );
-  }
+  if (mapFailed) return <MapCrashed />;
 
   return (
     <>

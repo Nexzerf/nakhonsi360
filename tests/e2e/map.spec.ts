@@ -20,6 +20,18 @@ test('map loads full-screen with search, layers and status', async ({ page }) =>
   expect(await page.locator('body').innerText()).not.toMatch(FORBIDDEN);
 });
 
+test('3D view loads terrain without Content Security Policy violations', async ({ page }) => {
+  const blocked: string[] = [];
+  page.on('console', (m) => {
+    if (/Content Security Policy/.test(m.text())) blocked.push(m.text());
+  });
+  await page.goto('/');
+  await expect(page.locator('.maplibregl-canvas')).toBeVisible();
+  await page.getByRole('button', { name: '3D', exact: true }).click();
+  await page.waitForTimeout(3000);
+  expect(blocked).toEqual([]);
+});
+
 test('clicking the map opens the inspector with honest empty states', async ({ page }) => {
   await page.goto('/');
   const canvas = page.locator('.maplibregl-canvas');

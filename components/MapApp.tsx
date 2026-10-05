@@ -12,7 +12,7 @@ import { LocationInspector } from '@/components/LocationInspector';
 import { MapLegend } from '@/components/MapLegend';
 import { StatusBar } from '@/components/StatusBar';
 import { DataProvenanceDialog } from '@/components/DataProvenance';
-import { MapErrorBoundary } from '@/components/MapErrorBoundary';
+import { MapCrashed, MapErrorBoundary } from '@/components/MapErrorBoundary';
 import { Icon } from '@/components/Icon';
 import { MobileTabBar, ModeSwitch, ReportButton, TopNav } from '@/components/Chrome';
 import { KpiChips, OverviewCards } from '@/components/Overview';
@@ -82,7 +82,7 @@ export function MapApp({ initialBounds }: { initialBounds: BBox | null }) {
       </h1>
       <p className="sr-only">{t('controls.keyboardHint')}</p>
 
-      <MapErrorBoundary fallback={<div className="absolute inset-0 flex items-center justify-center bg-surface-subtle text-fg-muted">{t('error.mapCrashed')}</div>}>
+      <MapErrorBoundary fallback={<MapCrashed />}>
         <EnvironmentalMap initialBounds={initialBounds} />
       </MapErrorBoundary>
 
