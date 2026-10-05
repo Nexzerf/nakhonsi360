@@ -18,6 +18,8 @@ const MAP_HOSTS = [
   'https://gistdaportal.gistda.or.th',
   'https://gibs.earthdata.nasa.gov',
   'https://planetarycomputer.microsoft.com',
+  // Terrain heights for the 3D view (AWS Terrain Tiles).
+  'https://s3.amazonaws.com/elevation-tiles-prod/',
   pmtilesOrigin,
 ]
   .filter(Boolean)
